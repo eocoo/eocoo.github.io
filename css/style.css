@@ -262,7 +262,7 @@ article header .icon {
   height: 32px;
   margin-right: 25px;
   position: absolute;
-  top: 20px;
+  top: 30px;
   left: 20px;
   color: #258fb8;
 }
@@ -273,7 +273,7 @@ article header .icon {
 }
 article header .icon:before {
   position: absolute;
-  font: 32px FontAwesome;
+  font: 35px FontAwesome;
   top: 0;
   left: 0;
   width: 32px;

@@ -33,7 +33,7 @@
 </script>
 
 
-<meta name="generator" content="Hexo 4.2.0"></head>
+<meta name="generator" content="Hexo 6.3.0"></head>
 
 
 <body>
@@ -41,7 +41,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#ADA5A0; height:20px;line-height:30px;">It's a long long way to go</span>
-  <h2><font style="color: #999;">articles:  109 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
+  <h2><font style="color: #999;">articles:  110 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -88,7 +88,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <blockquote>
-<p><a href="https://github.com/shanhm1991/spring-fom-demo" target="_blank" rel="noopener">https://github.com/shanhm1991/spring-fom-demo</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/shanhm1991/spring-fom-demo">https://github.com/shanhm1991/spring-fom-demo</a></p>
 </blockquote>
 <p>根据设计文档中描述的设计和实现，这里提供了一些常见场景下的使用示例，但是 spring-fom 的使用必须要依赖于spring应用上下文<br>
       
@@ -143,7 +143,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <blockquote>
-<p><a href="https://github.com/shanhm1991/spring-fom" target="_blank" rel="noopener">https://github.com/shanhm1991/spring-fom</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/shanhm1991/spring-fom">https://github.com/shanhm1991/spring-fom</a></p>
 </blockquote>
 <p>写这个工具一开始只是为了解决各种离线数据文件的处理，其中涉及到一些定时任务处理。当时刚进XXX公司参与第一个项目，但是意识到公司的产品业务基本上都是围绕数据做一些信息或线索的挖掘，尤其是离线数据，所以应该会有很多各种各样的任务式场景，而后来参与的各种项目也印证了自己的想法，确实可以在很多项目中发挥作用，能够提高工作中的开发效率和质量，以及运维的能力。</p>
 <p>目标是想设计一个通用的轻量级任务管理框架，包括各种定时任务以及手动创建的任务，在功能上除了能支持常见的场景外，也希望能支持一定的实时监控管理，而在结构上要有足够的扩展性以方便进行一些定制，同时在使用方式上希望能简洁清晰，对原有代码尽量少的侵入。由于当时是设计用来处理文件的，又是基于 spring 进行管理的，所以取名为 spring-fom。<br>
@@ -155,6 +155,59 @@
         
           <div class="alignleft">
             <a href="/2019/07/02/20190702/#more" class="more-link">more</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  <article id="post-20220525" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2022-05-24T16:00:00.000Z"><a href="/2022/05/25/20220525/">2022-05-25</a></time>
+      
+      
+
+  
+  
+    <h1 class="title">
+       <a href="/2022/05/25/20220525/">Netty NioEventLoop</a>
+    </h1>
+    
+  
+  
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Java Nio是对多路复用IO模型的实现，其核心在于借助操作系统提供的选择器实现对连接的监听，然后应用服务只需对就绪的连接事件进行处理即可，比如可读可写等，这样就降低了应用服务在并发场景下的线程资源压力。</p>
+<p>Netty中设计了专门的<code>NioEventLoop</code>来封装对Nio事件的处理，其思路是给每个<code>NioEventLoop</code>初始化一个选择器<code>Selector</code>，然后将通道对<code>Selector</code>的注册转化成对<code>NioEventLoop</code>的注册，这样可以让每个<code>NioEventLoop</code>各司其职，只负责处理注册到自己身上的通道事件，从而即实现了通道事件的多线程处理，同时又避免了过程中的线程安全问题。<br>
+      
+    </div>
+	
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2022/05/25/20220525/#more" class="more-link">more</a>
           </div>
         
         
@@ -314,62 +367,6 @@
         
           <div class="alignleft">
             <a href="/2021/08/14/20210814/#more" class="more-link">more</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-
-
-
-  <article id="post-20210805" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2021-08-04T16:00:00.000Z"><a href="/2021/08/05/20210805/">2021-08-05</a></time>
-      
-      
-
-  
-  
-    <h1 class="title">
-       <a href="/2021/08/05/20210805/">Netty NioEventLoopGroup</a>
-    </h1>
-    
-  
-  
-
-
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
-
-    </header>
-      
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>在Java中，任务执行的主要抽象不是<code>Thread</code>，而是<code>Executor</code>，它提供了一种标准的方式将任务的提交过程与执行过程解耦开来，为灵活而强大的异步任务执行框架提供了基础，线程池<code>ThreadPoolExecutor</code>便是在此基础上实现的一套异步执行框架。</p>
-<p>Netty也在<code>Executor</code>的基础上自定义实现了一套高性能的任务执行框架，本文尝试从I/O事件执行器<code>NioEventLoopGroup</code>作为切入点对其中的部分源码做一些分析，希望能从别人的设计中汲取一些思路和启发。建议在分析Netty中的任务执行机制之前先对Java中原生的任务执行框架有所了解，可以参考笔记：</p>
-<ul>
-<li><a href="https://shanhm1991.github.io/2019/01/05/20190105/">《Java并发编程实战》 任务的执行</a></li>
-<li><a href="https://shanhm1991.github.io/2019/01/06/20190106/">《Java并发编程实战》 任务的取消</a>
-      
-    </div>
-	
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2021/08/05/20210805/#more" class="more-link">more</a>
           </div>
         
         
@@ -699,7 +696,7 @@
   
   
   
-    <li><a href="/categories/Netty/">Netty</a><small>5</small></li>
+    <li><a href="/categories/Netty/">Netty</a><small>6</small></li>
   
   
   
@@ -1359,7 +1356,7 @@ $("#db_ul").click(function(){ $("#db_li").toggle(); });
 
   
   
-      &copy; 2022 shanhm1991 
+      &copy; 2017-2023 &nbsp;&nbsp; @by shanhm1991 &nbsp;&nbsp; @version 1.0.0 
   
   
   
@@ -1398,6 +1395,6 @@ $("#db_ul").click(function(){ $("#db_li").toggle(); });
             all[i].SourceElement().parentNode.className += ' has-jax';
     });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </body>
 </html>
