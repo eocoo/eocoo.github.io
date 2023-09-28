@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>基于线程池构建任务管理工具spring-fom 设计文档 | Echo</title>
+  <title>任务管理工具spring-fom 设计文档 | Echo</title>
   <meta name="author" content="shanhm1991">
   
-  <meta name="description" content="https://github.com/shanhm1991/spring-fom
+  <meta name="description" content="写这个工具最开始只是为了解决各种离线数据文件的处理，其中涉及比较多的任务处理。当时刚进入公司参与第一个项目，但是意识到公司的产品业务基本上都是围绕着数据做一些信息挖掘，尤其是离线数据，所以后续应该还会有很多各种各样的任务式场景。后来参与的各种项目也确实印证了自己的想法，所以确实能在一些项目中发挥作用，提高工作中的开发效率和质量，以及运维的能力。
+目标是实现一个轻量级的通用任务管理框架，主要针对的是定时任务。在功能上除了能支持常见的场景外，希望也能支持一定的实时监控管理，而在结构设计上要有足够的扩展性以方便进行定制，同时在使用方式上要简洁清晰，对原代码尽量少的侵入。由于当时是设计用来处理文件的，又是基于spring容器管理的，所以取名为spring-fom。
 
-写这个工具一开始只是为了解决各种离线数据文件的处理，其中涉及到一些定时任务处理。当时刚进XXX公司参与第一个项目，但是意识到公司的产品业务基本上都是围绕数据做一些信息或线索的挖掘，尤其是离线数据，所以应该会有很多各种各样的任务式场景，而后来参与的各种项目也印证了自己的想法，确实可以在很多项目中发挥作用，能够提高工作中的开发效率和质量，以及运维的能力。
-目标是想设计一个通用的轻量级任务管理框架，包括各种定时任务以及手动创建的任务，在功能上除了能支持常见的场景外，也希望能支持一定的实时监控管理，而在结构上要有足够的扩展性以方便进行一些定制，同时在使用方式上希望能简洁清晰，对原有代码尽量少的侵入。由于当时是设计用来处理文件的，又是基于 spring 进行管理的，所以取名为 spring-fom。">
+https://github.com/shanhm1991/spring-fom">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="基于线程池构建任务管理工具spring-fom 设计文档"/>
+  <meta property="og:title" content="任务管理工具spring-fom 设计文档"/>
   <meta property="og:site_name" content="Echo"/>
 
   
@@ -77,7 +77,7 @@
   
   
     <h1 class="p-name title" itemprop="headline name">
-        基于线程池构建任务管理工具spring-fom 设计文档
+        任务管理工具spring-fom 设计文档
     </h1>
     
     
@@ -91,7 +91,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 6.1k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 24min</font>
+   <font style="color: #999;"> words: 5.9k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 24min</font>
    
    
   
@@ -104,7 +104,7 @@
    
   
   <div class="tags">
-    <a href="/tags/ThreadPoolExecutor/">ThreadPoolExecutor</a>
+    <a href="/tags/Schedule/">Schedule</a>
   </div>
 
 
@@ -117,181 +117,188 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <blockquote>
+        <p>写这个工具最开始只是为了解决各种离线数据文件的处理，其中涉及比较多的任务处理。当时刚进入公司参与第一个项目，但是意识到公司的产品业务基本上都是围绕着数据做一些信息挖掘，尤其是离线数据，所以后续应该还会有很多各种各样的任务式场景。后来参与的各种项目也确实印证了自己的想法，所以确实能在一些项目中发挥作用，提高工作中的开发效率和质量，以及运维的能力。</p>
+<p>目标是实现一个轻量级的通用任务管理框架，主要针对的是定时任务。在功能上除了能支持常见的场景外，希望也能支持一定的实时监控管理，而在结构设计上要有足够的扩展性以方便进行定制，同时在使用方式上要简洁清晰，对原代码尽量少的侵入。由于当时是设计用来处理文件的，又是基于spring容器管理的，所以取名为spring-fom。</p>
+<blockquote>
 <p><a target="_blank" rel="noopener" href="https://github.com/shanhm1991/spring-fom">https://github.com/shanhm1991/spring-fom</a></p>
 </blockquote>
-<p>写这个工具一开始只是为了解决各种离线数据文件的处理，其中涉及到一些定时任务处理。当时刚进XXX公司参与第一个项目，但是意识到公司的产品业务基本上都是围绕数据做一些信息或线索的挖掘，尤其是离线数据，所以应该会有很多各种各样的任务式场景，而后来参与的各种项目也印证了自己的想法，确实可以在很多项目中发挥作用，能够提高工作中的开发效率和质量，以及运维的能力。</p>
-<p>目标是想设计一个通用的轻量级任务管理框架，包括各种定时任务以及手动创建的任务，在功能上除了能支持常见的场景外，也希望能支持一定的实时监控管理，而在结构上要有足够的扩展性以方便进行一些定制，同时在使用方式上希望能简洁清晰，对原有代码尽量少的侵入。由于当时是设计用来处理文件的，又是基于 spring 进行管理的，所以取名为 spring-fom。<br><span id="more"></span></p>
-<h3 id="1-思路"><a href="#1-思路" class="headerlink" title="1. 思路"></a>1. 思路</h3><p>下面主要从定时任务的角度进行说明，也并不是说只适用于定时任务场景，定时任务与手动创建任务的区别只是在于创建和提交的方式不同，前者由确定的定时线程负责创建和提交，而后者的创建和提交来自未知的外部线程。这里只说的是任务的创建和提交，而没有说创建执行，是因为任务的执行都委托给了线程池，提交就相当于执行的意思。</p>
-<p>其实本身就是基于线程池实现的，主要的任务调度逻辑都封装在<code>ScheduleContext</code>中，其内部维护了一个定时线程和一个线程池，以及一套自定义的状态转换机制。每个<code>ScheduleContext</code>就相当于一个独立的任务调度器，其生命周期，比如加载、启动、终止，完全委托给了 spring 的应用上下文。对于具体的任务则抽象为 <code>Task</code>，其实就是在 <code>Callable</code> 的基础上定义了一套任务执行模板，因此，整个 spring-fom 的功能，基本就是围绕 <code>ScheduleContext</code> 和 <code>Task</code> 实现的。</p>
+<span id="more"></span>
+<h3 id="1-思路"><a href="#1-思路" class="headerlink" title="1. 思路"></a>1. 思路</h3><p>主要的思路是基于线程池来实现，将任务的调度逻辑封装在<code>ScheduleContext</code>中。其内部维护了一个调度线程和一个线程池，以及一套自定义的状态转换机制。每个<code>ScheduleContext</code>就相当于一个独立的任务调度器，其生命周期，比如加载、启动、终止，则委托给spring 的应用上下文。对于具体的任务则抽象为 <code>Task</code>，即在 <code>Callable</code> 的基础上定义的一套任务执行模板。所以，整个spring-fom的功能，基本就是围绕 <code>ScheduleContext</code> 和 <code>Task</code> 来实现的。</p>
+<p>下面主要从定时任务的角度进行说明，当然如果不是定时任务，也可以将其简单作为一个线程池来提交任务使用。区别只是在于任务的创建和提交方式不同，前者由内部调度线程负责创建和提交，而后者来自外部线程，至于任务的执行则统一委托给内部线程池。</p>
 <h4 id="1-1-功能设计"><a href="#1-1-功能设计" class="headerlink" title="1.1. 功能设计"></a>1.1. 功能设计</h4><p>主要特性：</p>
 <table width=100%>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+  <tr style="border-bottom:0.01rem solid #736f6f;">
     <td>
-    1. 对于<b>定时任务场景</b>，支持基本的三种定时语义（cron / fixedRate / fixedDelay）
+    1. 支持常用的定时策略：cron ｜ fixedRate ｜ fixedDelay
     </td>
-    </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+  </tr>
+  <tr style="border-bottom:0.01rem solid #736f6f;">
     <td>
-    2. 支持<font color="#E51508">定时批(多)任务</font>执行<br>
-       &nbsp;&nbsp;&nbsp;&nbsp;实现接口 ScheduleFactory 可以创建批任务，或者通过 @Scheduled 指定多个任务方法<br>
-       &nbsp;&nbsp;&nbsp;&nbsp;实现接口 CompleteHandler 可以<font color="#E51508">自定义批任务结束处理</font>
+    2. 支持<font color="#E51508">批任务</font><br>
+       &nbsp;&nbsp;&nbsp;&nbsp;实现接口 ScheduleFactory 可以创建批任务，通过 @Scheduled 可以指定多个任务方法；<br>
+       &nbsp;&nbsp;&nbsp;&nbsp;实现接口 CompleteHandler 可以<font color="#E51508">自定义批任务结束处理</font>；
     </td>
-    </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+  </tr>
+  <tr style="border-bottom:0.01rem solid #736f6f;">
     <td>
-    3. 支持<font color="#E51508">任务超时检测处理</font>，通过 taskOverTime 可以设置任务超时时间<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;实现接口 TaskCancelHandler 可以<font color="#E51508">自定义任务超时的取消处理</font>，默认只通过 Interrupt 中断<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;通过 detectTimeoutOnEachTask 可以设置是否对整体任务计算超时，默认是对每个任务单独检测超时
+    3. 支持<font color="#E51508">任务超时检测</font><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;通过 taskOverTime 可以设置任务超时时间，通过 detectTimeoutOnEachTask 可以设置是对整体还是单个任务计算超时；<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;实现接口 TaskCancelHandler 可以<font color="#E51508">自定义任务超时的取消处理</font>，默认进行 Interrupt 中断；
     </td>
-    </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+  </tr>
+  <tr style="border-bottom:0.01rem solid #736f6f;">
     <td>
     4. 支持<font color="#E51508">任务冲突检测</font><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;通过 enableTaskConflict 可以开启任务冲突检测，即如果提交任务时，发现已经存在对应id的任务，并且还在运行，则忽略本次任务，
-    &nbsp;&nbsp;&nbsp;&nbsp;这个在文件处理的场景中比较有用；
+    &nbsp;&nbsp;&nbsp;&nbsp;每个任务都有一个id，开启 enableTaskConflict 后如果提交任务时，发现已经存在对应id的任务，并且还在运行，则忽略本次任务；
     </td>
-    </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+  </tr>
+  <tr style="border-bottom:0.01rem solid #736f6f;">
     <td>
-    5. 支持实时监控管理功能，并提供一些监控和管理的接口，同时内置了一个简单的任务管理界面：<font color="#1F50CB">http://{ip}:{port}/{path}/fom.html</font><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;5.1. 可以实时查看定时器的状态，以及任务执行情况的统计等信息<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;5.2. 可以<font color="#E51508">实时启动 / 终止定时器</font>，并在终止时尝试取消还在运行的任务；<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;实现接口 TaskCancelHandler 也可以自定义终止定时器时任务的取消处理，默认只通过 Interrupt 中断<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;实现接口 TerminateHandler 可以自定义定时器终止时的处理，比如清理一些资源之类<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;5.3. 可以<font color="#E51508">实时触发任务的执行</font>，比如当定时任务未到执行时机时，可以手动使其立即执行<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;如果触发时任务正在执行，则支持两种策略：直接忽略（默认），或者等待本次执行完成后立即再重新执行<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;5.4. 可以<font color="#E51508">实时修改任务配置</font>，并支持持久化，即保证重启后修改依然有效<br>
+    5. 支持实时监控管理：http://{ip}:{port}/{path}/fom<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;5.1. 可以实时查看定时器状态、任务线程堆栈、以及执行统计等信息<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;5.2. 可以<font color="#E51508">实时启动 / 终止定时器</font><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;实现接口 TaskCancelHandler 可以自定义定时器终止时任务的取消处理，默认通过 Interrupt 中断<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;实现接口 TerminateHandler 可以自定义定时器终止时的处理，比如清理释放资源<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;5.3. 可以<font color="#E51508">实时触发执行任务</font>，比如当定时任务未到执行时机时，可以手动触发使其立即执行<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;实时触发任务支持两种策略：如果任务正在执行则直接忽略（默认），或者等待本轮执行完成后立即再重新执行<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;5.4. 可以<font color="#E51508">实时修改任务配置</font>，支持注入属性，也做了本地持久化，这样重启后修改不会丢失<br>
     </td>
-    </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
-    <td>
-    6. 对于<b>非定时任务场景</b>，比如提交的批任务<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;同样支持 CompleteHandler 接口，以及超时检测和冲突检测处理，具体可以见后面的使用示例
-    </td>
-    </tr>
-    </table>
+  </tr>
+</table>
 
-<h4 id="1-2-配置"><a href="#1-2-配置" class="headerlink" title="1.2. 配置"></a>1.2. 配置</h4><p>对应上面的功能，下面列举一下配置的定义：<br>    <table width=100%>
+
+<h4 id="1-2-配置"><a href="#1-2-配置" class="headerlink" title="1.2. 配置"></a>1.2. 配置</h4><p>对应上面的功能，下面列举一下相关的配置：<br>    <table width=100%>
         <tr style="border-bottom:0.01rem solid grey;">
-            <th width=25%>任务配置：@FomSchedule</th>
+            <th width=25%>任务配置：@Fom</th>
             <th width=14%>默认值：</th>
             <th width=42%>说明：</th>
             <th width=18%>生效：</th>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
             <td>cron</td>
             <td>null</td>
-            <td>定时计划：时间表</td>
-            <td>下次任务执行</td>
+            <td>cron计划</td>
+            <td>下轮任务执行</td>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
             <td>fixedRate</td>
             <td>0</td>
-            <td>定时计划：距离上次任务开始的时间，单位（毫秒）</td>
-            <td>下次任务执行</td>
+            <td>距离上次任务开始的时间（毫秒）</td>
+            <td>下轮任务执行</td>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
             <td>fixedDelay</td>
             <td>0</td>
-            <td>定时计划：距离上次任务结束的时间，单位（毫秒）<br><font color="gray">定时计划优先级：cron > fixedRate > fixedDelay</font></td>
-            <td>下次任务执行</td>
+            <td>距离上次任务结束的时间（毫秒）</td>
+            <td>下轮任务执行</td>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
-            <td>threadCore</td>
-            <td>1</td>
-            <td>核心线程数，如果设置时core > max，则将max置为core</td>
-            <td>立即生效</td>
-        </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
-            <td>threadMax</td>
-            <td>1</td>
-            <td>最大线程数，如果设置时max < core，则将core置为max</td>
-            <td>立即生效</td>
-        </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
-            <td>threadAliveTime</td>
-            <td>1</td>
-            <td>线程最大空闲时间，单位（毫秒）</td>
-            <td>立即生效</td>
-        </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
-            <td>queueSize</td>
-            <td>256</td>
-            <td>任务队列长度</td>
-            <td>任务重启</td>
-        </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
-            <td>taskOverTime</td>
-            <td>0</td>
-            <td>任务超时时间，单位（毫秒）</td>
-            <td>下次任务执行</td>
-        </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
             <td>enable</td>
             <td>true</td>
             <td>是否在加载时启动（startup）</td>
             <td>任务重启</td>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
             <td>execOnLoad</td>
             <td>false</td>
-            <td>是否在启动时立即执行</td>
+            <td>是否在启动后立即执行</td>
             <td>任务重启</td>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>initialDelay</td>
+            <td>0</td>
+            <td>任务在启动后首次执行的延时时间（毫秒）</td>
+            <td>下轮任务执行</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>deadTime</td>
+            <td>0</td>
+            <td>任务截止时间，超过截止时间后任务不再执行</td>
+            <td>立即生效</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>threadCore</td>
+            <td>1</td>
+            <td>核心线程数，如果设置时core > max，则将max置为core</td>
+            <td>立即生效</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>threadMax</td>
+            <td>1</td>
+            <td>最大线程数，如果设置时max < core，则将core置为max</td>
+            <td>立即生效</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>threadAliveTime</td>
+            <td>10</td>
+            <td>线程最大空闲时间（毫秒）</td>
+            <td>立即生效</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>queueSize</td>
+            <td>256</td>
+            <td>任务队列长度</td>
+            <td>任务重启</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>taskOverTime</td>
+            <td>0</td>
+            <td>任务超时时间（毫秒）</td>
+            <td>下轮任务执行</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
             <td>enableTaskConflict</td>
             <td>false</td>
             <td>是否检测任务冲突（根据任务id）</td>
             <td>任务重启</td>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
             <td>detectTimeoutOnEachTask</td>
             <td>true</td>
             <td>是否针对每个任务单独检测超时</td>
-            <td>下次任务执行</td>
+            <td>下轮任务执行</td>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
             <td>ignoreExecRequestWhenRunning</td>
             <td>true</td>
-            <td>Running状态时，是否忽略立即执行请求</td>
+            <td>Running状态时，是否忽略触发执行请求</td>
             <td>立即生效</td>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
             <td>remark</td>
             <td>null</td>
-    <td>备注说明</td>
-    <td>立即生效</td>
+            <td>备注说明</td>
+            <td>立即生效</td>
         </tr>
         <tr style="border-bottom:0.01rem solid grey;">
             <th width=25%>启动开关：@EnableFom</th>
             <th width=10%>默认值：</th>
-    <th width=50%>说明：</th>
+            <th width=50%>说明：</th>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
             <td>enableFomView</td>
             <td>true</td>
-    <td>是否启用内置的任务管理接口及界面</td>
+        <td>是否启用管理界面</td>
         </tr>
         <tr style="border-bottom:0.01rem solid grey;">
             <th width=25%>环境变量：</th>
             <th width=10%>默认值：</th>
-    <th width=50%>说明：</th>
+            <th width=50%>说明：</th>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
-            <td>spring.fom.config.cache.enable</td>
-            <td>true</td>
-    <td>是否对配置修改进行否持久化</td>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>spring.fom.cache.type</td>
+            <td>file</td>
+            <td>配置持久化方式，暂时只有本地文件保存</td>
         </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
-            <td>spring.fom.config.cache.path</td>
-            <td>cache/schedule</td>
-    <td>配置持久化的文件路径</td>
-        </tr>
-    <tr style="border-bottom:0.01rem solid #ededed;">
-            <td>spring.fom.config.cache.history</td>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>spring.fom.cache.history</td>
             <td>false</td>
-    <td>是否保存历史修改的持久化文件，默认只保存最近一次修改</td>
+            <td>是否保存历史配置修改，默认只保存最新配置</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>spring.fom.cache.file.path</td>
+            <td>cache/schedule</td>
+        <td>保存文件路径</td>
         </tr>
     </table></p>
 <h4 id="1-3-状态定义"><a href="#1-3-状态定义" class="headerlink" title="1.3. 状态定义"></a>1.3. 状态定义</h4><p>对于<code>ScheduleContext</code>中维护的几个状态，其状态转换机制可以用下图表示：</p>
@@ -381,7 +388,7 @@
 	<nav id="pagination">
 	  
 		  <a class="alignleft prev" href="/2019/07/04/20190704/">
-		    基于线程池构建任务管理工具spring-fom 使用文档
+		    任务管理工具spring-fom 使用文档
 		  </a>
 	  
 	  
@@ -404,7 +411,7 @@
         
   
   <div class="tags">
-    <a href="/tags/ThreadPoolExecutor/">ThreadPoolExecutor</a>
+    <a href="/tags/Schedule/">Schedule</a>
   </div>
 
 

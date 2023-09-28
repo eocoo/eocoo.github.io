@@ -73,7 +73,7 @@
   
   
     <h1 class="title">
-       <a href="/2019/07/04/20190704/">基于线程池构建任务管理工具spring-fom 使用文档</a>
+       <a href="/2019/07/04/20190704/">任务管理工具spring-fom 使用文档</a>
     </h1>
     
   
@@ -128,7 +128,7 @@
   
   
     <h1 class="title">
-       <a href="/2019/07/02/20190702/">基于线程池构建任务管理工具spring-fom 设计文档</a>
+       <a href="/2019/07/02/20190702/">任务管理工具spring-fom 设计文档</a>
     </h1>
     
   
@@ -142,11 +142,11 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <blockquote>
+        <p>写这个工具最开始只是为了解决各种离线数据文件的处理，其中涉及比较多的任务处理。当时刚进入公司参与第一个项目，但是意识到公司的产品业务基本上都是围绕着数据做一些信息挖掘，尤其是离线数据，所以后续应该还会有很多各种各样的任务式场景。后来参与的各种项目也确实印证了自己的想法，所以确实能在一些项目中发挥作用，提高工作中的开发效率和质量，以及运维的能力。</p>
+<p>目标是实现一个轻量级的通用任务管理框架，主要针对的是定时任务。在功能上除了能支持常见的场景外，希望也能支持一定的实时监控管理，而在结构设计上要有足够的扩展性以方便进行定制，同时在使用方式上要简洁清晰，对原代码尽量少的侵入。由于当时是设计用来处理文件的，又是基于spring容器管理的，所以取名为spring-fom。</p>
+<blockquote>
 <p><a target="_blank" rel="noopener" href="https://github.com/shanhm1991/spring-fom">https://github.com/shanhm1991/spring-fom</a></p>
 </blockquote>
-<p>写这个工具一开始只是为了解决各种离线数据文件的处理，其中涉及到一些定时任务处理。当时刚进XXX公司参与第一个项目，但是意识到公司的产品业务基本上都是围绕数据做一些信息或线索的挖掘，尤其是离线数据，所以应该会有很多各种各样的任务式场景，而后来参与的各种项目也印证了自己的想法，确实可以在很多项目中发挥作用，能够提高工作中的开发效率和质量，以及运维的能力。</p>
-<p>目标是想设计一个通用的轻量级任务管理框架，包括各种定时任务以及手动创建的任务，在功能上除了能支持常见的场景外，也希望能支持一定的实时监控管理，而在结构上要有足够的扩展性以方便进行一些定制，同时在使用方式上希望能简洁清晰，对原有代码尽量少的侵入。由于当时是设计用来处理文件的，又是基于 spring 进行管理的，所以取名为 spring-fom。<br>
       
     </div>
 	
@@ -1078,7 +1078,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/AQS/" style="font-size: 12px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12px;">Aop</a> <a href="/tags/ApplicationContext/" style="font-size: 10px;">ApplicationContext</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12px;">CAS</a> <a href="/tags/CodeCache/" style="font-size: 10px;">CodeCache</a> <a href="/tags/FutureTask/" style="font-size: 14px;">FutureTask</a> <a href="/tags/GC/" style="font-size: 12px;">GC</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 14px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 14px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/Monitor/" style="font-size: 10px;">Monitor</a> <a href="/tags/Mybatis/" style="font-size: 10px;">Mybatis</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/ReentrantLock/" style="font-size: 10px;">ReentrantLock</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12px;">ThreadLocal</a> <a href="/tags/ThreadPoolExecutor/" style="font-size: 18px;">ThreadPoolExecutor</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/WeakCache/" style="font-size: 10px;">WeakCache</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/class/" style="font-size: 16px;">class</a> <a href="/tags/final/" style="font-size: 12px;">final</a> <a href="/tags/intern/" style="font-size: 12px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/poi/" style="font-size: 14px;">poi</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/springBoot/" style="font-size: 10px;">springBoot</a> <a href="/tags/springMvc/" style="font-size: 10px;">springMvc</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12px;">volatile</a>
+    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/ApplicationContext/" style="font-size: 10px;">ApplicationContext</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/CodeCache/" style="font-size: 10px;">CodeCache</a> <a href="/tags/FutureTask/" style="font-size: 15px;">FutureTask</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/Monitor/" style="font-size: 10px;">Monitor</a> <a href="/tags/Mybatis/" style="font-size: 10px;">Mybatis</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/ReentrantLock/" style="font-size: 10px;">ReentrantLock</a> <a href="/tags/Schedule/" style="font-size: 10px;">Schedule</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPoolExecutor/" style="font-size: 17.5px;">ThreadPoolExecutor</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/WeakCache/" style="font-size: 10px;">WeakCache</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/poi/" style="font-size: 15px;">poi</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/springBoot/" style="font-size: 10px;">springBoot</a> <a href="/tags/springMvc/" style="font-size: 10px;">springMvc</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
   </div>
 </div>
 
