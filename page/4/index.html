@@ -41,7 +41,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">It's a long long way to go</span>
-  <h2><font style="color: #736f6f;">articles:  109 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  113 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -60,20 +60,20 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
-  <article id="post-20190630" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20210313" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2019-06-29T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2019/06/30/20190630/" style="color: #736f6f;">2019-06-30</a></time>
+        <time class="dt-published" datetime="2021-03-12T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2021/03/13/20210313/" style="color: #736f6f;">2021-03-13</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2019/06/30/20190630/">借助poi解析Excel 三 XML定义解析规则</a>
+       <a href="/2021/03/13/20210313/">《计算机组成原理》 输入输出系统</a>
     </h1>
     
   
@@ -87,7 +87,17 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>相对于文本文件，Excel可以将表格数据描述的更结构化，它可以用不同的sheet存放不同的数据，并且在sheet中可指定各个字段的列头，在单元格中可以设置数据类型或格式校验。如果解析时能将这些结构信息利用并且可配，那么对解析处理将会有一些帮助<br>
+        <p>I/O功能模块通常简称为：I/O接口，也叫适配器，<font style="color:red;">指CPU、主存和外围设备之间通过系统总线进行连接的标准化逻辑部件</font>。为了保证处理器和不同外设之间高效和可靠的交互，CPU必须通过I/O接口与外设连接，其数据传送过程分为两个阶段：I/O接口与外设之间的数据传送，以及CPU与I/O接口之间的数据传送。</p>
+<p>下图展示了CPU、I/O接口和外围设备之间的连接关系。其中外围设备自身带有设备控制器，它是控制外围设备进行操作的控制部件，它通过I/O接口接收来自CPU传送的各种信息，并根据设备的不同要求将这些信息传送到设备，或者从设备中读出信息传送到I/O接口。</p>
+<p><img src="/img/20210313/20210313.1.jpg" alt=""> </p>
+<p>一个标准的I/O接口可以连接一个或多个设备，其结构也如图中所示，通常包括如下功能：</p>
+<ul>
+<li>控制：接口模块根据指令信息来控制外围设备的动作，比如启动或者关闭；</li>
+<li>缓冲：接口模块在外围设备和计算机其他部件之间作为一个缓冲器，以补偿各种设备在速度上的差异；</li>
+<li>状态：接口模块监视外围设备的工作状态并保存，比如准备就绪或者忙，供CPU询问外围设备状态时用；</li>
+<li>转换：接口模块可以完成数据转换，保证数据能在外围设备和CPU之间正确的传送；</li>
+<li>整理：接口模块可以完成一些特别功能，当需要时可以修改字计数器或者当前内存地址寄存器；</li>
+<li>程序中断：当外围设备向CPU请求某种动作时，接口模块会产生一个中断请求信号到CPU;
       
     </div>
 	
@@ -95,7 +105,7 @@
       
         
           <div class="alignleft">
-            <a href="/2019/06/30/20190630/#more" class="more-link">more</a>
+            <a href="/2021/03/13/20210313/#more" class="more-link">more</a>
           </div>
         
         
@@ -112,20 +122,20 @@
 
 
 
-  <article id="post-20190629" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20210309" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2019-06-28T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2019/06/29/20190629/" style="color: #736f6f;">2019-06-29</a></time>
+        <time class="dt-published" datetime="2021-03-08T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2021/03/09/20210309/" style="color: #736f6f;">2021-03-09</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2019/06/29/20190629/">借助poi解析Excel 二 SAX解决内存溢出问题</a>
+       <a href="/2021/03/09/20210309/">《计算机组成原理》 总线系统</a>
     </h1>
     
   
@@ -139,7 +149,12 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>继续上文，Excel的数据存在Xml中，所以解析Excel也就是解析xml。对于文本文件，可以通过换行符来确定一行的结束。而对于xml，其描述数据的单位是节点，并且可以嵌套，因此读取时就是以节点结束来进行确定，不过除非事先知道xml的节点规则，即节点结构或相互之间的关系，否则无法正确读取。Excel中的Xml规则即由Excel规范来描述，而poi正是在这个规范的基础上提供了一套基于事件解析的api。<br>
+        <p>总线是构成计算机系统的互联机构，是多个系统部件之间进行数据传输的公共通道。借助于总线，各部件之间实现地址、数据、控制信息的互换。一个单处理器系统中的总线，可以分为三类：</p>
+<ul>
+<li>内部总线：CPU内部连接各寄存器及运算部件之间的总线；</li>
+<li>系统总线：CPU同计算机的其他高速功能部件，如存储器、通道等互相连接的总线，称为系统总线；</li>
+<li>I/O总线：低速I/O设备之间互相连接的总线；</li>
+</ul>
       
     </div>
 	
@@ -147,7 +162,7 @@
       
         
           <div class="alignleft">
-            <a href="/2019/06/29/20190629/#more" class="more-link">more</a>
+            <a href="/2021/03/09/20210309/#more" class="more-link">more</a>
           </div>
         
         
@@ -164,20 +179,20 @@
 
 
 
-  <article id="post-20190628" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20210306" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2019-06-27T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2019/06/28/20190628/" style="color: #736f6f;">2019-06-28</a></time>
+        <time class="dt-published" datetime="2021-03-05T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2021/03/06/20210306/" style="color: #736f6f;">2021-03-06</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2019/06/28/20190628/">借助poi解析Excel 一 实现readLine读取</a>
+       <a href="/2021/03/06/20210306/">《计算机组成原理》 存储系统</a>
     </h1>
     
   
@@ -191,7 +206,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>一般读取文本时会使用<code>BufferedReader</code>，它在<code>InputStreamReader</code>的基础上进行了装饰，提供<code>readLine()</code>来简化文本行的读取。使得行数据的读取可以像流水线一样，每当读取完一行后，它就自动准备好下一行并等待获取，直至全部读取结束。所以这里也<font color="#E51508">希望能够在poi的基础上提供一个类似<code>readLine()</code>的接口来读取Excel，并可以比较方便地获取行数据中的字段。</font><br>
+        <p>存储器是计算机的核心部件之一，用于存储程序和数据。由于现代计算机对于存储器容量和速度的要求越来越高，使得存储器以及演变成了存储系统</p>
       
     </div>
 	
@@ -199,7 +214,7 @@
       
         
           <div class="alignleft">
-            <a href="/2019/06/28/20190628/#more" class="more-link">more</a>
+            <a href="/2021/03/06/20210306/#more" class="more-link">more</a>
           </div>
         
         
@@ -216,20 +231,20 @@
 
 
 
-  <article id="post-20190615" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20201027" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2019-06-14T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2019/06/15/20190615/" style="color: #736f6f;">2019-06-15</a></time>
+        <time class="dt-published" datetime="2020-10-26T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/10/27/20201027/" style="color: #736f6f;">2020-10-27</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2019/06/15/20190615/">数据结构 B+树</a>
+       <a href="/2020/10/27/20201027/">Redis 日常操作</a>
     </h1>
     
   
@@ -243,7 +258,8 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>B+树又在B树基础上做了一些改进，主要是在树叶节点上添加了一个链表结构，这样可以很好的解决范围查询问题。具体做法是将所有数据节点放在最下一层树叶节点上， 所有的树叶自左向右为一个链表，而对于任意非树叶节点，不保存数据，只充当索引，这样节点可以保存更多的关键字，从而使树的高度更低，其实如果去掉最下一层树叶节点的话，它就是一颗B树。<br>
+        <p>官方文档：<a target="_blank" rel="noopener" href="https://redis.io/commands/">https://redis.io/commands/</a> </p>
+<p>Remote Dictionary Server远程字典服务，是一个开源的使用C语言编写的Key-Value数据库。redis是一个基于内存的存储系统，当然也支持持久化，它会周期性的把更新的数据写入磁盘（RDB）或者把修改操作追加的记录文件（AOF），并在此基础上实现master-slave(主从)同步。所以redis可以用于高速缓存（内存&amp;多路复用IO），同时它支持多种数据类型，以及集群和事务的操作，进而也可以用于发布订阅、地图信息分析、计数器等系统<br>
       
     </div>
 	
@@ -251,7 +267,7 @@
       
         
           <div class="alignleft">
-            <a href="/2019/06/15/20190615/#more" class="more-link">more</a>
+            <a href="/2020/10/27/20201027/#more" class="more-link">more</a>
           </div>
         
         
@@ -268,20 +284,20 @@
 
 
 
-  <article id="post-20190613" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20201025" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2019-06-12T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2019/06/13/20190613/" style="color: #736f6f;">2019-06-13</a></time>
+        <time class="dt-published" datetime="2020-10-24T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/10/25/20201025/" style="color: #736f6f;">2020-10-25</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2019/06/13/20190613/">数据结构 B树</a>
+       <a href="/2020/10/25/20201025/">Postgre 日常操作</a>
     </h1>
     
   
@@ -295,9 +311,8 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>前面讨论2-3树时已经提到过，B树就是一颗平衡M叉树，其插入删除操作都可以与2-3树作类似处理，这里不再赘述。</p>
-<p>这里简单讨论下其实际意义：之前的各种二叉树都有一个共同假设，即数据全部存储在内存中，因此讨论时只需关心在找到目标之前需要比较多少次数。但是当数据量大到不适合存放在内存时，就需要借助磁盘来保存了，而磁盘访问相对于内存操作要慢得多得多，因此，这时对于性能的考虑更多的是关心如何减少磁盘访问操作，</p>
-<p>思路是将（有序）数据分为 N 批，并用 M 叉平衡树来组织，即访问磁盘时每批返回至多 M-1 项数据，那么在访问某项数据时，至多需要访问磁盘的次数就为 $\log_{M} {N}$<br>
+        <p>PostgreSQL中文手册：<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/13/">http://www.postgres.cn/docs/13/</a></p>
+<p>简单记录了一些pg的日常使用命令，比较琐碎<br>
       
     </div>
 	
@@ -305,7 +320,7 @@
       
         
           <div class="alignleft">
-            <a href="/2019/06/13/20190613/#more" class="more-link">more</a>
+            <a href="/2020/10/25/20201025/#more" class="more-link">more</a>
           </div>
         
         
@@ -322,20 +337,20 @@
 
 
 
-  <article id="post-20190611" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20201021" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2019-06-10T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2019/06/11/20190611/" style="color: #736f6f;">2019-06-11</a></time>
+        <time class="dt-published" datetime="2020-10-20T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/10/21/20201021/" style="color: #736f6f;">2020-10-21</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2019/06/11/20190611/">数据结构 2-3树</a>
+       <a href="/2020/10/21/20201021/">Git 日常操作</a>
     </h1>
     
   
@@ -349,9 +364,8 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>前面已经讨论过平衡二叉树Avl，其目的就是通过旋转尽量使树保持平衡，以降低树的高度或查找的时间复杂度。当然，最好的情形是能转化成一颗满二叉树，使树的高度与节点数完全满足 $H = \log_{2} {(n+1)}$，但实际在大部分情形下，无论其如何旋转调整都无法做到，毕竟对于每个节点，其最多只能有一个元素，两个子节点。    </p>
-<p>既然如此，那就打破规则，允许一个节点最多拥有两个元素，三个子树，这样就不再存在一个节点只有单个子树的情况，取而代之的是节点是二叉还是三叉（如果一个节点只有单个子树，就使其成为三叉节点），这也就是 2-3 树的字面意思：即同时拥有二叉节点和三叉节点的树， 这样在插入删除时就可以自下而上采取分裂合并的方式保证所有叶子节点都在同一层，并使树的节点达到一个绝对平衡的状态。</p>
-<p>2-3 树本身并没有什么实际使用场景，但其在<font color="#E51508">思路上打破了二叉树的约束</font>，在树形数据结构中起着一个关键的连接作用，它解决了Avl树无法绝对平衡的问题，并且顺着这个思路可以进一步联想到红黑树以及后面要讲的B树。<br>
+        <p>官方文档：<a target="_blank" rel="noopener" href="https://git-scm.com/book/zh/v2">https://git-scm.com/book/zh/v2</a></p>
+<p>主要整理了一下Git基本的工作机制，以及一些常用操作。如果想了解git的各种命令，推荐访问：<a target="_blank" rel="noopener" href="https://learngitbranching.js.org/?locale=zh_CN">https://learngitbranching.js.org/?locale=zh_CN</a><br>
       
     </div>
 	
@@ -359,7 +373,7 @@
       
         
           <div class="alignleft">
-            <a href="/2019/06/11/20190611/#more" class="more-link">more</a>
+            <a href="/2020/10/21/20201021/#more" class="more-link">more</a>
           </div>
         
         
@@ -401,22 +415,180 @@
 <div class="widget tag">
   <h3 class="title">Categories</h3>
   <ul class="entry">
+
   
-  <li id="java_ul"><a href="#">Java</a><small>64</small></li>
-  <ul id="java_li" style="list-style: none; padding-left: 5px;">
+  
+  <li><a href="/categories/Java-SE/" style="width:48px; display:inline-block;">Java SE</a><small>18</small></li>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <li><a href="/categories/算法设计/" style="width:48px; display:inline-block;">算法设计</a><small>10</small></li>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <li><a href="/categories/设计模式/" style="width:48px; display:inline-block;">设计模式</a><small>6</small></li>
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <li><a href="/categories/日常随笔/" style="width:48px; display:inline-block;">日常随笔</a><small>20</small></li>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <li><a href="/categories/开发笔记/" style="width:48px; display:inline-block;">开发笔记</a><small>8</small></li>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <li id="os_ul"><a href="#" style="width:48px; display:inline-block;">读书笔记</a><small>43</small></li>
+  <ul id="os_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
       
       
-      <li><a href="/categories/Java-SE/">Java SE</a><small>18</small></li>
       
       
-      
-      
-      
-      
-      
-      
-      
-      
+      <li><a href="/categories/Java并发编程实战/" style="width:110px; display:inline-block;">Java并发编程实战</a><small>11</small></li>
       
       
       
@@ -444,7 +616,6 @@
       
       
       
-      <li><a href="/categories/Java-VM/">Java VM</a><small>15</small></li>
       
       
       
@@ -459,6 +630,7 @@
       
       
       
+      <li><a href="/categories/深入理解Java虚拟机/" style="width:110px; display:inline-block;">深入理解Java虚拟机</a><small>15</small></li>
       
       
       
@@ -467,14 +639,6 @@
       
       
       
-      
-      
-      
-      
-      
-      
-      
-        
 
       
       
@@ -482,21 +646,13 @@
       
       
       
-      <li><a href="/categories/Java-并发/">Java 并发</a><small>11</small></li>
       
       
       
       
       
       
-      
-      
-      
-      
-      
-      
-      
-      
+      <li><a href="/categories/spring源码深度解析/" style="width:110px; display:inline-block;">spring源码深度解析</a><small>11</small></li>
       
       
       
@@ -526,7 +682,6 @@
       
       
       
-      <li><a href="/categories/Spring/">Spring</a><small>11</small></li>
       
       
       
@@ -535,50 +690,7 @@
       
       
       
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-        
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      <li><a href="/categories/Tomcat/">Tomcat</a><small>3</small></li>
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+      <li><a href="/categories/计算机组成原理/" style="width:110px; display:inline-block;">计算机组成原理</a><small>5</small></li>
       
       
       
@@ -594,11 +706,62 @@
       
       
       
-      <li><a href="/categories/Netty/">Netty</a><small>6</small></li>
+      <li><a href="/categories/UNIX环境高级编程/" style="width:110px; display:inline-block;">UNIX环境高级编程</a><small>1</small></li>
       
       
       
       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  </ul>
+
+  <li id="xx_ul"><a href="#" style="width:65px; display:inline-block;">框架|中间件</a><small>8</small></li>
+  <ul id="xx_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
+      
+      
+      
+      
+      
+      
+      
+      
+      <li><a href="/categories/Tomcat/" style="width:40px; display:inline-block;">Tomcat</a><small>3</small></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+      
+      
+      
+      
+      
+      
+      <li><a href="/categories/Netty/" style="width:40px; display:inline-block;">Netty</a><small>5</small></li>
       
       
       
@@ -620,440 +783,6 @@
       
       
   </ul>
-
-  <li id="db_ul"><a href="#">数据库</a><small>2</small></li>
-  <ul id="db_li" class="entry_li" style="list-style: none; padding-left: 5px;">
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      <li><a href="/categories/postgre/">postgre</a><small>1</small></li>
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-  
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      <li><a href="/categories/Redis/">Redis</a><small>1</small></li>
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-  </ul>
-
-  <li id="os_ul"><a href="#">计算机基础</a><small>6</small></li>
-  <ul id="os_li" class="entry_li" style="list-style: none; padding-left: 5px;">
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      <li><a href="/categories/计算机组成/">计算机组成</a><small>4</small></li>
-      
-      
-      
-      
-  
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-  
-      
-      
-      
-      
-      
-      
-      
-      
-      <li><a href="/categories/Linux/">Linux</a><small>2</small></li>
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-  
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-  </ul>
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <li><a href="/categories/算法设计/">算法设计</a><small>4</small></li>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <li><a href="/categories/数据结构/">数据结构</a><small>7</small></li>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <li><a href="/categories/设计模式/">设计模式</a><small>6</small></li>
-  
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <li><a href="/categories/环境运维/">环境运维</a><small>8</small></li>
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <li><a href="/categories/开发日常/">开发日常</a><small>7</small></li>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <li><a href="/categories/开发笔记/">开发笔记</a><small>5</small></li>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 
   </ul>
 </div>
@@ -1062,9 +791,8 @@
 <script src="/js/jquery-3.4.1.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
-    $("#java_ul").click(function(){ $("#java_li").toggle(); });
     $("#os_ul").click(function(){ $("#os_li").toggle(); });
-    $("#db_ul").click(function(){ $("#db_li").toggle(); });		
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
 });
 </script>
 
@@ -1073,7 +801,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/ApplicationContext/" style="font-size: 10px;">ApplicationContext</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/CodeCache/" style="font-size: 10px;">CodeCache</a> <a href="/tags/FutureTask/" style="font-size: 15px;">FutureTask</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/Monitor/" style="font-size: 10px;">Monitor</a> <a href="/tags/Mybatis/" style="font-size: 10px;">Mybatis</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/ReentrantLock/" style="font-size: 10px;">ReentrantLock</a> <a href="/tags/Schedule/" style="font-size: 10px;">Schedule</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPoolExecutor/" style="font-size: 17.5px;">ThreadPoolExecutor</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/WeakCache/" style="font-size: 10px;">WeakCache</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/poi/" style="font-size: 15px;">poi</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/springBoot/" style="font-size: 10px;">springBoot</a> <a href="/tags/springMvc/" style="font-size: 10px;">springMvc</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
+    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/postgre/" style="font-size: 10px;">postgre</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
   </div>
 </div>
 
@@ -1082,6 +810,13 @@ $(document).ready(function(){
 
 
 
+
+  
+  <div class="widget tag">
+    <h3 class="title">Archives</h3>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">2022-04</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">2021-08</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021-05</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">2021-03</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020-10</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">2020-06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">2018-07</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">2018-04</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">2017-06</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a><span class="archive-list-count">11</span></li></ul>
+  </div>
+
 </aside>
     <div class="clearfix"></div>
   </div>
@@ -1089,7 +824,7 @@ $(document).ready(function(){
 
   
   
-      &copy; 2017-2023 &nbsp;&nbsp; @by shanhm1991 &nbsp;&nbsp; @version 1.0.0
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm1991 &nbsp;&nbsp; version@1.0.0 
   
   
   
