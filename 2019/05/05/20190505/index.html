@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   
   <title>《spring源码深度解析》spring Bean加载（BeanFactory） | Echo</title>
-  <meta name="author" content="shanhm1991">
+  <meta name="author" content="shanhm">
   
   <meta name="description" content="前面梳理了BeanDefinition的解析注册，接下来就是如何利用BeanDefinition生产bean了，不过相比解析注册，bean的加载过程要复杂得多。主要还是针对单例场景，因为在其整个创建过程中需要考虑缓存复用，线程安全，循环依赖，以及AOP处理等问题。
 下面就以beanFactory.getBean(&amp;quot;xxx&amp;quot;)作为入口进行分析，尽量梳理出主要的实现思路和步骤。">
@@ -305,7 +305,7 @@ $(document).ready(function(){
 
   
   
-      &copy; 2017-2025 &nbsp;&nbsp; shanhm1991 &nbsp;&nbsp; version@1.0.0 
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
   
   
   

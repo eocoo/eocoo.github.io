@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   
   <title>《Java并发编程实战》 线程安全之可见性 | Echo</title>
-  <meta name="author" content="shanhm1991">
+  <meta name="author" content="shanhm">
   
   <meta name="description" content="要编写正确的并发程序，关键在于：在访问共享的可变状态时进行正确的管理。同步的另一个重要目的是内存可见性，我们不仅希望防止某个线程正在使用的对象状态被另一个线程同时修改，而且希望当一个线程修改了对象状态后，其他线程能够看到发生的状态变化。
 .后面介绍Jvm内存模型时会提到java线程之间内存可见性的必要条件：满足Happens-Before规则。">
@@ -141,7 +141,7 @@
 <p>在<code>volatile</code>变量上存在一种特殊的线程封闭，只要你能确保只有单个线程对共享的volatile变量执行写入操作，就可以安全地在这些共享的volatile变量上执行(读-改-写)，这相当于将修改操作封闭在单个线程中，且volatile语义保证了其他线程能看到最新的值。</p>
 <h4 id="3-2-栈封闭"><a href="#3-2-栈封闭" class="headerlink" title="3.2. 栈封闭"></a>3.2. 栈封闭</h4><p>即局部变量，其本身就是封闭在线程之中。</p>
 <h4 id="3-3-ThreadLocal"><a href="#3-3-ThreadLocal" class="headerlink" title="3.3. ThreadLocal"></a>3.3. ThreadLocal</h4><p><code>ThreadLocal</code>可以使线程中的某个值与保存值的对象关联起来，其提供了<code>get</code>与<code>set</code>接口，<code>get</code>总是返回由当前执行线程在调用<code>set</code>时设置的最新值。这些方法为每个使用该变量的线程都存有一份独立的副本。</p>
-<p>.<font color="Gray"><code>ThreadLocal</code>的源码分析，可以参考：<a href="https://shanhm1991.github.io/2018/04/03/20180403/">https://shanhm1991.github.io/2018/04/03/20180403/</a> ，其思路是让每个<code>Thread</code>都持有一个私有的<code>ThreadLocalMap</code>，然后使用共享的key来保存值，而这个key就是共享的ThreadLocal实例，因此每个ThreadLocal也就对应一个本地变量。但是，如果这个本地变量本身就是一个线程共享的对象，那么就算使用ThreadLocal也不是线程安全的</font>。</p>
+<p>.<font color="Gray"><code>ThreadLocal</code>的源码分析，可以参考：<a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2018/04/03/20180403/">https://shanhm1991.github.io/2018/04/03/20180403/</a> ，其思路是让每个<code>Thread</code>都持有一个私有的<code>ThreadLocalMap</code>，然后使用共享的key来保存值，而这个key就是共享的ThreadLocal实例，因此每个ThreadLocal也就对应一个本地变量。但是，如果这个本地变量本身就是一个线程共享的对象，那么就算使用ThreadLocal也不是线程安全的</font>。</p>
 <p>ThreadLocal对象一般用于防止对可变的单实例变量或全局变量进行共享。例如，通过将JDBC的连接保存到ThreadLocal对象中，可以让每个线程都拥有属于自己的连接，且省去了调用参数的传递，连接对象会一直伴随线程执行的整个过程直到 remove</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> ThreadLocal&lt;Connection&gt; connectionHolder = <span class="keyword">new</span> <span class="title class_">ThreadLocal</span>&lt;Connection&gt;()&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> Connection <span class="title function_">initialValue</span><span class="params">()</span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> DriverManager.getConnection(<span class="string">&quot;DB_URL&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (SQLException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Connection <span class="title function_">getConnection</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> connectionHolder.get();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>当某个线程初次调用<code>ThreadLocal.get()</code>方法时，会调用<code>init()</code>来获取初始值。可以将<code>ThreadLocal&lt;T&gt;</code>视为包含了<code>Map&lt;Thread,T&gt;</code>对象，其中保存了特定于该线程的值。但<code>ThreadLocal</code>并非如此，<font color="#E51508">这些特定于线程的值保存在Thread对象中，当线程终止后，这些值会作为垃圾回收</font>。</p>
@@ -278,7 +278,7 @@ $(document).ready(function(){
 
   
   
-      &copy; 2017-2025 &nbsp;&nbsp; shanhm1991 &nbsp;&nbsp; version@1.0.0 
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
   
   
   

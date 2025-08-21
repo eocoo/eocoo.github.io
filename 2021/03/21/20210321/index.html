@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   
   <title>Linux I/O模型 | Echo</title>
-  <meta name="author" content="shanhm1991">
+  <meta name="author" content="shanhm">
   
   <meta name="description" content="操作系统负责对计算机资源进行管理，并对上层应用提供支持。其核心是操作系统内核空间，独立于应用程序，可以访问受保护的内存空间以及底层硬件设备。为了保证内核的安全，避免用户进程直接操作内核，因此将内存空间划分为两部分，即内核空间和用户空间。">
   
@@ -144,7 +144,7 @@
 </blockquote>
 <p>意思是，为了写文件或者读文件的 I/O 高度缓存开销的最小化。一般情况下，该标志会降低性能，但是，在特殊情况下，还是有作用的。例如当应用程序使用自己的高速缓存的时候，文件 I/O 直接接触到用户内存，I/O 操作是同步的，也就是说，一旦 read(2) 或者 write(2) 完成，数据可以保证传输完毕。</p>
 <p>直接 I/O 省去了与内核缓存的复制过程，这样<font style="color:#E51508;">虽然使单次 I/O 访问效率高了，但由于没有了缓存，将导致访问 I/O 设备的操作更加频繁，而访问 I/O 设备的延迟要远高于内存间的复制的，因此需要应用自己去权衡。</font>一般的在数据库服务中，会更倾向于建立自己的缓存机制，因为它们往往比操作系统更了解磁盘中存放的数据，从而可以提供一种更加有效的缓存机制来提高数据库中数据的存取性能。</p>
-<h4 id="1-4-内存映射IO"><a href="#1-4-内存映射IO" class="headerlink" title="1.4. 内存映射IO"></a>1.4. 内存映射IO</h4><p>操作系统一般都会采用虚拟内存（参考笔记：<a href="https://shanhm1991.github.io/2021/03/06/20210306/">计算机 存储系统</a>），比如对于32位操作系统，应用进程可以拥有3G的空间，但是对于同时存在的进程，如何让每个进程都感觉自己拥有整个的内存空间，而且互相不影响呢？其实<font style="color:#E51508;">每个进程都有自己的内存映射表，维护着虚地址与内存物理地址的映射关系，进程在实际运行时，可能只需对少部分地址进行映射，即只占用实际物理内存的一部分，这样对于CPU而言，当发生进程切换时，只需要切换进程对应的地址映射表，就能访问到对应的进程空间了</font>。</p>
+<h4 id="1-4-内存映射IO"><a href="#1-4-内存映射IO" class="headerlink" title="1.4. 内存映射IO"></a>1.4. 内存映射IO</h4><p>操作系统一般都会采用虚拟内存（参考笔记：<a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2021/03/06/20210306/">计算机 存储系统</a>），比如对于32位操作系统，应用进程可以拥有3G的空间，但是对于同时存在的进程，如何让每个进程都感觉自己拥有整个的内存空间，而且互相不影响呢？其实<font style="color:#E51508;">每个进程都有自己的内存映射表，维护着虚地址与内存物理地址的映射关系，进程在实际运行时，可能只需对少部分地址进行映射，即只占用实际物理内存的一部分，这样对于CPU而言，当发生进程切换时，只需要切换进程对应的地址映射表，就能访问到对应的进程空间了</font>。</p>
 <p>内存映射就是走的<font style="color:#E51508;">虚拟内存方式</font>，而不再像上面一样先打开文件然后再进行读写了。其过程是先建立磁盘文件地址与进程虚拟内存的映射，然后访问文件就相当于访问内存，当然真正访问时还要通过 MMU 将逻辑地址转换成物理地址，如果 MMU 在地址映射表中无法找到对应的物理地址，将产生一个缺页中断，然后将尝试从 swap 中寻找对应的页面，如果还找不到则根据前面建立的映射关系从磁盘读取。但是之后的读写就完全是对内存的操作了，而对应的修改会触发脏页回写，从而保证数据更新到磁盘。</p>
 <p>对应的，Linux提供了相关的系统调用：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 建立映射</span></span><br><span class="line"><span class="comment"> * addr：指定映射的起始地址, 通常设为NULL, 由系统指定</span></span><br><span class="line"><span class="comment"> * len： 映射到内存的文件长度</span></span><br><span class="line"><span class="comment"> * prot：映射区的保护方式</span></span><br><span class="line"><span class="comment"> *       PROT_EXEC: 映射区可被执行</span></span><br><span class="line"><span class="comment"> *       PROT_READ: 映射区可被读取</span></span><br><span class="line"><span class="comment"> *       PROT_WRITE: 映射区可被写入</span></span><br><span class="line"><span class="comment"> * flags：映射区的特性</span></span><br><span class="line"><span class="comment"> *        MAP_SHARED：写入映射区的数据会复制回文件, 且允许其他映射该文件的进程共享</span></span><br><span class="line"><span class="comment"> *        MAP_PRIVATE：对映射区的写入操作会产生一个映射区的复制(copy-on-write), 对此区域所做的修改不会写回原文件</span></span><br><span class="line"><span class="comment"> * fd：   由open返回的文件描述符，代表要映射的文件</span></span><br><span class="line"><span class="comment"> * offset：以文件开始处的偏移量，必须是分页大小的整数倍，通常为0，表示从文件头开始映射</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span>* <span class="title function_">mmap</span> <span class="params">( <span class="type">void</span> * addr , <span class="type">size_t</span> len , <span class="type">int</span> prot , <span class="type">int</span> flags ,<span class="type">int</span> fd , <span class="type">off_t</span> offset )</span>; </span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 解除映射，成功返回0，否则返回－1</span></span><br><span class="line"><span class="comment"> * start：指向的映射内存</span></span><br><span class="line"><span class="comment"> * length：表示欲取消的内存大小</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">munmap</span><span class="params">(<span class="type">void</span> *start,<span class="type">size_t</span> length)</span>;</span><br></pre></td></tr></table></figure>
@@ -317,7 +317,7 @@ $(document).ready(function(){
 
   
   
-      &copy; 2017-2025 &nbsp;&nbsp; shanhm1991 &nbsp;&nbsp; version@1.0.0 
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
   
   
   

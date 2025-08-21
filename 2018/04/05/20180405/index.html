@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   
   <title>JUC FutureTask | Echo</title>
-  <meta name="author" content="shanhm1991">
+  <meta name="author" content="shanhm">
   
   <meta name="description" content="前面整理线程池时说过Executor是执行任务的抽象，而Runnable是任务的抽象。不过，线程池在实际提交任务时，会先将任务包装成一个FutureTask，以实现Future的语义，即异步获取任务结果的能力。FutureTask内部实际依赖的是一个Callable，并将任务的执行过程和结果获取委托给它，如果提交的是Runnable，那么也可以通过适配器RunnableAdapter&amp;lt;V&amp;gt;将其适配成一个Callable
 :java.util.concurrent.Executors123456789101112131415161718public static &amp;lt;T&amp;gt; Callable&amp;lt;T&amp;gt; callable(Runnable task, T result) &amp;#123;    if (task == null)        throw new NullPointerException();    return new RunnableAdapter&amp;lt;T&amp;gt;(task, result);&amp;#125;static final class RunnableAdapter&amp;lt;T&amp;gt; implements Callable&amp;lt;T&amp;gt; &amp;#123;    final Runnable task;    final T result;    RunnableAdapter(Runnable task, T result) &amp;#123;        this.task = task;        this.result = result;    &amp;#125;    public T call() &amp;#123;        task.run();        return result;    &amp;#125;&amp;#125;
@@ -256,7 +256,7 @@ $(document).ready(function(){
 
   
   
-      &copy; 2017-2025 &nbsp;&nbsp; shanhm1991 &nbsp;&nbsp; version@1.0.0 
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
   
   
   

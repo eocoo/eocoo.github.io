@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   
   <title>Netty Channel | Echo</title>
-  <meta name="author" content="shanhm1991">
+  <meta name="author" content="shanhm">
   
   <meta name="description" content="Netty 中的通道 Channel 是对Java原生网络编程Api的封装，以TCP编程为例 ，在java中，有两种常用方式：
 
@@ -136,10 +136,10 @@
 <p>封装主要有两个方面，<font color="#E51508">首先通过<code>ChannelConfig</code>来封装与Channel相关的配置，然后将对Channel的操作抽象成一个接口<code>ChannelHander</code>，并通过链表的形式来进行组织，以便定义操作的顺序</font>，本文尝试从这两个角度对Netty中的Channel进行一些分析。<br><span id="more"></span></p>
 <p>另外，在分析之前，最好先对Linux I/O模型，以及Java中原生Nio的相关Api有所了解，具体可以参考相关笔记：</p>
 <ul>
-<li><a href="https://shanhm1991.github.io/2021/03/21/20210321/">Linux I/O模型</a></li>
-<li><a href="https://shanhm1991.github.io/2018/04/12/20180412/">Java I/O 网络</a></li>
-<li><a href="https://shanhm1991.github.io/2018/04/09/20180409/">NIO Buffer</a></li>
-<li><a href="https://shanhm1991.github.io/2018/04/10/20180410/">NIO Channel &amp; Selector</a></li>
+<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2021/03/21/20210321/">Linux I/O模型</a></li>
+<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2018/04/12/20180412/">Java I/O 网络</a></li>
+<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2018/04/09/20180409/">NIO Buffer</a></li>
+<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2018/04/10/20180410/">NIO Channel &amp; Selector</a></li>
 </ul>
 <h3 id="继承结构"><a href="#继承结构" class="headerlink" title="继承结构"></a>继承结构</h3><p><img src="/img/20210801/20210801.1.jpg" alt=""></p>
 <p>对于BIO相关的类这里不再赘述，主要说下<code>NioServerSocketChannel</code>/<code>NioSocketChannel</code>，它们都继承自<code>AbstractNioChannel</code>，其维护了与java Nio中Channel的对应关系，并提供了获取方法</p>
@@ -358,7 +358,7 @@ $(document).ready(function(){
 
   
   
-      &copy; 2017-2025 &nbsp;&nbsp; shanhm1991 &nbsp;&nbsp; version@1.0.0 
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
   
   
   

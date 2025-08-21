@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   
   <title>《深入理解Java虚拟机》 编译 &amp; 优化 | Echo</title>
-  <meta name="author" content="shanhm1991">
+  <meta name="author" content="shanhm">
   
   <meta name="description" content="Java的编译过程可以分为两个阶段，首先是将.java文件编译为.class文件的过程，称为前端编译，比如javac；然后在运行期，可能即时编译器（JIT）又会将字节码转变为本地机器码，比如HotSopt的C1、C2编译器，或者Graal编译器。
 对于优化处理，Java虚拟机团队选择将性能优化的措施全部集中在运行期的即时编译器中，以便让那些不是由 javac 产生的 Class 文件也能享受到性能优化的好处，至于 javac 中则做了一些针对Java语言编码过程的优化，用来降低开发者的编码复杂度、提高编码效率。可以这样认为，即时编译器在运行期的优化过程，支撑了程序执行效率的不断提升，而javac在编译期的优化过程，则支撑了开发者的编码效率和语言使用者的体验。">
@@ -122,7 +122,7 @@
         <p>Java的编译过程可以分为两个阶段，首先是将<code>.java</code>文件编译为<code>.class</code>文件的过程，称为前端编译，比如javac；然后在运行期，可能即时编译器（JIT）又会将字节码转变为本地机器码，比如HotSopt的C1、C2编译器，或者Graal编译器。</p>
 <p>对于优化处理，Java虚拟机团队选择将<font color="#E51508">性能优化的措施全部集中在运行期的即时编译器中，以便让那些不是由 javac 产生的 Class 文件也能享受到性能优化的好处</font>，至于 <font color="#E51508">javac 中则做了一些针对Java语言编码过程的优化，用来降低开发者的编码复杂度、提高编码效率</font>。可以这样认为，即时编译器在运行期的优化过程，支撑了程序执行效率的不断提升，而javac在编译期的优化过程，则支撑了开发者的编码效率和语言使用者的体验。<br><span id="more"></span></p>
 <h3 id="1-javac-编译器"><a href="#1-javac-编译器" class="headerlink" title="1. javac 编译器"></a>1. javac 编译器</h3><p>javac编译器不像HotSpot虚拟机那样使用C++语言（以及少量C语言）实现，它本身就是一个由Java语言编写的程序。但是这里并不打算去研究它的源码实现细节了，下面主要来看一下javac对泛型的处理</p>
-<p>.<font color="gray">之前对Java 泛型的使用已经做过相关笔记：<a href="https://shanhm1991.github.io/2017/06/03/20170603/">https://shanhm1991.github.io/2017/06/03/20170603/</a> ，只是这里的角度不一样，感觉这里更像是站在一个Java语言设计者的角度去体会Java泛型在实现时的取舍。</font></p>
+<p>.<font color="gray">之前对Java 泛型的使用已经做过相关笔记：<a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2017/06/03/20170603/">https://shanhm1991.github.io/2017/06/03/20170603/</a> ，只是这里的角度不一样，感觉这里更像是站在一个Java语言设计者的角度去体会Java泛型在实现时的取舍。</font></p>
 <h4 id="1-1-泛型"><a href="#1-1-泛型" class="headerlink" title="1.1. 泛型"></a>1.1. 泛型</h4><p>泛型的本质是参数化类型（Parameterized Type）或者参数化多态（Parametric Polymorphism）的应用，即可以<font color="#E51508">将操作的数据类型指定为方法签名中的一种特殊参数</font>，这种参数类型能够用在类、接口和方法的创建中，分别构成泛型类、泛型接口和泛型方法，这样进一步增强了编程语言的类型系统和抽象能力。</p>
 <p>Java泛型的实现方式叫作<code>类型擦除式泛型</code>，而C#选择的方式是<code>具现化式泛型</code>，这些术语都源于C++模板语法中的概念。     </p>
 <p>在C#中，泛型无论在程序源码中，还是编译后的中间语言，或者运行期的CLR中都是切实存在的，比如<code>List&lt;int&gt;</code>与<code>List&lt;string&gt;</code>就是两个不同的类型，它们由系统在运行期生成，有着自己独立的虚方法表和类型数据。    </p>
@@ -429,7 +429,7 @@ $(document).ready(function(){
 
   
   
-      &copy; 2017-2025 &nbsp;&nbsp; shanhm1991 &nbsp;&nbsp; version@1.0.0 
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
   
   
   

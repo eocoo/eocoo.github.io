@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   
   <title>Java List | Echo</title>
-  <meta name="author" content="shanhm1991">
+  <meta name="author" content="shanhm">
   
   <meta name="description" content="根据实现的接口可以将java容器分为Collection和Map两部分，其中还可以按照是否线程安全来继续划分，大部分线程安全的实现在JDK1.5之后新增的concurrent包中。  
 本文先讨论Collection中比较基础的两个List实现ArrayList和LinkedList，前者通过数组，后者通过链表。数组的好处在于有位置索引，可以按下标任意访问，并且由于数组在内存上的连续性，因此访问会更快，但前提是元素必须排列紧凑， 这样在进行插入删除时就免不了要进行移动，而且由于数组长度不可变，在添加元素时可能需要扩容和复制处理。链表可以弥补数组在插入删除上的缺陷，但代价是牺牲查询的效率，尤其是按位置索引访问时，它只能选择从头或者从尾开始依次遍历。
@@ -124,7 +124,7 @@
 <p>本文先讨论Collection中比较基础的两个List实现<code>ArrayList</code>和<code>LinkedList</code>，前者通过数组，后者通过链表。数组的好处在于有位置索引，可以按下标任意访问，并且由于数组在内存上的连续性，因此访问会更快，但前提是元素必须排列紧凑， 这样在进行插入删除时就免不了要进行移动，而且由于数组长度不可变，在添加元素时可能需要扩容和复制处理。链表可以弥补数组在插入删除上的缺陷，但代价是牺牲查询的效率，尤其是按位置索引访问时，它只能选择从头或者从尾开始依次遍历。</p>
 <p>在讨论之前先整体看下Collection的体系结构，可以看到其实有很多的实现类，它们分别用来应付各种不同的场景</p>
 <p><img src="/img/20180401/20180401.1.png" alt=""><br><span id="more"></span></p>
-<p>另外，在看容器类的实现之前，最好先对[<a href="https://shanhm1991.github.io/2017/06/03/20170603/">java 泛型</a>]有个比较好的理解，因为容器类是促成java泛型最主要的原因之一</p>
+<p>另外，在看容器类的实现之前，最好先对[<a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2017/06/03/20170603/">java 泛型</a>]有个比较好的理解，因为容器类是促成java泛型最主要的原因之一</p>
 <h3 id="1-ArrayList"><a href="#1-ArrayList" class="headerlink" title="1. ArrayList"></a>1. ArrayList</h3><p>ArrayList相当于对数组做了一层代理，它在插入删除时做了两件事：<br>1、负责对数组进行扩容处理，在插入元素时可能造成数组越界，而ArrayList会提前检查并进行扩容；<br>2、负责对数组元素进行移动，以保证元素在位置上的连续性，在指定位置插入或删除元素时可能要对前后的元素进行移动；</p>
 <h4 id="1-1-属性"><a href="#1-1-属性" class="headerlink" title="1.1. 属性"></a>1.1. 属性</h4><figure class="highlight java"><figcaption><span>:java.util.ArrayList</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ArrayList</span>&lt;E&gt; <span class="keyword">extends</span> <span class="title class_">AbstractList</span>&lt;E&gt;</span><br><span class="line">        <span class="keyword">implements</span> <span class="title class_">List</span>&lt;E&gt;, RandomAccess, Cloneable, java.io.Serializable &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 数组默认长度，如果初始化长度小于10，则第一次扩容时直接置为10</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">DEFAULT_CAPACITY</span> <span class="operator">=</span> <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 有的VM可能在数组中保存一些头信息，如果想数组中放入Integer.MAX_VALUE个元素，可能导致越界；</span></span><br><span class="line">    <span class="comment">// 所以扩容时先尽量扩为Integer.MAX_VALUE - 8，如果确实需要，再扩为Integer.MAX_VALUE</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">MAX_ARRAY_SIZE</span> <span class="operator">=</span> Integer.MAX_VALUE - <span class="number">8</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 空数组，默认构造器即初始化一个空数组</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object[] EMPTY_ELEMENTDATA = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 数组</span></span><br><span class="line">    <span class="keyword">transient</span> Object[] elementData;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 元素个数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> size;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="1-2-接口实现"><a href="#1-2-接口实现" class="headerlink" title="1.2. 接口实现"></a>1.2. 接口实现</h4><p>主要看一下<code>add</code>和<code>remove</code>以及迭代器的实现，其他操作基本都可以在此基础上实现</p>
@@ -260,7 +260,7 @@ $(document).ready(function(){
 
   
   
-      &copy; 2017-2025 &nbsp;&nbsp; shanhm1991 &nbsp;&nbsp; version@1.0.0 
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
   
   
   
