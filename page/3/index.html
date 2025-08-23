@@ -33,7 +33,7 @@
 </script>
 
 
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -87,15 +87,15 @@
       
         <p>Netty 中的通道 Channel 是对Java原生网络编程Api的封装，以TCP编程为例 ，在java中，有两种常用方式：</p>
 <ul>
-<li>基于BIO，在JDK1.4之前，可以使用 java.net 包中的<code>ServerSocket</code>/<code>Socket</code>来代表服务端和客户端;</li>
-<li>基于NIO，在Jdk1.4引入Nio之后，可以使用 java.nio.channels 包中的<code>ServerSocketChannel</code>/<code>SocketChannel</code>来代表服务端与客户端；</li>
+<li>基于BIO，在JDK1.4之前，可以使用 java.net 包中的<code>ServerSocket</code>&#x2F;<code>Socket</code>来代表服务端和客户端;</li>
+<li>基于NIO，在Jdk1.4引入Nio之后，可以使用 java.nio.channels 包中的<code>ServerSocketChannel</code>&#x2F;<code>SocketChannel</code>来代表服务端与客户端；</li>
 </ul>
 <p>在Netty中，分别进行了封装：</p>
 <ul>
-<li>使用<code>OioServerSocketChannel</code>/<code>OioSocketChannel</code>对<code>ServerSocket</code>/<code>Socket</code>进行了封装；</li>
-<li>使用<code>NioServerSocketChannel</code>/<code>NioSocketChannel</code>对<code>ServerSocketChannel</code>/<code>SocketChannel</code>进行了封装；</li>
+<li>使用<code>OioServerSocketChannel</code>&#x2F;<code>OioSocketChannel</code>对<code>ServerSocket</code>&#x2F;<code>Socket</code>进行了封装；</li>
+<li>使用<code>NioServerSocketChannel</code>&#x2F;<code>NioSocketChannel</code>对<code>ServerSocketChannel</code>&#x2F;<code>SocketChannel</code>进行了封装；</li>
 </ul>
-<p>封装主要有两个方面，<font color="#E51508">首先通过<code>ChannelConfig</code>来封装与Channel相关的配置，然后将对Channel的操作抽象成一个接口<code>ChannelHander</code>，并通过链表的形式来进行组织，以便定义操作的顺序</font>，本文尝试从这两个角度对Netty中的Channel进行一些分析。<br>
+<p>封装主要有两个方面，<font color="#E51508">首先通过<code>ChannelConfig</code>来封装与Channel相关的配置，然后将对Channel的操作抽象成一个接口<code>ChannelHander</code>，并通过链表的形式来进行组织，以便定义操作的顺序</font>，本文尝试从这两个角度对Netty中的Channel进行一些分析。</p>
       
     </div>
 	
@@ -147,7 +147,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>操作系统负责对计算机资源进行管理，并对上层应用提供支持。其核心是操作系统内核空间，独立于应用程序，可以访问受保护的内存空间以及底层硬件设备。为了保证内核的安全，避免用户进程直接操作内核，因此将内存空间划分为两部分，即<font style="color:#E51508;">内核空间</font>和<font style="color:#E51508;">用户空间</font>。<br>
+        <p>操作系统负责对计算机资源进行管理，并对上层应用提供支持。其核心是操作系统内核空间，独立于应用程序，可以访问受保护的内存空间以及底层硬件设备。为了保证内核的安全，避免用户进程直接操作内核，因此将内存空间划分为两部分，即<font style="color:#E51508;">内核空间</font>和<font style="color:#E51508;">用户空间</font>。</p>
       
     </div>
 	
@@ -199,7 +199,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>由于物理规律对半导体器件的限制，传统单处理机通过提高主频提升性能的方法受到制约，不得不转向并行处理体系结构。下面主要介绍一些并行性相关的概念，然后分别讨论多线程和超线程处理机、多处理机和多核处理机。<br>
+        <p>由于物理规律对半导体器件的限制，传统单处理机通过提高主频提升性能的方法受到制约，不得不转向并行处理体系结构。下面主要介绍一些并行性相关的概念，然后分别讨论多线程和超线程处理机、多处理机和多核处理机。</p>
       
     </div>
 	
@@ -251,17 +251,18 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>I/O功能模块通常简称为：I/O接口，也叫适配器，<font style="color:red;">指CPU、主存和外围设备之间通过系统总线进行连接的标准化逻辑部件</font>。为了保证处理器和不同外设之间高效和可靠的交互，CPU必须通过I/O接口与外设连接，其数据传送过程分为两个阶段：I/O接口与外设之间的数据传送，以及CPU与I/O接口之间的数据传送。</p>
-<p>下图展示了CPU、I/O接口和外围设备之间的连接关系。其中外围设备自身带有设备控制器，它是控制外围设备进行操作的控制部件，它通过I/O接口接收来自CPU传送的各种信息，并根据设备的不同要求将这些信息传送到设备，或者从设备中读出信息传送到I/O接口。</p>
-<p><img src="/img/20210313/20210313.1.jpg" alt=""> </p>
-<p>一个标准的I/O接口可以连接一个或多个设备，其结构也如图中所示，通常包括如下功能：</p>
+        <p>I&#x2F;O功能模块通常简称为：I&#x2F;O接口，也叫适配器，<font style="color:red;">指CPU、主存和外围设备之间通过系统总线进行连接的标准化逻辑部件</font>。为了保证处理器和不同外设之间高效和可靠的交互，CPU必须通过I&#x2F;O接口与外设连接，其数据传送过程分为两个阶段：I&#x2F;O接口与外设之间的数据传送，以及CPU与I&#x2F;O接口之间的数据传送。</p>
+<p>下图展示了CPU、I&#x2F;O接口和外围设备之间的连接关系。其中外围设备自身带有设备控制器，它是控制外围设备进行操作的控制部件，它通过I&#x2F;O接口接收来自CPU传送的各种信息，并根据设备的不同要求将这些信息传送到设备，或者从设备中读出信息传送到I&#x2F;O接口。</p>
+<p><img src="/img/20210313/20210313.1.jpg"> </p>
+<p>一个标准的I&#x2F;O接口可以连接一个或多个设备，其结构也如图中所示，通常包括如下功能：</p>
 <ul>
 <li>控制：接口模块根据指令信息来控制外围设备的动作，比如启动或者关闭；</li>
 <li>缓冲：接口模块在外围设备和计算机其他部件之间作为一个缓冲器，以补偿各种设备在速度上的差异；</li>
 <li>状态：接口模块监视外围设备的工作状态并保存，比如准备就绪或者忙，供CPU询问外围设备状态时用；</li>
 <li>转换：接口模块可以完成数据转换，保证数据能在外围设备和CPU之间正确的传送；</li>
 <li>整理：接口模块可以完成一些特别功能，当需要时可以修改字计数器或者当前内存地址寄存器；</li>
-<li>程序中断：当外围设备向CPU请求某种动作时，接口模块会产生一个中断请求信号到CPU;
+<li>程序中断：当外围设备向CPU请求某种动作时，接口模块会产生一个中断请求信号到CPU;</li>
+</ul>
       
     </div>
 	
@@ -317,7 +318,7 @@
 <ul>
 <li>内部总线：CPU内部连接各寄存器及运算部件之间的总线；</li>
 <li>系统总线：CPU同计算机的其他高速功能部件，如存储器、通道等互相连接的总线，称为系统总线；</li>
-<li>I/O总线：低速I/O设备之间互相连接的总线；</li>
+<li>I&#x2F;O总线：低速I&#x2F;O设备之间互相连接的总线；</li>
 </ul>
       
     </div>
@@ -447,7 +448,7 @@
   
   
   
-    <li><a href="/categories/随想笔记/" style="width:78px; display:inline-block;">随想笔记</a><small>1</small></li>
+    <li style="white-space: nowrap"><a href="/categories/随想笔记/">随想笔记</a><small style="margin-left: 5px">1</small></li>
   
   
 
@@ -455,37 +456,7 @@
   
   
   
-  <li><a href="/categories/Java笔记/" style="width:78px; display:inline-block;">Java笔记</a><small>24</small></li>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-  
-    <li><a href="/categories/Devops笔记/" style="width:78px; display:inline-block;">Devops笔记</a><small>10</small></li>
-  
-  
+    <li style="white-space: nowrap"><a href="/categories/Java笔记/">Java笔记</a><small style="margin-left: 5px">24</small></li>
   
   
   
@@ -513,6 +484,7 @@
 
   
   
+    <li style="white-space: nowrap"><a href="/categories/Devops笔记/">Devops笔记</a><small style="margin-left: 5px">10</small></li>
   
   
   
@@ -533,7 +505,36 @@
   
   
   
-    <li><a href="/categories/开发笔记/" style="width:78px; display:inline-block;">开发笔记</a><small>7</small></li>
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <li style="white-space: nowrap"><a href="/categories/开发笔记/">开发笔记</a><small style="margin-left: 5px">7</small></li>
   
   
   
@@ -561,7 +562,7 @@
   
   
   
-    <li><a href="/categories/开发工具/" style="width:78px; display:inline-block;">开发工具</a><small>4</small></li>
+    <li style="white-space: nowrap"><a href="/categories/开发工具/">开发工具</a><small style="margin-left: 5px">4</small></li>
   
   
   
@@ -571,7 +572,7 @@
   
   
 
-  <li id="xx_ul"><a href="#" style="width:78px; display:inline-block;">开发框架</a><small>8</small></li>
+  <li id="xx_ul" style="white-space: nowrap"><a href="#">开发框架</a><small style="margin-left: 5px">8</small></li>
   <ul id="xx_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
       
       
@@ -581,7 +582,7 @@
       
       
       
-      <li><a href="/categories/Tomcat/" style="width:40px; display:inline-block;">Tomcat</a><small>3</small></li>
+      <li style="white-space: nowrap"><a href="/categories/Tomcat/">Tomcat</a><small style="margin-left: 5px">3</small></li>
       
       
       
@@ -609,7 +610,7 @@
       
       
       
-      <li><a href="/categories/Netty/" style="width:40px; display:inline-block;">Netty</a><small>5</small></li>
+      <li style="white-space: nowrap"><a href="/categories/Netty/">Netty</a><small style="margin-left: 5px">5</small></li>
       
       
       
@@ -634,7 +635,7 @@
       
   </ul>
 
-  <li id="os_ul"><a href="#" style="width:78px; display:inline-block;">读书笔记</a><small>43</small></li>
+  <li id="os_ul" style="white-space: nowrap"><a href="#">读书笔记</a><small style="margin-left: 5px">43</small></li>
   <ul id="os_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
       
       
@@ -646,7 +647,7 @@
       
       
       
-      <li><a href="/categories/《Java并发编程实战》/" style="width:120px; display:inline-block;">《Java并发编程实战》</a><small>11</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《Java并发编程实战》/">《Java并发编程实战》</a><small style="margin-left: 5px">11</small></li>
       
       
       
@@ -682,7 +683,7 @@
       
       
       
-      <li><a href="/categories/《深入理解Java虚拟机》/" style="width:120px; display:inline-block;">《深入理解Java虚拟机》</a><small>15</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《深入理解Java虚拟机》/">《深入理解Java虚拟机》</a><small style="margin-left: 5px">15</small></li>
       
       
       
@@ -710,7 +711,7 @@
       
       
       
-      <li><a href="/categories/《spring源码深度解析》/" style="width:120px; display:inline-block;">《spring源码深度解析》</a><small>11</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《spring源码深度解析》/">《spring源码深度解析》</a><small style="margin-left: 5px">11</small></li>
       
       
       
@@ -744,7 +745,7 @@
       
       
       
-      <li><a href="/categories/《计算机组成原理》/" style="width:120px; display:inline-block;">《计算机组成原理》</a><small>5</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《计算机组成原理》/">《计算机组成原理》</a><small style="margin-left: 5px">5</small></li>
       
       
       
@@ -768,7 +769,7 @@
       
       
       
-      <li><a href="/categories/《UNIX环境高级编程》/" style="width:120px; display:inline-block;">《UNIX环境高级编程》</a><small>1</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《UNIX环境高级编程》/">《UNIX环境高级编程》</a><small style="margin-left: 5px">1</small></li>
       
       
       
@@ -811,7 +812,7 @@
   
   
   
-    <li><a href="/categories/数据结构-算法/" style="width:78px; display:inline-block;">数据结构&amp;算法</a><small>10</small></li>
+    <li style="white-space: nowrap"><a href="/categories/数据结构-算法/">数据结构&amp;算法</a><small style="margin-left: 5px">10</small></li>
   
   
   
@@ -834,7 +835,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
+    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 12.5px;">http</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
   </div>
 </div>
 
@@ -842,13 +843,6 @@ $(document).ready(function(){
   
 
 
-
-
-  
-  <div class="widget tag">
-    <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">2022-04</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">2021-08</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021-05</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">2021-03</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020-10</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">2020-06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">2018-07</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">2018-04</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">2017-06</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a><span class="archive-list-count">11</span></li></ul>
-  </div>
 
 </aside>
     <div class="clearfix"></div>

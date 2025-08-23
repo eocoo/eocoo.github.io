@@ -35,7 +35,7 @@
 </script>
 
 
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -86,7 +86,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 576  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 2min</font>
+   <font style="color: #999;"> words: 1k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 4min</font>
    
    
   
@@ -112,96 +112,103 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>整理了一些日常工作中的vim操作，大部分操作用多了自然会记得，但脑子也容易忘记<br><span id="more"></span></p>
-<h3 id="1-操作笔记"><a href="#1-操作笔记" class="headerlink" title="1. 操作笔记"></a>1. 操作笔记</h3><p><strong>vim设置</strong><br>    <table width=100%>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+        <p>整理了一些日常工作中的vim操作，大部分操作用多了自然会记得，但脑子也容易忘记</p>
+<span id="more"></span>
+
+<h3 id="1-操作笔记"><a href="#1-操作笔记" class="headerlink" title="1. 操作笔记"></a>1. 操作笔记</h3><p><strong>vim设置</strong>	
+    <table width=100%>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td width=18%> :set number </td>
             <td>显示行号</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> :set nonumber </td>
             <td>关闭行号</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> :set hlsearch </td>
             <td>设置搜索高亮</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> :set nohlsearch </td>
             <td>取消搜索高亮</td>
         </tr>
     </table></p>
 <p>如果希望设置永久生效，可以修改文件：<code>vim ~/.vimrc</code></p>
-<p><strong>窗口控制</strong><br>    <table width=100%>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+<p><strong>窗口控制</strong>	
+    <table width=100%>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td width=18%> :sp path </td>
             <td>横向分屏，并在新窗口打开指定路径文件，默认打开当前文件</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> :vsp path </td>
             <td>纵向分屏，并在新窗口打开指定路径文件，默认打开当前文件</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> :open path </td>
             <td>重新打开指定路径</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> :Sex path </td>
             <td>在水平拆分窗口中打开指定目录（默认当前目录）的文件浏览器</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> :Vex path </td>
             <td>在垂直拆分窗口中打开指定目录（默认当前目录）的文件浏览器</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> :res num </td>
             <td>调整窗口高度</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> :vertical res num </td>
             <td>调整窗口宽度</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> ctrl + w + w </td>
             <td>切换窗口</td>
         </tr>
-    </table></p>
-<p><strong>编辑模式</strong><br>    <table width=100%>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+    </table>
+	
+<strong>编辑模式</strong>	
+    <table width=100%>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td width=18%> i </td>
             <td>在当前光标所在字符前插入文本</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> I </td>
             <td>在当前光标所在行首插入文本</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> a </td>
             <td>在当前光标所在字符后插入文本</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> A </td>
             <td>在当前光标所在行尾添加文本</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> o </td>
             <td>在当前光标所在行下面插入一空行</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> O </td>
             <td>在当前光标所在行上面插入一空行</td>
         </tr>
     </table></p>
-<p><strong>光标控制</strong><br>    <table width=100%>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+<p><strong>光标控制</strong>
+    <table width=100%>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td width=18%> w </td>
             <td>向后移到一个单词</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> b </td>
             <td>向前移到一个单词</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> 0 </td>
             <td>行首</td>
         </tr>
@@ -209,7 +216,7 @@
             <td> ^ </td>
             <td>行首第一个不是空白字符的位置</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> $ </td>
             <td>行尾</td>
         </tr>
@@ -217,19 +224,19 @@
             <td> j </td>
             <td>下一行</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> k </td>
             <td>上一行</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> { </td>
             <td>段首</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> } </td>
             <td>段尾</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> % </td>
             <td>括号匹配切换</td>
         </tr>
@@ -237,126 +244,132 @@
             <td> H </td>
             <td>屏幕顶部</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> M </td>
             <td>屏幕中间</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> L </td>
             <td>屏幕底部</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> gg </td>
             <td>文件顶部</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> G </td>
             <td>文件末尾</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> num + gg </td>
             <td>指定行</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> ctrl + b </td>
             <td>向前翻页</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> ctrl + f </td>
             <td>向后翻页</td>
         </tr>
     </table></p>
-<p><strong>查找文本</strong><br>    <table width=100%>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+<p><strong>查找文本</strong>	
+    <table width=100%>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td width=18%> * </td>
             <td>向后寻找光标所在单词</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> # </td>
             <td>向前寻找光标所在单词</td>
         </tr>
-    </table></p>
-<p><strong>选择文本</strong><br>    <table width=100%>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+    </table>
+	
+<strong>选择文本</strong>
+    <table width=100%>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td width=18%> v </td>
             <td>按位选择</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> V </td>
             <td>按行选择</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> ctrl + v </td>
             <td>按块选择</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> v + i + w </td>
             <td>选择光标所在单词</td>
         </tr>
-    </table></p>
-<p><strong>修改文本</strong><br>    <table width=100%>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+    </table>
+	
+<strong>修改文本</strong>	
+    <table width=100%>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td width=18%> u </td>
             <td>撤销修改</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> ctrl + r </td>
             <td>恢复撤销</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> d </td>
             <td>剪切选择文本</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> dd </td>
             <td>剪切光标所在行</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> D </td>
             <td>剪切至行尾</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> y </td>
             <td>复制选择文本</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> yy </td>
             <td>复制光标所在行（ yy +num 复制多遍）</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> p </td>
             <td>粘贴</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> r </td>
             <td>替换当前字符</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> R </td>
             <td>替换当前行光标后的字符</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
-            <td> >> </td>
+		<tr style="border-bottom:0.01rem solid #ededed;">
+            <td> &gt;&gt; </td>
             <td>选择行向右缩进4空格</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
-            <td> << </td>
+		<tr style="border-bottom:0.01rem solid #ededed;">
+            <td> &lt;&lt; </td>
             <td>选择行向左缩进4空格</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> . </td>
             <td>重复上次缩进操作</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
-            <td> :g/{pattern}/d </td>
+		<tr style="border-bottom:0.01rem solid #ededed;">
+            <td> :g&#x2F;{pattern}&#x2F;d </td>
             <td>删除匹配行</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
-            <td> :v/{pattern}/d </td>
+		<tr style="border-bottom:0.01rem solid #ededed;">
+            <td> :v&#x2F;{pattern}&#x2F;d </td>
             <td>保留匹配行</td>
         </tr>
-    </table>    </p>
-<p><strong>场景：多行注释</strong></p>
+    </table>	
+	
+<strong>场景：多行注释</strong></p>
 <ol>
 <li><code>ctrl + v</code>：选中多行行首</li>
 <li><code>I</code>：进入编辑模式</li>
@@ -370,35 +383,40 @@
 <li>编辑<code>.vimrc</code>，添加行：</li>
 </ol>
 <figure class="highlight shell"><figcaption><span>:.vimrc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">set autoindent</span><br><span class="line">set tabstop=4  </span><br><span class="line">set shiftwidth=4  </span><br><span class="line">set expandtab</span><br><span class="line"></span><br><span class="line">filetype plugin on</span><br><span class="line">let g:pydiction_location =&#x27;~/.vim/tools/pydiction/complete-dict&#x27;</span><br><span class="line">let g:pydiction_menu_height = 20</span><br></pre></td></tr></table></figure>
+
 <p>然后编辑<code>.py</code>文件时按tab键便可以有补全提示了，如果打开时报错，可能是上面的文件格式有问题，执行下<code>dos2unix</code></p>
 <h3 id="3-插件-taglist"><a href="#3-插件-taglist" class="headerlink" title="3. 插件 taglist"></a>3. 插件 taglist</h3><p><font color="blue">下载地址</font>：<code>https://sourceforge.net/projects/vim-taglist/files/vim-taglist/</code></p>
 <p>下载后解压到<code>~/.vim</code>目录下即可，然后在vim时通过<code>:Tlist</code>便可以打开文件的结构化视图，也可以添加一些默认设置：</p>
 <figure class="highlight shell"><figcaption><span>:.vimrc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let Tlist_Auto_Open = 1         打开vim时自动打开Tlist</span><br><span class="line">let Tlist_Exit_OnlyWindow = 1   taglist为最后一个窗口时，退出vim</span><br><span class="line">let Tlist_WinWidth = 40         设置Tlist窗口的默认宽度</span><br></pre></td></tr></table></figure>
+
 <p>另外，进入doc目录，在vim的命令模式下执行<code>:helptags .</code>，可以将doc导入帮助文档，后面便可以通过<code>help taglist.txt</code>查看帮助手册</p>
 <h3 id="4-插件-ctags"><a href="#4-插件-ctags" class="headerlink" title="4. 插件 ctags"></a>4. 插件 ctags</h3><p><font color="blue">下载地址</font>：<code>https://sourceforge.net/projects/ctags/files/ctags/</code></p>
 <p>下载解压后，如下进行安装：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./configure</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
 <p><strong>使用：</strong></p>
 <ol>
 <li>首先在需要打开的项目根目录下执行：<code>sudo ctags -R *</code>，即生成索引文件tags</li>
 <li>然后在<code>~/.vimrc</code>中添加：<code>set tags=&#123;tags文件路径&#125;</code></li>
 <li>最后在打开的文件中便可以通过<code>:ta var</code>跳转到变量的定义位置了</li>
 </ol>
-<p><strong>常用快捷键：</strong><br>    <table width=100%>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+<p><strong>常用快捷键：</strong>
+    <table width=100%>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td width=18%> ctrl + ] </td>
             <td>跳转至光标所在对象定义之处</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> ctrl + W + ] </td>
             <td>在新窗口打开光标所在对象定义之处</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> ctrl + t </td>
             <td>返回跳转前位置</td>
         </tr>
-    </table>        </p>
-<p><br><strong>参考：</strong></p>
+    </table>		
+	
+<br><strong>参考：</strong></p>
 
       
     </div>
@@ -493,8 +511,6 @@ $(document).ready(function(){
 
 
 
-
-  
 </aside>
     <div class="clearfix"></div>
   </div>

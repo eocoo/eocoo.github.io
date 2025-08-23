@@ -33,7 +33,7 @@
 </script>
 
 
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -95,7 +95,7 @@
 </ul>
 <p>这些因素都会使得一个线程无法看到变量的最新值，并且会导致其他线程中的内存操作看起来似乎在乱序执行。</p>
 <p>Jvm规定了一组最小保证，这组保证规定了对变量的写入操作将在何时对于其他线程可见。Jvm在设计时就在可预测性和程序的易于开发性之间进行了权衡，从而在各种主流的处理器体系架构上都能实现高性能的Jvm。<font color="#E51508">Java语言规范要求Jvm在线程中维护一种类似串行的语义：只要程序的最终结果与严格串行环境中执行的结果相同，那么上面所有的操作都是允许的</font>。</p>
-<p>这确实是一件好事，因为计算机在性能上的提升很大程度要归功于这些重排序措施。在单线程环境中，我们无法看到所有这些底层技术，它们除了提高程序的执行速度外，不会产生其他影响。而在多线程环境中，要维护程序的串行性将导致很大的性能开销。对于并发应用程序中的线程来说，它们在大部分时间里都执行各自的任务，因此，在线程之间的协调操作只会降低应用程序的运行速度，而不会带来任何好处。只有当多个线程要共享数据时，才必须协调它们之间的操作，并且Jvm依赖程序也是通过同步操作来找出这些协调操作将在何时发生。<br>
+<p>这确实是一件好事，因为计算机在性能上的提升很大程度要归功于这些重排序措施。在单线程环境中，我们无法看到所有这些底层技术，它们除了提高程序的执行速度外，不会产生其他影响。而在多线程环境中，要维护程序的串行性将导致很大的性能开销。对于并发应用程序中的线程来说，它们在大部分时间里都执行各自的任务，因此，在线程之间的协调操作只会降低应用程序的运行速度，而不会带来任何好处。只有当多个线程要共享数据时，才必须协调它们之间的操作，并且Jvm依赖程序也是通过同步操作来找出这些协调操作将在何时发生。</p>
       
     </div>
 	
@@ -147,7 +147,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>非阻塞算法可以使多个线程在竞争共享的数据时不发生阻塞，因此它能在粒度更细的层次上进行协调，并且极大地减少调度开销。在基于锁的算法中，如果一个线程在休眠或者自旋时持有锁，那么其他线程都无法执行下去，而非阻塞算法则不会受到单个线程失败的影响。<br>
+        <p>非阻塞算法可以使多个线程在竞争共享的数据时不发生阻塞，因此它能在粒度更细的层次上进行协调，并且极大地减少调度开销。在基于锁的算法中，如果一个线程在休眠或者自旋时持有锁，那么其他线程都无法执行下去，而非阻塞算法则不会受到单个线程失败的影响。</p>
       
     </div>
 	
@@ -200,7 +200,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>创建状态依赖类最简单的方法通常是在类库中现有状态依赖类的基础上进行构造，如果类库不支持，则可以使用Java语言和类库提供的底层机制来构造自己的同步机制，包括内置的条件队列、显示的<code>Condition</code>对象以及<code>AbstractQueuedSynchronizer</code>框架。</p>
-<p>在单线程的程序中调用方法时，如果基于某个状态的前提条件未得到满足，那么这个条件永远无法成真。而在并发程序中，基于状态的条件可能会由于其他线程的操作而改变。<br>
+<p>在单线程的程序中调用方法时，如果基于某个状态的前提条件未得到满足，那么这个条件永远无法成真。而在并发程序中，基于状态的条件可能会由于其他线程的操作而改变。</p>
       
     </div>
 	
@@ -252,7 +252,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>在java 5.0之前，协调共享对象的访问可以使用的机制有<code>synchronized</code>和<code>volatile</code>，java 5.0中新增了一种新的机制：<code>ReentrantLock</code>。它的作用并不是用来替代内置锁，而是当内置锁不再适用时，作为一种可选择的高级功能。在java 6.0中，也使用了与<code>ReentrantLock</code>类似的算法对内置锁本身进行了改进，有效地提高了内置锁的可伸缩性。<br>
+        <p>在java 5.0之前，协调共享对象的访问可以使用的机制有<code>synchronized</code>和<code>volatile</code>，java 5.0中新增了一种新的机制：<code>ReentrantLock</code>。它的作用并不是用来替代内置锁，而是当内置锁不再适用时，作为一种可选择的高级功能。在java 6.0中，也使用了与<code>ReentrantLock</code>类似的算法对内置锁本身进行了改进，有效地提高了内置锁的可伸缩性。</p>
       
     </div>
 	
@@ -304,7 +304,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>在<font color="#E51508">安全性</font>与<font color="#E51508">活跃性</font>之间通常存在着某种制衡，我们可以使用加锁机制来确保线程安全，但如果过度的使用加锁，则可能导致死锁。<br>
+        <p>在<font color="#E51508">安全性</font>与<font color="#E51508">活跃性</font>之间通常存在着某种制衡，我们可以使用加锁机制来确保线程安全，但如果过度的使用加锁，则可能导致死锁。</p>
       
     </div>
 	
@@ -439,7 +439,7 @@
   
   
   
-    <li><a href="/categories/随想笔记/" style="width:78px; display:inline-block;">随想笔记</a><small>1</small></li>
+    <li style="white-space: nowrap"><a href="/categories/随想笔记/">随想笔记</a><small style="margin-left: 5px">1</small></li>
   
   
 
@@ -447,37 +447,7 @@
   
   
   
-  <li><a href="/categories/Java笔记/" style="width:78px; display:inline-block;">Java笔记</a><small>24</small></li>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-  
-    <li><a href="/categories/Devops笔记/" style="width:78px; display:inline-block;">Devops笔记</a><small>10</small></li>
-  
-  
+    <li style="white-space: nowrap"><a href="/categories/Java笔记/">Java笔记</a><small style="margin-left: 5px">24</small></li>
   
   
   
@@ -505,6 +475,7 @@
 
   
   
+    <li style="white-space: nowrap"><a href="/categories/Devops笔记/">Devops笔记</a><small style="margin-left: 5px">10</small></li>
   
   
   
@@ -525,7 +496,36 @@
   
   
   
-    <li><a href="/categories/开发笔记/" style="width:78px; display:inline-block;">开发笔记</a><small>7</small></li>
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <li style="white-space: nowrap"><a href="/categories/开发笔记/">开发笔记</a><small style="margin-left: 5px">7</small></li>
   
   
   
@@ -553,7 +553,7 @@
   
   
   
-    <li><a href="/categories/开发工具/" style="width:78px; display:inline-block;">开发工具</a><small>4</small></li>
+    <li style="white-space: nowrap"><a href="/categories/开发工具/">开发工具</a><small style="margin-left: 5px">4</small></li>
   
   
   
@@ -563,7 +563,7 @@
   
   
 
-  <li id="xx_ul"><a href="#" style="width:78px; display:inline-block;">开发框架</a><small>8</small></li>
+  <li id="xx_ul" style="white-space: nowrap"><a href="#">开发框架</a><small style="margin-left: 5px">8</small></li>
   <ul id="xx_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
       
       
@@ -573,7 +573,7 @@
       
       
       
-      <li><a href="/categories/Tomcat/" style="width:40px; display:inline-block;">Tomcat</a><small>3</small></li>
+      <li style="white-space: nowrap"><a href="/categories/Tomcat/">Tomcat</a><small style="margin-left: 5px">3</small></li>
       
       
       
@@ -601,7 +601,7 @@
       
       
       
-      <li><a href="/categories/Netty/" style="width:40px; display:inline-block;">Netty</a><small>5</small></li>
+      <li style="white-space: nowrap"><a href="/categories/Netty/">Netty</a><small style="margin-left: 5px">5</small></li>
       
       
       
@@ -626,7 +626,7 @@
       
   </ul>
 
-  <li id="os_ul"><a href="#" style="width:78px; display:inline-block;">读书笔记</a><small>43</small></li>
+  <li id="os_ul" style="white-space: nowrap"><a href="#">读书笔记</a><small style="margin-left: 5px">43</small></li>
   <ul id="os_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
       
       
@@ -638,7 +638,7 @@
       
       
       
-      <li><a href="/categories/《Java并发编程实战》/" style="width:120px; display:inline-block;">《Java并发编程实战》</a><small>11</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《Java并发编程实战》/">《Java并发编程实战》</a><small style="margin-left: 5px">11</small></li>
       
       
       
@@ -674,7 +674,7 @@
       
       
       
-      <li><a href="/categories/《深入理解Java虚拟机》/" style="width:120px; display:inline-block;">《深入理解Java虚拟机》</a><small>15</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《深入理解Java虚拟机》/">《深入理解Java虚拟机》</a><small style="margin-left: 5px">15</small></li>
       
       
       
@@ -702,7 +702,7 @@
       
       
       
-      <li><a href="/categories/《spring源码深度解析》/" style="width:120px; display:inline-block;">《spring源码深度解析》</a><small>11</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《spring源码深度解析》/">《spring源码深度解析》</a><small style="margin-left: 5px">11</small></li>
       
       
       
@@ -736,7 +736,7 @@
       
       
       
-      <li><a href="/categories/《计算机组成原理》/" style="width:120px; display:inline-block;">《计算机组成原理》</a><small>5</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《计算机组成原理》/">《计算机组成原理》</a><small style="margin-left: 5px">5</small></li>
       
       
       
@@ -760,7 +760,7 @@
       
       
       
-      <li><a href="/categories/《UNIX环境高级编程》/" style="width:120px; display:inline-block;">《UNIX环境高级编程》</a><small>1</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《UNIX环境高级编程》/">《UNIX环境高级编程》</a><small style="margin-left: 5px">1</small></li>
       
       
       
@@ -803,7 +803,7 @@
   
   
   
-    <li><a href="/categories/数据结构-算法/" style="width:78px; display:inline-block;">数据结构&amp;算法</a><small>10</small></li>
+    <li style="white-space: nowrap"><a href="/categories/数据结构-算法/">数据结构&amp;算法</a><small style="margin-left: 5px">10</small></li>
   
   
   
@@ -826,7 +826,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
+    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 12.5px;">http</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
   </div>
 </div>
 
@@ -834,13 +834,6 @@ $(document).ready(function(){
   
 
 
-
-
-  
-  <div class="widget tag">
-    <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">2022-04</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">2021-08</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021-05</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">2021-03</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020-10</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">2020-06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">2018-07</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">2018-04</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">2017-06</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a><span class="archive-list-count">11</span></li></ul>
-  </div>
 
 </aside>
     <div class="clearfix"></div>

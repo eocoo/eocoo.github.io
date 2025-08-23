@@ -33,7 +33,7 @@
 </script>
 
 
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -87,8 +87,9 @@
       
         <p>前面整理线程池时说过<code>Executor</code>是执行任务的抽象，而<code>Runnable</code>是任务的抽象。不过，线程池在实际提交任务时，会先将任务包装成一个<code>FutureTask</code>，以实现<code>Future</code>的语义，即<font color="#E51508">异步获取任务结果的能力</font>。<code>FutureTask</code>内部实际依赖的是一个<code>Callable</code>，并将任务的执行过程和结果获取委托给它，如果提交的是<code>Runnable</code>，那么也可以通过适配器<code>RunnableAdapter&lt;V&gt;</code>将其适配成一个<code>Callable</code></p>
 <figure class="highlight java"><figcaption><span>:java.util.concurrent.Executors</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; Callable&lt;T&gt; <span class="title function_">callable</span><span class="params">(Runnable task, T result)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (task == <span class="literal">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RunnableAdapter</span>&lt;T&gt;(task, result);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">RunnableAdapter</span>&lt;T&gt; <span class="keyword">implements</span> <span class="title class_">Callable</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">final</span> Runnable task;</span><br><span class="line">    <span class="keyword">final</span> T result;</span><br><span class="line">    RunnableAdapter(Runnable task, T result) &#123;</span><br><span class="line">        <span class="built_in">this</span>.task = task;</span><br><span class="line">        <span class="built_in">this</span>.result = result;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> T <span class="title function_">call</span><span class="params">()</span> &#123;</span><br><span class="line">        task.run();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>相关类图可以如下所示：</p>
-<p><img src="/img/20180405/20180405.1.jpg" alt=""><br>
+<p><img src="/img/20180405/20180405.1.jpg"> </p>
       
     </div>
 	
@@ -194,7 +195,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p><code>ThreadLocal</code>从其命名上就可以知道其意图是创建线程本地变量，就是希望同一个变量在不同的线程中拥有各自的值并且互不影响，其非常适合用来作为线程上下文变量，比如在一些连接池或者事务的场景中。</p>
-<p>其思路是<font style="color:red;">让每个Thread都持有一个私有的ThreadLocalMap，然后使用共享的key来保存值，而这个key就是共享的ThreadLocal实例，因此每个ThreadLocal也就对应一个本地变量。</font>。但是，如果这个本地变量本身就是一个线程共享的对象，那么就算使用ThreadLocal也不是线程安全的。另外，设计者将具体的map操作都封装在了ThreadLocal中，然后提供统一的get/set接口，好让开发更加简洁方便。<br>
+<p>其思路是<font style="color:red;">让每个Thread都持有一个私有的ThreadLocalMap，然后使用共享的key来保存值，而这个key就是共享的ThreadLocal实例，因此每个ThreadLocal也就对应一个本地变量。</font>。但是，如果这个本地变量本身就是一个线程共享的对象，那么就算使用ThreadLocal也不是线程安全的。另外，设计者将具体的map操作都封装在了ThreadLocal中，然后提供统一的get&#x2F;set接口，好让开发更加简洁方便。</p>
       
     </div>
 	
@@ -248,7 +249,7 @@
       
         <p>java容器中一般最常用的就是List、Set、Map，List的实现前面已经介绍过，本文主要讨论下Map的几个实现，至于Set则比较简单，它们仅仅是依赖Map做了层封装而已。</p>
 <p>在讨论之前，还是先看下Map的继承结构</p>
-<p><img src="/img/20180402/20180402.1.png" alt=""><br>
+<p><img src="/img/20180402/20180402.1.png"></p>
       
     </div>
 	
@@ -303,7 +304,7 @@
         <p>根据实现的接口可以将java容器分为Collection和Map两部分，其中还可以按照是否线程安全来继续划分，大部分线程安全的实现在JDK1.5之后新增的concurrent包中。  </p>
 <p>本文先讨论Collection中比较基础的两个List实现<code>ArrayList</code>和<code>LinkedList</code>，前者通过数组，后者通过链表。数组的好处在于有位置索引，可以按下标任意访问，并且由于数组在内存上的连续性，因此访问会更快，但前提是元素必须排列紧凑， 这样在进行插入删除时就免不了要进行移动，而且由于数组长度不可变，在添加元素时可能需要扩容和复制处理。链表可以弥补数组在插入删除上的缺陷，但代价是牺牲查询的效率，尤其是按位置索引访问时，它只能选择从头或者从尾开始依次遍历。</p>
 <p>在讨论之前先整体看下Collection的体系结构，可以看到其实有很多的实现类，它们分别用来应付各种不同的场景</p>
-<p><img src="/img/20180401/20180401.1.png" alt=""><br>
+<p><img src="/img/20180401/20180401.1.png"></p>
       
     </div>
 	
@@ -356,7 +357,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>在项目开发部署过程中，一般都是内网环境，无法在线安装一些软件，这时候就需要我们配置离线的yum源。</p>
-<p>centos版本：7.9.2009<br>
+<p>centos版本：7.9.2009</p>
       
     </div>
 	
@@ -433,7 +434,7 @@
   
   
   
-    <li><a href="/categories/随想笔记/" style="width:78px; display:inline-block;">随想笔记</a><small>1</small></li>
+    <li style="white-space: nowrap"><a href="/categories/随想笔记/">随想笔记</a><small style="margin-left: 5px">1</small></li>
   
   
 
@@ -441,37 +442,7 @@
   
   
   
-  <li><a href="/categories/Java笔记/" style="width:78px; display:inline-block;">Java笔记</a><small>24</small></li>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-  
-    <li><a href="/categories/Devops笔记/" style="width:78px; display:inline-block;">Devops笔记</a><small>10</small></li>
-  
-  
+    <li style="white-space: nowrap"><a href="/categories/Java笔记/">Java笔记</a><small style="margin-left: 5px">24</small></li>
   
   
   
@@ -499,6 +470,7 @@
 
   
   
+    <li style="white-space: nowrap"><a href="/categories/Devops笔记/">Devops笔记</a><small style="margin-left: 5px">10</small></li>
   
   
   
@@ -519,7 +491,36 @@
   
   
   
-    <li><a href="/categories/开发笔记/" style="width:78px; display:inline-block;">开发笔记</a><small>7</small></li>
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <li style="white-space: nowrap"><a href="/categories/开发笔记/">开发笔记</a><small style="margin-left: 5px">7</small></li>
   
   
   
@@ -547,7 +548,7 @@
   
   
   
-    <li><a href="/categories/开发工具/" style="width:78px; display:inline-block;">开发工具</a><small>4</small></li>
+    <li style="white-space: nowrap"><a href="/categories/开发工具/">开发工具</a><small style="margin-left: 5px">4</small></li>
   
   
   
@@ -557,7 +558,7 @@
   
   
 
-  <li id="xx_ul"><a href="#" style="width:78px; display:inline-block;">开发框架</a><small>8</small></li>
+  <li id="xx_ul" style="white-space: nowrap"><a href="#">开发框架</a><small style="margin-left: 5px">8</small></li>
   <ul id="xx_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
       
       
@@ -567,7 +568,7 @@
       
       
       
-      <li><a href="/categories/Tomcat/" style="width:40px; display:inline-block;">Tomcat</a><small>3</small></li>
+      <li style="white-space: nowrap"><a href="/categories/Tomcat/">Tomcat</a><small style="margin-left: 5px">3</small></li>
       
       
       
@@ -595,7 +596,7 @@
       
       
       
-      <li><a href="/categories/Netty/" style="width:40px; display:inline-block;">Netty</a><small>5</small></li>
+      <li style="white-space: nowrap"><a href="/categories/Netty/">Netty</a><small style="margin-left: 5px">5</small></li>
       
       
       
@@ -620,7 +621,7 @@
       
   </ul>
 
-  <li id="os_ul"><a href="#" style="width:78px; display:inline-block;">读书笔记</a><small>43</small></li>
+  <li id="os_ul" style="white-space: nowrap"><a href="#">读书笔记</a><small style="margin-left: 5px">43</small></li>
   <ul id="os_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
       
       
@@ -632,7 +633,7 @@
       
       
       
-      <li><a href="/categories/《Java并发编程实战》/" style="width:120px; display:inline-block;">《Java并发编程实战》</a><small>11</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《Java并发编程实战》/">《Java并发编程实战》</a><small style="margin-left: 5px">11</small></li>
       
       
       
@@ -668,7 +669,7 @@
       
       
       
-      <li><a href="/categories/《深入理解Java虚拟机》/" style="width:120px; display:inline-block;">《深入理解Java虚拟机》</a><small>15</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《深入理解Java虚拟机》/">《深入理解Java虚拟机》</a><small style="margin-left: 5px">15</small></li>
       
       
       
@@ -696,7 +697,7 @@
       
       
       
-      <li><a href="/categories/《spring源码深度解析》/" style="width:120px; display:inline-block;">《spring源码深度解析》</a><small>11</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《spring源码深度解析》/">《spring源码深度解析》</a><small style="margin-left: 5px">11</small></li>
       
       
       
@@ -730,7 +731,7 @@
       
       
       
-      <li><a href="/categories/《计算机组成原理》/" style="width:120px; display:inline-block;">《计算机组成原理》</a><small>5</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《计算机组成原理》/">《计算机组成原理》</a><small style="margin-left: 5px">5</small></li>
       
       
       
@@ -754,7 +755,7 @@
       
       
       
-      <li><a href="/categories/《UNIX环境高级编程》/" style="width:120px; display:inline-block;">《UNIX环境高级编程》</a><small>1</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《UNIX环境高级编程》/">《UNIX环境高级编程》</a><small style="margin-left: 5px">1</small></li>
       
       
       
@@ -797,7 +798,7 @@
   
   
   
-    <li><a href="/categories/数据结构-算法/" style="width:78px; display:inline-block;">数据结构&amp;算法</a><small>10</small></li>
+    <li style="white-space: nowrap"><a href="/categories/数据结构-算法/">数据结构&amp;算法</a><small style="margin-left: 5px">10</small></li>
   
   
   
@@ -820,7 +821,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
+    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 12.5px;">http</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
   </div>
 </div>
 
@@ -828,13 +829,6 @@ $(document).ready(function(){
   
 
 
-
-
-  
-  <div class="widget tag">
-    <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">2022-04</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">2021-08</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021-05</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">2021-03</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020-10</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">2020-06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">2018-07</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">2018-04</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">2017-06</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a><span class="archive-list-count">11</span></li></ul>
-  </div>
 
 </aside>
     <div class="clearfix"></div>

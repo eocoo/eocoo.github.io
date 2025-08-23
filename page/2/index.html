@@ -33,7 +33,7 @@
 </script>
 
 
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -85,8 +85,8 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>Java’s standard for object validation最早在Java EE6中提出，作为Bean Validation 1.0(JSR-303)。它定义了一种在Java对象上执行声明性验证的方式，提供了一个运行时的数据验证框架。更多详细内容可以参考官网：<a target="_blank" rel="noopener" href="https://beanvalidation.org">https://beanvalidation.org</a></p>
-<p>Bean Validationn可以让代码变得更简洁清晰，让开发人员在定义数据模型时不必考虑实现框架的限制。当然它不止提供了一些基本的constraint，也可以自定义验证规则，在实际的开发中，可以根据自己的需要组合或开发出更加合适的constraint。<br>
+        <p>Java’s standard for object validation最早在Java EE6中提出，作为Bean Validation 1.0(JSR-303)。它定义了一种在Java对象上执行声明性验证的方式，提供了一个运行时的数据验证框架。更多详细内容可以参考官网：<a target="_blank" rel="noopener" href="https://beanvalidation.org/">https://beanvalidation.org</a></p>
+<p>Bean Validationn可以让代码变得更简洁清晰，让开发人员在定义数据模型时不必考虑实现框架的限制。当然它不止提供了一些基本的constraint，也可以自定义验证规则，在实际的开发中，可以根据自己的需要组合或开发出更加合适的constraint。</p>
       
     </div>
 	
@@ -138,7 +138,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>很多团队都会面临这样的问题，开发人员水平不一，想法不同，代码写出来各有各的风格，但是review又费时费力，总之很难让所有成员保持统一风格。以下是一些关于代码质量管理与提升的思考，也参考总结了他人的一些经验。<br>
+        <p>很多团队都会面临这样的问题，开发人员水平不一，想法不同，代码写出来各有各的风格，但是review又费时费力，总之很难让所有成员保持统一风格。以下是一些关于代码质量管理与提升的思考，也参考总结了他人的一些经验。</p>
       
     </div>
 	
@@ -191,7 +191,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>Java Nio是对多路复用IO模型的实现，其核心在于借助操作系统提供的选择器实现对连接的监听，然后应用服务只需对就绪的连接事件进行处理即可，比如可读可写等，这样就降低了应用服务在并发场景下的线程资源压力。</p>
-<p>Netty中设计了专门的<code>NioEventLoop</code>来封装对Nio事件的处理，其思路是给每个<code>NioEventLoop</code>初始化一个选择器<code>Selector</code>，然后将通道对<code>Selector</code>的注册转化成对<code>NioEventLoop</code>的注册，这样可以让每个<code>NioEventLoop</code>各司其职，只负责处理注册到自己身上的通道事件，从而即实现了通道事件的多线程处理，同时又避免了过程中的线程安全问题。<br>
+<p>Netty中设计了专门的<code>NioEventLoop</code>来封装对Nio事件的处理，其思路是给每个<code>NioEventLoop</code>初始化一个选择器<code>Selector</code>，然后将通道对<code>Selector</code>的注册转化成对<code>NioEventLoop</code>的注册，这样可以让每个<code>NioEventLoop</code>各司其职，只负责处理注册到自己身上的通道事件，从而即实现了通道事件的多线程处理，同时又避免了过程中的线程安全问题。</p>
       
     </div>
 	
@@ -297,7 +297,9 @@
       
         <p>在Java中，对于<font color="#E51508">异步操作结果的获取</font>抽象出了一个接口<code>Future&lt;V&gt;</code>，它提供了一些方法来检查或等待操作是否完成，以及获取操作的结果，同时还提供了取消操作的能力，以及提供了检测操作是正常结束还是被取消的方法。不过如果操作已经完成了，就不能再对其进行取消了。在某些场景下，如果只是想借助<code>Future</code>实现操作取消的能力，而不关心操作结果，那么可以返回空即可。</p>
 <blockquote>
-<p>A <code>Future</code> represents the result of an asynchronous computation. Methods are provided to check if the computation is complete, to wait for its completion, and to retrieve the result of the computation.<br>The result can only be retrieved using method <code>get</code> when the computation has completed, blocking if necessary until it is ready. Cancellation is performed by the <code>cancel</code> method. Additional methods are provided to determine if the task completed normally or was cancelled. Once a computation has completed, the computation cannot be cancelled. If you would like to use a <code>Future</code> for the sake of cancellability but not provide a usable result, you can declare types of the form <code>Future&lt;?&gt;</code> and return <code>null</code> as a result of the underlying task.<br>
+<p>A <code>Future</code> represents the result of an asynchronous computation. Methods are provided to check if the computation is complete, to wait for its completion, and to retrieve the result of the computation.
+The result can only be retrieved using method <code>get</code> when the computation has completed, blocking if necessary until it is ready. Cancellation is performed by the <code>cancel</code> method. Additional methods are provided to determine if the task completed normally or was cancelled. Once a computation has completed, the computation cannot be cancelled. If you would like to use a <code>Future</code> for the sake of cancellability but not provide a usable result, you can declare types of the form <code>Future&lt;?&gt;</code> and return <code>null</code> as a result of the underlying task.</p>
+</blockquote>
       
     </div>
 	
@@ -350,10 +352,11 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>在Java中，任务执行的主要抽象不是<code>Thread</code>，而是<code>Executor</code>，它提供了一种标准的方式将任务的提交过程与执行过程解耦开来，为灵活而强大的异步任务执行框架提供了基础，线程池<code>ThreadPoolExecutor</code>便是在此基础上实现的一套异步执行框架。</p>
-<p>Netty也在<code>Executor</code>的基础上自定义实现了一套高性能的任务执行框架，本文尝试从I/O事件执行器<code>NioEventLoopGroup</code>作为切入点对其中的部分源码做一些分析，希望能从别人的设计中汲取一些思路和启发。建议在分析Netty中的任务执行机制之前先对Java中原生的任务执行框架有所了解，可以参考笔记：</p>
+<p>Netty也在<code>Executor</code>的基础上自定义实现了一套高性能的任务执行框架，本文尝试从I&#x2F;O事件执行器<code>NioEventLoopGroup</code>作为切入点对其中的部分源码做一些分析，希望能从别人的设计中汲取一些思路和启发。建议在分析Netty中的任务执行机制之前先对Java中原生的任务执行框架有所了解，可以参考笔记：</p>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2017/03/05/20170305/">《Java并发编程实战》 任务的执行</a></li>
-<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2017/03/06/20170306/">《Java并发编程实战》 任务的取消</a>
+<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2017/03/06/20170306/">《Java并发编程实战》 任务的取消</a></li>
+</ul>
       
     </div>
 	
@@ -430,7 +433,7 @@
   
   
   
-    <li><a href="/categories/随想笔记/" style="width:78px; display:inline-block;">随想笔记</a><small>1</small></li>
+    <li style="white-space: nowrap"><a href="/categories/随想笔记/">随想笔记</a><small style="margin-left: 5px">1</small></li>
   
   
 
@@ -438,37 +441,7 @@
   
   
   
-  <li><a href="/categories/Java笔记/" style="width:78px; display:inline-block;">Java笔记</a><small>24</small></li>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-  
-    <li><a href="/categories/Devops笔记/" style="width:78px; display:inline-block;">Devops笔记</a><small>10</small></li>
-  
-  
+    <li style="white-space: nowrap"><a href="/categories/Java笔记/">Java笔记</a><small style="margin-left: 5px">24</small></li>
   
   
   
@@ -496,6 +469,7 @@
 
   
   
+    <li style="white-space: nowrap"><a href="/categories/Devops笔记/">Devops笔记</a><small style="margin-left: 5px">10</small></li>
   
   
   
@@ -516,7 +490,36 @@
   
   
   
-    <li><a href="/categories/开发笔记/" style="width:78px; display:inline-block;">开发笔记</a><small>7</small></li>
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <li style="white-space: nowrap"><a href="/categories/开发笔记/">开发笔记</a><small style="margin-left: 5px">7</small></li>
   
   
   
@@ -544,7 +547,7 @@
   
   
   
-    <li><a href="/categories/开发工具/" style="width:78px; display:inline-block;">开发工具</a><small>4</small></li>
+    <li style="white-space: nowrap"><a href="/categories/开发工具/">开发工具</a><small style="margin-left: 5px">4</small></li>
   
   
   
@@ -554,7 +557,7 @@
   
   
 
-  <li id="xx_ul"><a href="#" style="width:78px; display:inline-block;">开发框架</a><small>8</small></li>
+  <li id="xx_ul" style="white-space: nowrap"><a href="#">开发框架</a><small style="margin-left: 5px">8</small></li>
   <ul id="xx_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
       
       
@@ -564,7 +567,7 @@
       
       
       
-      <li><a href="/categories/Tomcat/" style="width:40px; display:inline-block;">Tomcat</a><small>3</small></li>
+      <li style="white-space: nowrap"><a href="/categories/Tomcat/">Tomcat</a><small style="margin-left: 5px">3</small></li>
       
       
       
@@ -592,7 +595,7 @@
       
       
       
-      <li><a href="/categories/Netty/" style="width:40px; display:inline-block;">Netty</a><small>5</small></li>
+      <li style="white-space: nowrap"><a href="/categories/Netty/">Netty</a><small style="margin-left: 5px">5</small></li>
       
       
       
@@ -617,7 +620,7 @@
       
   </ul>
 
-  <li id="os_ul"><a href="#" style="width:78px; display:inline-block;">读书笔记</a><small>43</small></li>
+  <li id="os_ul" style="white-space: nowrap"><a href="#">读书笔记</a><small style="margin-left: 5px">43</small></li>
   <ul id="os_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
       
       
@@ -629,7 +632,7 @@
       
       
       
-      <li><a href="/categories/《Java并发编程实战》/" style="width:120px; display:inline-block;">《Java并发编程实战》</a><small>11</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《Java并发编程实战》/">《Java并发编程实战》</a><small style="margin-left: 5px">11</small></li>
       
       
       
@@ -665,7 +668,7 @@
       
       
       
-      <li><a href="/categories/《深入理解Java虚拟机》/" style="width:120px; display:inline-block;">《深入理解Java虚拟机》</a><small>15</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《深入理解Java虚拟机》/">《深入理解Java虚拟机》</a><small style="margin-left: 5px">15</small></li>
       
       
       
@@ -693,7 +696,7 @@
       
       
       
-      <li><a href="/categories/《spring源码深度解析》/" style="width:120px; display:inline-block;">《spring源码深度解析》</a><small>11</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《spring源码深度解析》/">《spring源码深度解析》</a><small style="margin-left: 5px">11</small></li>
       
       
       
@@ -727,7 +730,7 @@
       
       
       
-      <li><a href="/categories/《计算机组成原理》/" style="width:120px; display:inline-block;">《计算机组成原理》</a><small>5</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《计算机组成原理》/">《计算机组成原理》</a><small style="margin-left: 5px">5</small></li>
       
       
       
@@ -751,7 +754,7 @@
       
       
       
-      <li><a href="/categories/《UNIX环境高级编程》/" style="width:120px; display:inline-block;">《UNIX环境高级编程》</a><small>1</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《UNIX环境高级编程》/">《UNIX环境高级编程》</a><small style="margin-left: 5px">1</small></li>
       
       
       
@@ -794,7 +797,7 @@
   
   
   
-    <li><a href="/categories/数据结构-算法/" style="width:78px; display:inline-block;">数据结构&amp;算法</a><small>10</small></li>
+    <li style="white-space: nowrap"><a href="/categories/数据结构-算法/">数据结构&amp;算法</a><small style="margin-left: 5px">10</small></li>
   
   
   
@@ -817,7 +820,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
+    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 12.5px;">http</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
   </div>
 </div>
 
@@ -825,13 +828,6 @@ $(document).ready(function(){
   
 
 
-
-
-  
-  <div class="widget tag">
-    <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">2022-04</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">2021-08</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021-05</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">2021-03</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020-10</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">2020-06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">2018-07</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">2018-04</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">2017-06</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a><span class="archive-list-count">11</span></li></ul>
-  </div>
 
 </aside>
     <div class="clearfix"></div>

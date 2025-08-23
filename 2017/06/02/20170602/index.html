@@ -36,7 +36,7 @@
 </script>
 
 
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -109,8 +109,10 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>发现错误的理想时机是在编译阶段，即在运行程序之前。然而，编译期间并不能找出所有的错误，有些问题只能在运行期间解决。那么，希望通过某种方式，让错误源能够传递给适当的接收者，该接收者知道如何正确地处理这个问题，<font color="#E51508">java中异常处理的一个重要目标就是把错误处理的代码与错误发生的位置相分离</font>。</p>
-<p>另外，java的主要目标之一就是创建供他人使用的程序构件，要想创建健壮的系统，其每一个构件都必须是健壮的。可以通过异常建立供统一的错误报告模型，使得构件能够与客户端代码可靠地沟通，最终目的在于通过少数代码来简化大型、可靠程序的生成，并且通过这种方式可以使你更加自信，即程序中没有未处理的错误。<br><span id="more"></span></p>
-<h3 id="1-异常分类"><a href="#1-异常分类" class="headerlink" title="1. 异常分类"></a>1. 异常分类</h3><p><img src="/img/20170602/20170602.1.jpg" alt=""></p>
+<p>另外，java的主要目标之一就是创建供他人使用的程序构件，要想创建健壮的系统，其每一个构件都必须是健壮的。可以通过异常建立供统一的错误报告模型，使得构件能够与客户端代码可靠地沟通，最终目的在于通过少数代码来简化大型、可靠程序的生成，并且通过这种方式可以使你更加自信，即程序中没有未处理的错误。 </p>
+<span id="more"></span>
+
+<h3 id="1-异常分类"><a href="#1-异常分类" class="headerlink" title="1. 异常分类"></a>1. 异常分类</h3><p><img src="/img/20170602/20170602.1.jpg"></p>
 <p><code>Throwable</code>为所有异常的超类，可以分为两组：<code>Error</code>表示编译时或系统错误，其不能被程序员通过代码处理；<code>Exception</code>是可以被抛出的异常，可以被Java异常处理机制使用，所以通常更加一些关注。</p>
 <ul>
 <li>非检查异常：</li>
@@ -145,12 +147,13 @@
 </li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> E <span class="title function_">get</span><span class="params">(<span class="type">int</span> index)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> listIterator(index).next();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NoSuchElementException exc) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IndexOutOfBoundsException</span>(<span class="string">&quot;Index: &quot;</span>+index);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>每个方法抛出的异常都应该有文档</li>
 </ul>
 <p>要单独声明被检查的异常，并利用Javadoc的@throws标记，准确地记录下每个异常被抛出的条件。    如果一个类中的许多方法处于同样的原因而抛出同一个异常，那么在该类的文档注释中对这个异常做文档，而不是为每个方法单独做文档。</p>
 <ul>
-<li><p>在细节消息中包含失败 — 捕获消息</p>
+<li><p>在细节消息中包含失败 – 捕获消息</p>
 </li>
 <li><p>努力使失败保持原子性</p>
 </li>
@@ -165,6 +168,7 @@
 <p><strong>注意fianlly</strong></p>
 <p>java的异常实现也是有缺陷的：<font color="#E51508">如果在finally中抛出异常，则可能造成异常丢失。fianlly应该仅仅用来释放资源最合适，不要在其中做一些其它的事情，尤其不要抛出异常或者进行return。</font></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">fun1</span><span class="params">()</span> <span class="keyword">throws</span> IOException&#123;</span><br><span class="line">	<span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;fun1&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">fun2</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">	<span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InterruptedException</span>(<span class="string">&quot;fun2&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">fun</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, IOException&#123;</span><br><span class="line">	<span class="keyword">try</span>&#123;</span><br><span class="line">		fun1();</span><br><span class="line">	&#125;<span class="keyword">finally</span>&#123;</span><br><span class="line">		fun2();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>比如上面的代码，调用者将丢失原本想捕获的fun1的异常，原因在于方法返回或抛出时，都会覆盖方法栈顶的值，而方法最后退出时只能返回一个栈顶的值。可以从字节码层面分析，具体参考相关笔记：<a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2018/10/01/20181001/#1-7-%E5%B1%9E%E6%80%A7%E8%A1%A8%E9%9B%86%E5%90%88">类文件结构-异常表</a></p>
 <p><br><strong>参考：</strong></p>
 <ol>
@@ -261,8 +265,6 @@ $(document).ready(function(){
 
 
 
-
-  
 </aside>
     <div class="clearfix"></div>
   </div>

@@ -35,7 +35,7 @@
 </script>
 
 
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -111,8 +111,10 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>Java虚拟机在执行Java程序的过程中会把它所管理的内存划分为若干个不同的数据区域。这些区域都有各自的用途，以及各自的创建和销毁时间，有的区域随虚拟机进程的启动而存在，有些区域则依赖用户线程的启动和结束而建立和销毁<br><span id="more"></span></p>
-<p><img src="/img/20181009/20181009.1.jpg" alt=""></p>
+        <p>Java虚拟机在执行Java程序的过程中会把它所管理的内存划分为若干个不同的数据区域。这些区域都有各自的用途，以及各自的创建和销毁时间，有的区域随虚拟机进程的启动而存在，有些区域则依赖用户线程的启动和结束而建立和销毁</p>
+<span id="more"></span>
+
+<p><img src="/img/20181009/20181009.1.jpg"></p>
 <h3 id="1-程序计数器"><a href="#1-程序计数器" class="headerlink" title="1. 程序计数器"></a>1. 程序计数器</h3><p>一块较小的内存空间，可以看作是当前线程所执行的字节码的行号指示器。在虚拟机的概念模型里，字节码解释器工作时就是通过改变这个计数器的值来选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计数器来完成。</p>
 <p>程序计数器是线程私有的，每个线程都有一个独立的程序计数器，互不影响。如果线程正在执行的是一个Java方法，则计数器记录的是正在执行的虚拟机字节码指令的地址；如果正在执行的是<code>native</code>方法，则计数器的值为空。</p>
 <h3 id="2-虚拟机栈"><a href="#2-虚拟机栈" class="headerlink" title="2. 虚拟机栈"></a>2. 虚拟机栈</h3><p>虚拟机栈也是线程私有的，它的生命周期与线程相同。它描述的是Java方法执行的内存模型：每个方法在执行同都会创建一个栈帧，用于存储局部变量表、操作数栈、动态链接、方法出口等信息。每一个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程。</p>
@@ -133,7 +135,7 @@
 <p>上面提到了HotSpot使用永久代实现方法区容易出现内存异常问题，因此，<a target="_blank" rel="noopener" href="http://openjdk.java.net/jeps/122">JEP 122: Remove the Permanent Generation</a> 提议取消永久代。在<font color="#E51508">JDK 1.8及之后版本的HotSpot中，已经使用本地内存来实现方法区，称为元空间metaspace，而方法区作为概念上的区域仍然存在，原先永久代中类的元信息放入元空间，字符串等常量放入java堆中</font>。</p>
 <p>推荐阅读：<a target="_blank" rel="noopener" href="https://www.infoq.cn/article/Java-PERMGEN-Removed/">Java 永久代去哪儿了</a></p>
 <h3 id="6-直接内存"><a href="#6-直接内存" class="headerlink" title="6. 直接内存"></a>6. 直接内存</h3><p>直接内存并不是虚拟机运行时数据区的一部分，也不是虚拟机规范中定义的内存区域，但是这部分内存也频繁地被使用，而且可能导致<code>OutOfMemoryError</code>异常。</p>
-<p>JDK1.4中引入了NIO类，<font color="#E51508">一种基于通道<code>channel</code>与缓冲<code>buffer</code>的I/O方式，</font>它可以使用Native函数库直接分配堆外内存，然后通过一个存储在Java堆中的<code>DirectByteBuffer</code>对象作为这块内存的引用进行操作。这样能在一些场景中显著提高性能，因为避免了在java堆和Native堆中来回复制数据。</p>
+<p>JDK1.4中引入了NIO类，<font color="#E51508">一种基于通道<code>channel</code>与缓冲<code>buffer</code>的I&#x2F;O方式，</font>它可以使用Native函数库直接分配堆外内存，然后通过一个存储在Java堆中的<code>DirectByteBuffer</code>对象作为这块内存的引用进行操作。这样能在一些场景中显著提高性能，因为避免了在java堆和Native堆中来回复制数据。</p>
 <p>显然，本机直接内存的分配不会受到Java堆大小的限制，但既然是内存，依然受到本机总内存的限制，在配置虚拟机参数时，会根据实际内存设置<code>-Xmx</code>等参数信息，但经常忽略直接内存，使得各内存区域总和大于物理内存限制（包括物理和系统级的限制），从而导致溢出。</p>
 <p><br><strong>参考：</strong> </p>
 <ol>
@@ -228,8 +230,6 @@ $(document).ready(function(){
 
 
 
-
-  
 </aside>
     <div class="clearfix"></div>
   </div>

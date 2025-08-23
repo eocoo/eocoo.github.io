@@ -35,7 +35,7 @@
 </script>
 
 
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -107,25 +107,29 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>环境：win10_x64<br>版本：mysql-5.7.44<br><span id="more"></span></p>
+        <p>环境：win10_x64<br>版本：mysql-5.7.44    </p>
+<span id="more"></span>
+
 <p>下载安装包：<a target="_blank" rel="noopener" href="https://dev.mysql.com/downloads/mysql">https://dev.mysql.com/downloads/mysql</a></p>
-<p><img src="/img/20170903/20170903.0.jpg" alt=""> </p>
+<p><img src="/img/20170903/20170903.0.jpg"> </p>
 <h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>这里以下载zip包的方式进行安装，解压之后添加数据目录data，以及配置文件my.ini </p>
-<p><img src="/img/20170903/20170903.1.jpg" alt=""> </p>
+<p><img src="/img/20170903/20170903.1.jpg"> </p>
 <p>配置文件中的内容：</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[client]</span><br><span class="line">port = 3306</span><br><span class="line"> </span><br><span class="line">[mysqld]</span><br><span class="line">port = 3306</span><br><span class="line">basedir=E:\mysql5.7.44</span><br><span class="line">datadir=basedir=E:\mysql5.7.44\data</span><br><span class="line">max_connections=100</span><br><span class="line">character-set-server=utf8</span><br><span class="line">default-storage-engine=INNODB</span><br><span class="line">#从 5.6开始，timestamp 的默认行为已经是deprecated了</span><br><span class="line">explicit_defaults_for_timestamp=true</span><br><span class="line"> </span><br><span class="line">[mysql]</span><br><span class="line"># 设置mysql客户端默认字符集</span><br><span class="line">default-character-set=utf8</span><br></pre></td></tr></table></figure>
+
 <p>然后进入bin目录对数据库进行初始化：<code>mysqld --initialize --user=mysql --console</code>，这里记下初始化密码</p>
-<p><img src="/img/20170903/20170903.2.jpg" alt=""> </p>
+<p><img src="/img/20170903/20170903.2.jpg"> </p>
 <p>接下来进行安装mysql服务，服务名这里设置为mysql5</p>
-<p><img src="/img/20170903/20170903.3.jpg" alt=""> </p>
+<p><img src="/img/20170903/20170903.3.jpg"> </p>
 <h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>对应上面安装的服务名mysql5，这里可以直接启动<code>net start mysql5</code>，如果失败的话可以尝试重新initialize</p>
-<p><img src="/img/20170903/20170903.4.jpg" alt=""> </p>
+<p><img src="/img/20170903/20170903.4.jpg"> </p>
 <h3 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h3><p>直接使用上面记住的密码登录root即可，这里最好重置一下root密码</p>
-<p><img src="/img/20170903/20170903.5.jpg" alt=""> </p>
+<p><img src="/img/20170903/20170903.5.jpg"> </p>
 <p>mysql默认只允许localhost进行登录</p>
-<p><img src="/img/20170903/20170903.6.jpg" alt=""> </p>
+<p><img src="/img/20170903/20170903.6.jpg"> </p>
 <p>可以改为允许远程登录</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update user set host = &#x27;%&#x27; where user = &#x27;root&#x27;;</span><br></pre></td></tr></table></figure>
+
 <h3 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h3><h4 id="windows常用操作"><a href="#windows常用操作" class="headerlink" title="windows常用操作"></a>windows常用操作</h4><ul>
 <li>管理员运行cmd</li>
 </ul>
@@ -135,118 +139,118 @@
 </ul>
 <p><strong>cmd命令行</strong></p>
 <table width=100%>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> cls </td>
             <td>清屏</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> ver </td>
             <td>Windows版本</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> systeminfo </td>
             <td>计算机综合信息</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> dir </td>
             <td>查看当前路径下文件列表</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> tree </td>
             <td>查看当前路径下的文件树形图</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> set </td>
             <td>查看当前用户所有环境变量</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> set path </td>
             <td>查看path环境变量</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> write </td>
             <td>写字板</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> notepad </td>
             <td>记事本</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> explorer </td>
             <td>资源管理器</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> mstsc </td>
             <td>远程桌面</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #d9c6c6;"><td></td></tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #d9c6c6;"><td></td></tr>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> regedit </td>
             <td>注册表信息</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> msconfig </td>
             <td>系统配置</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> taskmgr </td>
             <td>任务管理</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> certmgr </td>
             <td>证书管理</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> compmgmt </td>
             <td>计算机管理</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> diskmgmt </td>
             <td>磁盘管理</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> devmgmt </td>
             <td>设备管理</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #d9c6c6;"><td></td></tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #d9c6c6;"><td></td></tr>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> tasklist /? </td>
             <td>任务列表，帮助信息</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> start /? </td>
             <td>启动进程，帮助信息</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> taskkill /? </td>
             <td>杀死进程，帮助信息</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> netstat -help </td>
             <td>网络连接状态，帮助信息</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> net start </td>
             <td>查看运行的服务</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #d9c6c6;"><td></td></tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #d9c6c6;"><td></td></tr>
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> ipconfig -all </td>
             <td>查看ip信息</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> tracert </td>
             <td>路由跟踪</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> route print </td>
             <td>查看路由表信息</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> ARP -a </td>
             <td>查看地址转换表（地址解析协议ARP使用的IP与mac的映射表）</td>
         </tr>
-        <tr style="border-bottom:0.01rem solid #ededed;">
+		<tr style="border-bottom:0.01rem solid #ededed;">
             <td> nslookup </td>
             <td>IP地址侦测器，监测网络中DNS服务器是否能正确实现域名解析</td>
         </tr>
@@ -254,8 +258,10 @@
 
 <p><strong>场景：</strong></p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">按名称结束指定进程（比如记事本）    taskkill /im notepad.exe</span><br><span class="line">按进程号PID结束指定进程            taskkill /pid 8080</span><br><span class="line">强制重启卡死进程（比如资源管理器）  taskkill /f /im explorer.exe &amp; start explorer.exe</span><br><span class="line">找到占用指定端口的进程（8080）      netstat -ano | find &quot;8080&quot;</span><br></pre></td></tr></table></figure>
+
 <h4 id="mysql忘记密码"><a href="#mysql忘记密码" class="headerlink" title="mysql忘记密码"></a>mysql忘记密码</h4><p>修改配置文件my.cnf，在[mysqld]下面加上：skip-grant-tables，并重启mysql服务。然后<code>mysql -uroot -p</code>登录mysql，并执行</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">use mysql;</span><br><span class="line">update user set authentication_string=password(&#x27;root@123&#x27;) where user=&#x27;root&#x27;;</span><br><span class="line">flush privileges;</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -345,8 +351,6 @@ $(document).ready(function(){
 
 
 
-
-  
 </aside>
     <div class="clearfix"></div>
   </div>
