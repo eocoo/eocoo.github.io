@@ -1,0 +1,408 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Linux常用网络管理命令 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="整理一些在Linux中常用的网络管理命令">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Linux常用网络管理命令"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  <header id="header" class="inner"><script async src="//js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">It's a long long way to go</span>
+  <h2><font style="color: #736f6f;">articles:  114 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20250918" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2025-09-17T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2025/09/18/20250918/" style="color: #736f6f;">2025-09-18</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Linux常用网络管理命令
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="//js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 5.2k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 22min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/iptables/">iptables</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>整理一些在Linux中常用的网络管理命令</p>
+<span id="more"></span>
+
+<h3 id="流量控制-tc"><a href="#流量控制-tc" class="headerlink" title="流量控制 tc"></a>流量控制 tc</h3><p>TC(Traffic Control)用于Linux内核的流量控制，它通过队列规则(qdisc)管理数据包的排队和调度，从而实现对网络流量的控制。TC的队列规则分为两类：无类队列规则(classless qdisc)，和分类队列规则(classful qdisc)。无类队列规则相对简单，而分类队列规则可以包含多个类，并通过过滤器(filters)将数据包分配到不同类，从而提供更精细的流量控制功能。</p>
+<ul>
+<li>qdisc队列规则</li>
+</ul>
+<p>qdisc（队列规则）用来控制网络接口的发送队列，管理数据包排队、调度和速率。它会将数据包缓存起来，再按照用户设定的策略调度发送，在保证连接稳定的前提下，使网络流量更加平滑。</p>
+<p>一般只用发送队列，即”控发不控收”，因为网络瓶颈一般不在本地网卡接收能力，而是出现在网络传输链路中。如果发送过快，容易造成拥塞，因此Linux的流量控制机制将精力主要放在了发送端限速与调度上。</p>
+<ul>
+<li>class类</li>
+</ul>
+<p>只能存在于classful qdisc中，其作用是对流量进行分类和管理。可以理解成qdisc队列规则下的逻辑分支，然后每个class可以有自己的队列规则(qdisc)，用来实现不同流量的速率、优先级等控制策略</p>
+<ul>
+<li>Filter规则</li>
+</ul>
+<p>filter是附属于qdisc或class的匹配机制，本身不处理流量。作用是将数据包匹配到具体的class或qdisc。常用的过滤器有：fwmark分类器，u32分类器，基于路由的分类器，和RSVP分类器等；fwmark可结合netfilter使用，u32可按IP&#x2F;端口&#x2F;协议头字段匹配。</p>
+<p>在TC中，使用”major:minor”这样的句柄来标识队列和类别。major在一个网卡的所有队列中必须是惟一的。对于队列来说，minor总是为0，即”major:0”</p>
+<ul>
+<li>添加</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tc qdisc  [add|change|replace|<span class="built_in">link</span>] [dev dev-name] [parent qdisc-id|root] [handle qdisc-id] [qdisc specific parameters]</span><br><span class="line">tc class  [add|change|replace]      [dev dev-name] [parent qdisc-id]      [classid class-id] [qdisc specific parameters]</span><br><span class="line">tc filter [add|change|replace]      [dev dev-name] [protocol protocol] [parent qdisc-id|root] [prio priorityfiltertype] [filtertype specific parameters] [classid classid]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tc [-s | -d ] qdisc show [ dev DEV ]</span><br><span class="line">tc [-s | -d ] class show dev DEV </span><br><span class="line">tc filter show dev DEV</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>删除</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tc qdisc del dev eth0 root</span><br></pre></td></tr></table></figure>
+
+<h4 id="不分类队列规则"><a href="#不分类队列规则" class="headerlink" title="不分类队列规则"></a>不分类队列规则</h4><h5 id="pfifo-fast-先入先出队列"><a href="#pfifo-fast-先入先出队列" class="headerlink" title="pfifo_fast 先入先出队列"></a>pfifo_fast 先入先出队列</h5><p>pfifo_fast对所有包都一视同仁，有三个”band”（可理解为三个队列），编号分别为 0、1、2</p>
+<p><img src="/img/20250918/pfifo_fast-qdisc.png"> </p>
+<ul>
+<li>每个 band 上分别执行 FIFO 规则</li>
+<li>如果 band 0 有数据，就不会处理 band 1；同理，band 1 有数据时，不会去处理 band 2</li>
+<li>内核会检查数据包的 TOS 字段，将“最小延迟”的包放到 band 0</li>
+</ul>
+<h5 id="TBQ-令牌桶"><a href="#TBQ-令牌桶" class="headerlink" title="TBQ 令牌桶"></a>TBQ 令牌桶</h5><p>对于没有超过预设速率的流量直接透传，但也能容忍超过预 设速率的短时抖动。TBF 非常简洁，对网络和处理器都很友好，如果只是想实现接口限速，那TBF是第一选择</p>
+<p><img src="/img/20250918/tbf-qdisc.png"> </p>
+<p>TBF实现主要包括两部分：</p>
+<ol>
+<li>A buffer (bucket)：bucket 最重要的参数是它的大小，即能容纳的 token 数量。</li>
+<li>Tokens：token 会以特定的速率（specific rate）填充 bucket 缓冲区。</li>
+</ol>
+<p>当一个包到来时，会从bucket中获取一个token，然后收集这个包的信息，最后从bucket中删除这个token，这样可能有三种场景</p>
+<ul>
+<li>数据速率 &#x3D; token速率，每个包都能找到一个对应的token，然后直接从队列出去，没有延时；</li>
+<li>数据速率 &gt; token速率，token很快用完，如果包还是源源不断地到来，就会产生丢包；</li>
+<li>数据速率 &lt; token速率，数据能及时发送出去，但是会产生bucket积压，极端情况会将bucket占满。这样如果数据速率突然高于token速率，可以消耗积压的token，所以能够容忍短时数据速率抖动；</li>
+</ul>
+<h5 id="SFQ-随机公平排队"><a href="#SFQ-随机公平排队" class="headerlink" title="SFQ 随机公平排队"></a>SFQ 随机公平排队</h5><p>SFQ是公平排队算法族的一个简单实现，相比其他算法，SFQ精准性要差一些，但它所需的计算量也少，而结果几乎是完全公平的</p>
+<p><img src="/img/20250918/sfq-qdisc.png"> </p>
+<p>SFQ中的核心是conversion（会话）或 flow（流），大部分情况下对应一个TCP session或UDP stream。每个conversion对应一个FIFO queue，然后将流量分到不同queue。发送数据时，按照round robin方式，每个session轮流发送。</p>
+<p>这种机制会产生非常公平的结果，不会因为单个conversion太大而把其他conversion的带宽都挤占掉。SFQ被称为”随机的”是因为它其实并没有为每个session分配一个queue，而是用算法将流量哈希到了一组有限的queue。</p>
+<h4 id="分类队列规则"><a href="#分类队列规则" class="headerlink" title="分类队列规则"></a>分类队列规则</h4><h5 id="PRIO-优先级排队规则"><a href="#PRIO-优先级排队规则" class="headerlink" title="PRIO 优先级排队规则"></a>PRIO 优先级排队规则</h5><p>PRIO可以理解为pfifo_fast的升级版，它也有多个band，但每个band都是一个独立的class，而不是简单的FIFO。</p>
+<p><img src="/img/20250918/prio-qdisc-2.gif"> </p>
+<p>当一个包到PRIO qdisc之后，它会根据设置的filters选择一个class，并将包送到这个class。默认情况下会创建三个class，每个class默认情况下包含一个纯FIFO qdisc，没有其他内部结构，但你可以用其他类型的qdisc替换掉FIFO。</p>
+<p>当从PRIO qdisc取出数据包时，会先尝试 :1。只有lower classes没有数据包可取时，才会尝试higher classes。这样，如果希望基于tc filters而不仅仅是TOS flags做流量优先级分类时，这个qdisc会非常有用，因为可以向这三个预置的classes添加额外的qdisc，而pfifo_fast只能提供简单的FIFO qdisc。</p>
+<h5 id="CBQ"><a href="#CBQ" class="headerlink" title="CBQ"></a>CBQ</h5><p>CBQ是最复杂、最花哨、最少被理解、也可能是最难用对的qdisc。</p>
+<h5 id="HTB-层级令牌桶"><a href="#HTB-层级令牌桶" class="headerlink" title="HTB 层级令牌桶"></a>HTB 层级令牌桶</h5><p>Martin Devera意识到CBQ太复杂，并且没有针对很多典型的场景进行优化。因此他设计了HTB，这种层级化的方式对下面这些场景很适用：</p>
+<ul>
+<li>有一个固定总带宽，想将其分割成几个部分，分别用作不同目的</li>
+<li>每个部分的带宽是有保证的（guaranteed bandwidth）</li>
+<li>还可以指定每个部分向其他部分借带宽</li>
+</ul>
+<p>HTB内部其实是一个classful TBF（令牌桶过滤器），这也是它叫层级令牌桶的原因</p>
+<p><img src="/img/20250918/htb-borrow.png"> </p>
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加根队列规则，指定默认的class为 1:12</span></span><br><span class="line">tc qdisc add dev eth0 root handle 1: htb default 12</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加根类别</span></span><br><span class="line">tc class add dev eth0 parent 1: classid 1:1 htb rate 100mbit ceil 100mbit</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加子类别，高优先级流量</span></span><br><span class="line"><span class="comment"># rate 10mbi   保证带宽</span></span><br><span class="line"><span class="comment"># ceil 20mbit  最大带宽</span></span><br><span class="line"><span class="comment"># burst 15k    突发流量，对应令牌桶容量</span></span><br><span class="line"><span class="comment"># cburst 30k   当速率超过rate，向上借带宽时，允许的突发大小</span></span><br><span class="line"><span class="comment"># quantum 1500 调度器一次分配的流量字节数，一般设为MTU的整数倍，quantum越大，调度公平性越差，但效率更高</span></span><br><span class="line">tc class add dev eth0 parent 1:1 classid 1:10 htb rate 10mbit ceil 20mbit burst 15k cburst 30k prio 1 quantum 1500</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加子类别，中等优先级流量  </span></span><br><span class="line">tc class add dev eth0 parent 1:1 classid 1:11 htb rate 30mbit ceil 50mbit burst 25k prio 2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加子类别，低优先级流量</span></span><br><span class="line">tc class add dev eth0 parent 1:1 classid 1:12 htb rate 10mbit ceil 10mbit prio 3</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加过滤器，基于端口的过滤（对于 parent 1:0 下的流量进行过滤，过滤后的结果归类到 classid 1:10下）</span></span><br><span class="line"><span class="comment"># prio 1：表示优先级，同一个class下面可以加多个过滤器，按从小到大优先过滤</span></span><br><span class="line"><span class="comment"># u32 匹配器：u32 match &lt;层&gt; &lt;字段&gt; &lt;值&gt; &lt;掩码&gt;</span></span><br><span class="line">tc filter add dev eth0 protocol ip parent 1:0 prio 1 u32 match ip dport 80 0xffff classid 1:10</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加过滤器，基于源地址的过滤</span></span><br><span class="line">tc filter add dev eth0 protocol ip parent 1:0 prio 2 u32 match ip src 192.168.1.100/32 classid 1:11</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加过滤器，基于防火墙标记的过滤</span></span><br><span class="line"><span class="comment"># fw 依赖iptables给数据包打的fwmark，将打过标记的数据包分到目标类中</span></span><br><span class="line"><span class="comment"># 比如：iptables -t mangle -A PREROUTING -p tcp --dport 80 -j MARK --set-mark 12</span></span><br><span class="line">tc filter add dev eth0 protocol ip parent 1:0 prio 3 fw classid 1:12</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看网卡流量统计</span></span><br><span class="line"><span class="comment"># -s 示统计信息，包括发送的字节数、数据包数、丢包数、超限数等</span></span><br><span class="line"><span class="comment"># -d 显示详细信息，包括 qdisc 或 class 的配置参数、层级等</span></span><br><span class="line"><span class="comment"># -p 用更易读的格式显示输出，方便阅读层级关系</span></span><br><span class="line">tc -s -d -p qdisc show dev ens160</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="数据包过滤转发-iptables"><a href="#数据包过滤转发-iptables" class="headerlink" title="数据包过滤转发 iptables"></a>数据包过滤转发 iptables</h3><p>iptables是位于用户空间的一个面向Linux系统管理员的防火墙管理工具，真正实现防火墙功能的是netfilter，它是Linux实现包过滤的内核模块，iptables对应在内核中的模块是ip_tables，可以通过<code>modinfo ip_tables</code>查看。相对tc控制流量的发送端，iptables就是控制流量的接收端了，所以也称为防火墙。</p>
+<p><img src="/img/20250918/20250918.1.png"> </p>
+<p>图中的“四表五链”是对用户设置规则的分类管理，四表存放着功能一致的规则，五链则存放着数据包所处链路一致的规则。其中表和链之间是多对多的对应关系（如上图所示），但是不管一个链对应多少表，表的处理优先级是固定的：raw -&gt; mangle -&gt; nat -&gt; filter</p>
+<ul>
+<li>filter表：用来对数据包进行过滤，具体的规则要求决定如何处理一个数据包；</li>
+<li>nat表：用来修改数据包的 IP 地址、端口号信息；</li>
+<li>mangle表：用来修改数据包的服务类型，生存周期，为数据包设置标记，实现流量整形、策略路由等；</li>
+<li>raw表：用来决定是否对数据包进行状态跟踪；</li>
+</ul>
+<p>raw表只使用在PREROUTING链和OUTPUT链上，因为优先级最高，从而可以在系统对收到的数据包进行ip_conntrack（连接跟踪）前进行处理。一但用户使用了raw表，在某个链上，raw表处理完后，将跳过NAT表和ip_conntrack处理，不再做地址转换和数据包的链接跟踪处理了。一般可以应用在那些不需要做nat的情况下，以提高性能；</p>
+<ul>
+<li>input链：收到访问本机地址的数据包时，将应用此链中的规则；</li>
+<li>output链：本机向外发送数据包时，将应用此链中的规则；</li>
+<li>forward链：收到需要通过本机转发给其他地址的数据包时，将应用此链中的规则；</li>
+<li>prerouting链：对数据包做路由选择之前，将应用此链中的规则；</li>
+<li>postrouting链：对数据包做路由选择之后，将应用此链中的规则；</li>
+</ul>
+<figure class="highlight text"><figcaption><span>:命令语法</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">iptables [-t 表名] 管理选项 [链名] [匹配条件] [-j 控制类型]</span><br><span class="line"></span><br><span class="line">管理选项：</span><br><span class="line">-A: 在指定链的末尾添加一条新的规则</span><br><span class="line">-D: 删除指定链中的某一条规则，可删除指定序号或具体内容</span><br><span class="line">-I: 在指定链中插入一条新规则，未指定序号时默认作为第一条规则</span><br><span class="line">-R: 修改、替换指定链中的某一条规则，可指定规则序号或具体内容</span><br><span class="line">-L: 列出指定链中所有的规则，未指定链名，则列出表中的所有链</span><br><span class="line">-F: 清空指定链中所有的规则，未指定链名，则清空表中的所有链</span><br><span class="line">-P: 设置指定链的默认策略</span><br><span class="line">-n: 使用数字形式显示输出结果</span><br><span class="line">-v: 查看规则列表时显示详细的信息</span><br><span class="line">-h: 查看命令帮助信息</span><br><span class="line">--line-numbers: 查看规则列表时，同时显示规则在链中的顺序号</span><br><span class="line"></span><br><span class="line">常用匹配条件：</span><br><span class="line">-i：网络接口名称 #指定数据包从哪个网络接口进入</span><br><span class="line">-m：匹配的模块   #指定数据包规则所使用的过滤模块</span><br><span class="line">-o：网络接口名称 #指定数据包从哪个网络接口输出</span><br><span class="line">-p：协议名称     #指定数据包匹配的协议，如TCP、UDP和ICMP等</span><br><span class="line">-s：源地址或子网地址    #指定数据包匹配的源地址</span><br><span class="line">-state：数据包当前状态 #指定ESTABLISHED,RELATED等</span><br><span class="line">-sport：源端口号      #指定数据包匹配的源端口号</span><br><span class="line">-dport：目的端口号    #指定数据包匹配的目的端口号iptables规则的动作</span><br><span class="line"></span><br><span class="line">常用控制类型：</span><br><span class="line">LOG: 日志功能，将符合规则的数据包的相关信息记录在日志中，便于分析和排错</span><br><span class="line">ACCEPT: 接受数据包</span><br><span class="line">REJECT: 拒绝数据包</span><br><span class="line">DROP: 丢弃数据包，相对于拒绝，常用于隐藏服务，防止扫描或探测</span><br><span class="line">EDIRECT: 与DROP基本一样，区别在于它除了阻塞包之外，还向发送者返回错误信息</span><br><span class="line">MASQUERADE: IP伪装，改写数据包来源IP为本机IP及端口，和SNAT不同的是，当进行IP伪装时，不需指定要伪装成哪个IP，IP会从网卡直接读取</span><br><span class="line">SNAT: 源地址转换，改变数据包的源地址</span><br><span class="line">DNAT: 目标地址转换，改变数据包的目的地址</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">iptables -I INPUT -p tcp --dport 3306 -j ACCEPT        # 允许外部访问指定的端口</span><br><span class="line">iptables -I INPUT -s 192.168.1.0/24 -j DROP            # 丢掉所有来自192.168.1.0网段的数据包</span><br><span class="line">iptables -I INPUT -s 172.168.0.1 -p icmp -j DROP       # 禁止某个ip的ICMP协议</span><br><span class="line"></span><br><span class="line">只允许指定ip（192.168.1.123、192.168.1.124）访问指定端口（顺序相关）</span><br><span class="line">iptables -I INPUT -p tcp --dport 50070 -j DROP</span><br><span class="line">iptables -I INPUT -s 192.168.1.123 -p tcp --dport 50070 -j ACCEPT</span><br><span class="line">iptables -I INPUT -s 192.168.1.124 -p tcp --dport 50070 -j ACCEPT</span><br><span class="line"></span><br><span class="line">本机开放从TCP端口20-1024提供的应用服务</span><br><span class="line">iptables -A INPUT -p tcp --dport 20:1024 -j ACCEPT</span><br><span class="line">iptables -A OUTPUT -p tcp --sport 20:1024 -j ACCEPT</span><br><span class="line"></span><br><span class="line">允许转发来自192.168.0.0/24局域网段的DNS解析请求数据包</span><br><span class="line">iptables -A FORWARD -s 192.168.0.0/24 -p udp --dport 53 -j ACCEPT</span><br><span class="line">iptables -A FORWARD -d 192.168.0.0/24 -p udp --sport 53 -j ACCEPT</span><br></pre></td></tr></table></figure>
+
+<h3 id="网络性能测试-iperf"><a href="#网络性能测试-iperf" class="headerlink" title="网络性能测试 iperf"></a>网络性能测试 iperf</h3><p>详细命令参数：<a target="_blank" rel="noopener" href="https://iperf.fr/iperf-doc.php">https://iperf.fr/iperf-doc.php</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">服务端启动端口监听</span></span><br><span class="line">iperf3 -s -p 5001 -i 1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">客户端启动打流，使用10路并发流，每路限制10Mbps，统计打印间隔每秒一次，持续10000秒。</span></span><br><span class="line">iperf3 -c 20.20.20.20 -p 5001 -t 10000s -i 1s -b 10M -P 10</span><br></pre></td></tr></table></figure>
+
+<h3 id="网络抓包-tcpdump"><a href="#网络抓包-tcpdump" class="headerlink" title="网络抓包 tcpdump"></a>网络抓包 tcpdump</h3><p>tcpdump可以将网络数据包截获下来提供分析，支持针对网络层、协议、主机、网络或端口的过滤，并提供and、or、not等逻辑语句来进行过滤</p>
+<p>常用选项：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">-i &lt;iface&gt;	指定接口，例如 -i eth0。</span><br><span class="line">-n	        不解析主机名，直接显示 IP 地址。</span><br><span class="line">-nn	        不解析主机名和端口号，显示数字形式。</span><br><span class="line">-v / -vv / -vvv	增加输出的详细程度。</span><br><span class="line">-c &lt;count&gt;	捕获指定数量的数据包后退出。</span><br><span class="line">-s &lt;snaplen&gt;	指定抓包长度，默认 262144 字节。</span><br><span class="line">-X	        显示数据包的 十六进制 + ASCII。</span><br><span class="line">-XX	        显示以太网头 + 十六进制 + ASCII。</span><br><span class="line">-A	        以 ASCII 形式显示数据内容（适合 HTTP 请求）。</span><br><span class="line">-w &lt;file&gt;	将抓到的数据包写入文件（例如 .pcap），可用于 Wireshark 分析。</span><br><span class="line">-r &lt;file&gt;	从抓包文件读取数据。</span><br><span class="line">-tt / -ttt / -T	显示时间戳格式，可精确到微秒。</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">针对指定主机抓包</span></span><br><span class="line">tcpdump -i any -n -nn host 192.168.1.10 -w ./$(date +%Y%m%d%H%M%S).pcap</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">针对指定端口抓包</span></span><br><span class="line">tcpdump -i any -n -nn tcp and port 80 -w ./$(date +%Y%m%d%H%M%S).pcap</span><br></pre></td></tr></table></figure>
+
+<h3 id="网络设备管理-ip"><a href="#网络设备管理-ip" class="headerlink" title="网络设备管理 ip"></a>网络设备管理 ip</h3><h4 id="设备管理-ip-link"><a href="#设备管理-ip-link" class="headerlink" title="设备管理 ip link"></a>设备管理 ip link</h4><ul>
+<li>常用命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="built_in">link</span> show            <span class="comment"># 查看所有网络接口 ifconfig -a</span></span><br><span class="line">ip <span class="built_in">link</span> show dev eth0   <span class="comment"># 查看指定接口 ifconfig eth0</span></span><br><span class="line"></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 up     <span class="comment"># 启用接口 ifconfig eth0 up</span></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 down   <span class="comment"># 启用接口 ifconfig eth0 down</span></span><br><span class="line"></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 address 00:11:22:33:44:55 <span class="comment"># 修改MAC地址 ifconfig eth0 hw ether 00:11:22:33:44:55</span></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 mtu 1500                  <span class="comment"># 修改MTU值 ifconfig eth0 mtu 1500</span></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 name wan0                 <span class="comment"># 重命名接口</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>常用设备</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">物理设备 (Physical Layer)</span><br><span class="line">    ├── 物理有线网卡 (eth0, enp3s0, ens33)</span><br><span class="line">    ├── 物理无线网卡 (wlan0, wlp2s0)</span><br><span class="line">    ├── 环回接口 (lo)</span><br><span class="line">    └── 其他物理接口 (ppp0, usb0)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ip link add vrf-blue type vrf table 10</span><br><span class="line">ip link set dev vrf-blue up</span><br><span class="line">ip link set dev eth0 master vrf-blue</span><br><span class="line"></span><br><span class="line">虚拟设备 (Virtual Layer)</span><br><span class="line">    ├── VLAN 接口                   =&gt; 在一个物理网卡上可以创建多个逻辑网络，起到网络隔离的作用</span><br><span class="line">    │   ├── eth0.100 (VLAN ID 100) =&gt; ip link add link eth0 name eth0.100 type vlan id 100</span><br><span class="line">    │   └── eth0.200 (VLAN ID 200) =&gt; ip addr add 192.168.100.1/24 dev eth0.100 </span><br><span class="line">    │                              =&gt; ip link set eth0.100 up</span><br><span class="line">    │                              =&gt; ip link show type vlan</span><br><span class="line">    │</span><br><span class="line">    ├── vrf 虚拟路由转发             =&gt; 在多网卡多网络的场景下，本机逻辑路由划分，避免所有接口共享同一张路由表</span><br><span class="line">    │                              =&gt; ip link add vrf-manage type vrf table 10</span><br><span class="line">    │                              =&gt; ip link set dev vrf-manage up</span><br><span class="line">    │                              =&gt; ip link set dev eth0 master vrf-manage</span><br><span class="line">    │                              =&gt; ip route show vrf vrf-manage</span><br><span class="line">    │                              =&gt; ip vrf exec &lt;vrf-name&gt; &lt;command&gt;</span><br><span class="line">    │</span><br><span class="line">    ├── 网桥设备 (Bridge)           =&gt; 二层虚拟设备，作用类似于交换机，将加入它的设备放在同一个二层网络里</span><br><span class="line">    │   ├── docker0 (Docker网桥)   =&gt; ip link add name br0 type bridge &amp; ip link set br0 up</span><br><span class="line">    │   ├── br0 (自定义网桥)        =&gt; ip addr add 192.168.3.1/24 dev br0</span><br><span class="line">    │   │   ├── 虚拟设备 veth0      =&gt; ip link add veth0 type veth peer name veth1</span><br><span class="line">    │   │   ├── 虚拟设备 veth1      =&gt; ip link set veth0 up &amp; ip link set veth0 master br0</span><br><span class="line">    │   │   └── 物理设备 eth1       =&gt; ip link set veth1 up &amp; ip addr add 192.168.3.2/24 dev veth1</span><br><span class="line">    │   └── virbr0 (Libvirt网桥)   =&gt; ip link set eth1 master br0</span><br><span class="line">    │                             =&gt; ping 192.168.3.1</span><br><span class="line">    │                             =&gt; ping 192.168.3.2</span><br><span class="line">    │</span><br><span class="line">    │</span><br><span class="line">    ├── TAP/TUN 设备                =&gt; ip tuntap add dev tap0 mode tap &amp; ip link set dev tap0 up </span><br><span class="line">    │   ├── tap0 (二层隧道)         =&gt;  ip link set tap0 master br0</span><br><span class="line">    │   └── tun0 (三层隧道)         =&gt; ip tuntap add dev tun0 mode tun &amp; ip link set dev tun0 up</span><br><span class="line">    │                              =&gt; ip addr add 10.8.0.1 peer 10.8.0.2 dev tun0</span><br><span class="line">    │                              =&gt; ip route add 10.8.0.0/24 dev tun0</span><br><span class="line">    │                              =&gt; iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -j MASQUERADE</span><br><span class="line">    │        </span><br><span class="line">    │                          </span><br><span class="line">    └── 绑定接口 (Bonding)          =&gt; 虚拟网卡，可以将多个物理网卡绑成一块逻辑网卡，起到提高带宽（多网卡并发）、冗余容错的作用</span><br><span class="line">        ├── bond0 (链路聚合)</span><br><span class="line">        │   ├── 物理设备 eth2 (从设备)</span><br><span class="line">        │   └── 物理设备 eth3 (从设备)</span><br><span class="line">        └── team0 (新一代聚合)</span><br></pre></td></tr></table></figure>
+
+<h4 id="地址管理-ip-addr"><a href="#地址管理-ip-addr" class="headerlink" title="地址管理 ip addr"></a>地址管理 ip addr</h4><ul>
+<li>常用命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ip addr show            <span class="comment"># 查看所有IP地址</span></span><br><span class="line">ip addr flush dev eth0  <span class="comment"># 清空所有IP</span></span><br><span class="line"></span><br><span class="line">ip addr add 192.168.1.100/24 dev eth0  <span class="comment"># 添加IP地址  </span></span><br><span class="line">ip addr del 192.168.1.100/24 dev eth0  <span class="comment"># 删除IP地址</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="路由管理-ip-route"><a href="#路由管理-ip-route" class="headerlink" title="路由管理 ip route"></a>路由管理 ip route</h4><ul>
+<li>常用命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">ip route show          <span class="comment"># 查看路由表</span></span><br><span class="line">ip route flush cache   <span class="comment"># 清空路由表</span></span><br><span class="line"></span><br><span class="line">ip route add default via 192.168.1.1 dev eth0  <span class="comment"># 添加默认网关</span></span><br><span class="line">ip route add 10.0.0.0/8 via 192.168.1.1               <span class="comment"># 添加路由</span></span><br><span class="line">ip route add 172.16.0.0/16 via 192.168.1.1 dev eth0   <span class="comment"># 添加路由，指定接口</span></span><br><span class="line">ip route add 192.168.2.0/24 via 10.0.0.1 src 10.0.0.2 <span class="comment"># 添加路由，指定源ip</span></span><br><span class="line">ip route add 10.8.0.0/24 dev tun0    <span class="comment"># 隧道路由</span></span><br><span class="line"></span><br><span class="line">ip route add 192.168.32.21 dev pcie0  <span class="comment"># 目的地址是192.168.32.21的包，直接从pcie0接口出去</span></span><br><span class="line"></span><br><span class="line">ip route del default      <span class="comment"># 删除路由</span></span><br><span class="line">ip route del 10.0.0.0/8   <span class="comment"># 删除路由</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="ARP管理-ip-neigh"><a href="#ARP管理-ip-neigh" class="headerlink" title="ARP管理 ip neigh"></a>ARP管理 ip neigh</h4><ul>
+<li>常用命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ip neigh show            <span class="comment"># 查看ARP表 arp -n</span></span><br><span class="line">ip neigh flush dev eth0  <span class="comment"># 清空ARP表 arp -d -a</span></span><br><span class="line"></span><br><span class="line">ip neigh add 192.168.1.100 lladdr 00:11:22:33:44:55 dev eth0  <span class="comment"># 添加静态ARP  arp -s 192.168.1.100 00:11:22:33:44:55</span></span><br><span class="line">ip neigh add 192.168.1.100 lladdr 00:11:22:33:44:55 dev eth0 nud permanent <span class="comment"># 添加永久静态ARP</span></span><br><span class="line"></span><br><span class="line">ip neigh del 192.168.1.100 dev eth0 <span class="comment"># 删除ARP条目 arp -d 192.168.1.100</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="策略路由-ip-rule"><a href="#策略路由-ip-rule" class="headerlink" title="策略路由 ip rule"></a>策略路由 ip rule</h4><ul>
+<li>常用命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看路由策略</span></span><br><span class="line">ip rule show</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加策略路由</span></span><br><span class="line">ip rule add from 192.168.1.100 table 100</span><br><span class="line">ip rule add to 10.0.0.0/8 table 200</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除策略</span></span><br><span class="line">ip rule del from 192.168.1.100</span><br></pre></td></tr></table></figure>
+
+<h4 id="隧道管理-ip-tunnel"><a href="#隧道管理-ip-tunnel" class="headerlink" title="隧道管理 ip tunnel"></a>隧道管理 ip tunnel</h4><ul>
+<li>常用命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">本地局域网: 192.168.1.0/24，隧道端点: 192.168.1.100，公网IP: 203.0.113.100</span><br><span class="line"></span><br><span class="line">ip tunnel add tun0 mode ipip remote 198.51.100.200 <span class="built_in">local</span> 203.0.113.100  <span class="comment"># 创建隧道</span></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> tun0 up  <span class="comment"># 启用隧道</span></span><br><span class="line">ip addr add 172.16.0.1 peer 172.16.0.2/30 dev tun0  <span class="comment"># 为隧道接口分配IP</span></span><br><span class="line">ip route add 10.2.2.0/24 via 172.16.0.2 dev tun0 <span class="comment"># 添加路由</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">对端局域网段: 10.2.2.0/24，隧道端点: 10.2.2.100，公网IP: 198.51.100.200</span><br><span class="line"></span><br><span class="line">ip tunnel add tun0 mode ipip remote 203.0.113.100 <span class="built_in">local</span> 198.51.100.200  <span class="comment"># 创建隧道</span></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> tun0 up  <span class="comment"># 启用隧道</span></span><br><span class="line">ip addr add 172.16.0.2 peer 172.16.0.1/30 dev tun0  <span class="comment"># 为隧道接口分配IP</span></span><br><span class="line">ip route add 192.168.1.0/24 via 172.16.0.1 dev tun0 <span class="comment"># 添加路由</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="组播地址管理-ip-maddr"><a href="#组播地址管理-ip-maddr" class="headerlink" title="组播地址管理 ip maddr"></a>组播地址管理 ip maddr</h4><p>组播地址范围：224.0.0.0  ～  239.255.255.255</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ip maddr show   <span class="comment"># 查看组播地址</span></span><br><span class="line"></span><br><span class="line">ip maddr add 224.0.0.1 dev eth0 <span class="comment"># 添加组播地址</span></span><br><span class="line"></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 multicast on   <span class="comment"># 启用组播功能</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="组播路由管理-ip-mroute"><a href="#组播路由管理-ip-mroute" class="headerlink" title="组播路由管理 ip mroute"></a>组播路由管理 ip mroute</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ip mroute show  <span class="comment"># 查看组播路由</span></span><br><span class="line"></span><br><span class="line">ip mroute add 239.1.1.1/32 via 192.168.1.10 dev eth1  <span class="comment"># 只接受来自192.168.1.10的组播流</span></span><br></pre></td></tr></table></figure>
+
+<p><br><strong>参考：</strong></p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://arthurchiao.art/blog/lartc-qdisc-zh">https://arthurchiao.art/blog/lartc-qdisc-zh</a></li>
+<li><a target="_blank" rel="noopener" href="https://tinychen.com/20200414-iptables-principle-introduction">https://tinychen.com/20200414-iptables-principle-introduction</a></li>
+<li><a target="_blank" rel="noopener" href="https://iperf.fr/iperf-doc.php">https://iperf.fr/iperf-doc.php</a></li>
+</ol>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2025/10/05/20251005/">
+		    Kafka Producer（下）
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2025/05/27/20250527/">
+		    Kafka Producer（上）
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/iptables/">iptables</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'shanhm1991.github.io',
+        owner: 'shanhm1991',
+        admin: 'shanhm1991'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6-tc"><span class="toc-text">流量控制 tc</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E5%88%86%E7%B1%BB%E9%98%9F%E5%88%97%E8%A7%84%E5%88%99"><span class="toc-text">不分类队列规则</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#pfifo-fast-%E5%85%88%E5%85%A5%E5%85%88%E5%87%BA%E9%98%9F%E5%88%97"><span class="toc-text">pfifo_fast 先入先出队列</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#TBQ-%E4%BB%A4%E7%89%8C%E6%A1%B6"><span class="toc-text">TBQ 令牌桶</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SFQ-%E9%9A%8F%E6%9C%BA%E5%85%AC%E5%B9%B3%E6%8E%92%E9%98%9F"><span class="toc-text">SFQ 随机公平排队</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E7%B1%BB%E9%98%9F%E5%88%97%E8%A7%84%E5%88%99"><span class="toc-text">分类队列规则</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#PRIO-%E4%BC%98%E5%85%88%E7%BA%A7%E6%8E%92%E9%98%9F%E8%A7%84%E5%88%99"><span class="toc-text">PRIO 优先级排队规则</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#CBQ"><span class="toc-text">CBQ</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#HTB-%E5%B1%82%E7%BA%A7%E4%BB%A4%E7%89%8C%E6%A1%B6"><span class="toc-text">HTB 层级令牌桶</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%8C%85%E8%BF%87%E6%BB%A4%E8%BD%AC%E5%8F%91-iptables"><span class="toc-text">数据包过滤转发 iptables</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95-iperf"><span class="toc-text">网络性能测试 iperf</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E6%8A%93%E5%8C%85-tcpdump"><span class="toc-text">网络抓包 tcpdump</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86-ip"><span class="toc-text">网络设备管理 ip</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86-ip-link"><span class="toc-text">设备管理 ip link</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%B0%E5%9D%80%E7%AE%A1%E7%90%86-ip-addr"><span class="toc-text">地址管理 ip addr</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B7%AF%E7%94%B1%E7%AE%A1%E7%90%86-ip-route"><span class="toc-text">路由管理 ip route</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ARP%E7%AE%A1%E7%90%86-ip-neigh"><span class="toc-text">ARP管理 ip neigh</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1-ip-rule"><span class="toc-text">策略路由 ip rule</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E7%AE%A1%E7%90%86-ip-tunnel"><span class="toc-text">隧道管理 ip tunnel</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%84%E6%92%AD%E5%9C%B0%E5%9D%80%E7%AE%A1%E7%90%86-ip-maddr"><span class="toc-text">组播地址管理 ip maddr</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%84%E6%92%AD%E8%B7%AF%E7%94%B1%E7%AE%A1%E7%90%86-ip-mroute"><span class="toc-text">组播路由管理 ip mroute</span></a></li></ol></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

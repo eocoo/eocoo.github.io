@@ -1,0 +1,291 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Kafka KRaft模式 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="Kafka Consumer是Kafka事件（消息）的消费端客户端，它是Kafka的关键组件之一。为了确保Kafka集群的高效运行，Kafka的客户端被设计为富客户端，例如，消费者组中的分区分配就是在客户端完成的。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Kafka KRaft模式"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  <header id="header" class="inner"><script async src="//js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">It's a long long way to go</span>
+  <h2><font style="color: #736f6f;">articles:  114 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20250321" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2025-03-20T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2025/03/21/20250321/" style="color: #736f6f;">2025-03-21</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Kafka KRaft模式
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="//js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 532  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 2min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/Kafka/">Kafka</a>
+  </div>
+
+
+   
+   
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Kafka Consumer是Kafka事件（消息）的消费端客户端，它是Kafka的关键组件之一。为了确保Kafka集群的高效运行，Kafka的客户端被设计为富客户端，例如，消费者组中的分区分配就是在客户端完成的。</p>
+<span id="more"></span>
+
+<h4 id="本地部署"><a href="#本地部署" class="headerlink" title="本地部署"></a>本地部署</h4><p>下载kafka_2.13-4.1.0.tgz，<a target="_blank" rel="noopener" href="https://kafka.apache.org/downloads">https://kafka.apache.org/downloads</a></p>
+<ul>
+<li>修改kafka配置</li>
+</ul>
+<figure class="highlight properties"><figcaption><span>:kafka1/config/server.properties</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The role of this server. Setting this puts us in KRaft mode</span></span><br><span class="line"><span class="attr">process.roles</span>=<span class="string">broker,controller</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># The node id associated with this instance&#x27;s roles</span></span><br><span class="line"><span class="attr">node.id</span>=<span class="string">1</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># List of controller endpoints used connect to the controller cluster</span></span><br><span class="line"><span class="attr">controller.quorum.voters</span>=<span class="string">1@127.0.0.1:9097,2@127.0.0.1:9098,3@127.0.0.1:9099</span></span><br><span class="line"></span><br><span class="line"><span class="attr">listeners</span>=<span class="string">PLAINTEXT://:9092,CONTROLLER://:9097</span></span><br><span class="line"><span class="attr">inter.broker.listener.name</span>=<span class="string">PLAINTEXT</span></span><br><span class="line"><span class="attr">controller.listener.names</span>=<span class="string">CONTROLLER</span></span><br><span class="line"></span><br><span class="line"><span class="attr">advertised.listeners</span>=<span class="string">PLAINTEXT://localhost:9092</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log.dirs</span>=<span class="string">/Users/shanhuiming/zooenv/kafka4.1.0/kafka1/data</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设置data目录</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-storage.sh random-uuid</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用生成的uuid给三个broker初始化data目录</span></span><br><span class="line">bin/kafka-storage.sh format --cluster-id AdqhtOERSymkCzOoOvtU0A --config config/server.properties</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动kafka</li>
+</ul>
+<p>bin&#x2F;kafka-server-start.sh -daemon config&#x2F;server.properties</p>
+<ul>
+<li>测试</li>
+</ul>
+<p><strong>创建Topic</strong></p>
+<p>.&#x2F;kafka-topics.sh –create –topic test –bootstrap-server localhost:9092 –partitions 1 –replication-factor 1</p>
+<p><strong>查看Topic</strong></p>
+<p>.&#x2F;kafka-topics.sh –describe –bootstrap-server localhost:9092</p>
+<p><strong>处理消息</strong>：可以打开两个终端，一个发送，一个消费</p>
+<p>.&#x2F;kafka-console-producer.sh –topic test –bootstrap-server localhost:9092</p>
+<p>.&#x2F;kafka-console-consumer.sh –topic test –from-beginning –bootstrap-server localhost:9092</p>
+<h4 id="KRaft模式说明"><a href="#KRaft模式说明" class="headerlink" title="KRaft模式说明"></a>KRaft模式说明</h4><p>KRaft模式取代了Kafka使用ZooKeeper进行集群管理的方式，按照Raft协议内容，节点会被分为控制节点、数据节点。</p>
+<ul>
+<li>控制节点：在control plane中操作，使用基于Raft的共识协议管理集群元数据和集群状态</li>
+<li>数据节点：在数据平面中运行，管理消息流，接收和存储数据在主题分区中</li>
+<li>双重角色：节点即管理管理集群元数据，也管理业务主题数据</li>
+</ul>
+<p>控制节点使用元数据日志，在每个节点上存储为单分区主题(__cluster_metadata)，记录集群的状态。当发出更改集群配置的请求时，由Leader控制节点负责元数据日志的更新，并同步给其它节点。</p>
+<ul>
+<li>使用专用控制节点进行集群管理</li>
+</ul>
+<p><img src="/img/20250321/20250321.1.png"> </p>
+<ul>
+<li>使用双角色节点进行集群管理</li>
+</ul>
+<p><img src="/img/20250321/20250321.2.png"> </p>
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2025/04/28/20250428/">
+		    Kafka Consumer
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2024/06/21/20240621/">
+		    Consensus算法 Raft
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/Kafka/">Kafka</a>
+  </div>
+
+
+        
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'shanhm1991.github.io',
+        owner: 'shanhm1991',
+        admin: 'shanhm1991'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2"><span class="toc-text">本地部署</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#KRaft%E6%A8%A1%E5%BC%8F%E8%AF%B4%E6%98%8E"><span class="toc-text">KRaft模式说明</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

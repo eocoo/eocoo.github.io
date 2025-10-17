@@ -37,11 +37,11 @@
 
 
 <body>
-  <header id="header" class="inner"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <header id="header" class="inner"><script async src="//js/busuanzi.js"></script>
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">It's a long long way to go</span>
-  <h2><font style="color: #736f6f;">articles:  107 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  114 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -58,35 +58,34 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
-  <article id="post-20201021" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20210821" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2020-10-20T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/10/21/20201021/" style="color: #736f6f;">2020-10-21</a></time>
+        <time class="dt-published" datetime="2021-08-20T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2021/08/21/20210821/" style="color: #736f6f;">2021-08-21</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2020/10/21/20201021/">Git 日常操作</a>
+       <a href="/2021/08/21/20210821/">Netty Bootstrap</a>
     </h1>
     
   
   
 
 
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//js/busuanzi.js"></script>
 
 
     </header>
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>官方文档：<a target="_blank" rel="noopener" href="https://git-scm.com/book/zh/v2">https://git-scm.com/book/zh/v2</a></p>
-<p>主要整理了一下Git基本的工作机制，以及一些常用操作。如果想了解git的各种命令，推荐访问：<a target="_blank" rel="noopener" href="https://learngitbranching.js.org/?locale=zh_CN">https://learngitbranching.js.org/?locale=zh_CN</a></p>
+        <p>Bootstrap在Netty中相当于一个组织者的角色，负责初始化装配和启动。</p>
       
     </div>
 	
@@ -94,7 +93,7 @@
       
         
           <div class="alignleft">
-            <a href="/2020/10/21/20201021/#more" class="more-link">more</a>
+            <a href="/2021/08/21/20210821/#more" class="more-link">more</a>
           </div>
         
         
@@ -111,34 +110,38 @@
 
 
 
-  <article id="post-20201019" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20210814" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2020-10-18T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/10/19/20201019/" style="color: #736f6f;">2020-10-19</a></time>
+        <time class="dt-published" datetime="2021-08-13T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2021/08/14/20210814/" style="color: #736f6f;">2021-08-14</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2020/10/19/20201019/">NTP 时间同步</a>
+       <a href="/2021/08/14/20210814/">Netty Future &amp; Promise</a>
     </h1>
     
   
   
 
 
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//js/busuanzi.js"></script>
 
 
     </header>
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>Network Time Protocol时间同步协议，运行NTP服务的设备可以作为客户端从NTP服务器同步时间，也可以作为服务器供其他NTP客户端来同步时间。</p>
+        <p>在Java中，对于<font color="#E51508">异步操作结果的获取</font>抽象出了一个接口<code>Future&lt;V&gt;</code>，它提供了一些方法来检查或等待操作是否完成，以及获取操作的结果，同时还提供了取消操作的能力，以及提供了检测操作是正常结束还是被取消的方法。不过如果操作已经完成了，就不能再对其进行取消了。在某些场景下，如果只是想借助<code>Future</code>实现操作取消的能力，而不关心操作结果，那么可以返回空即可。</p>
+<blockquote>
+<p>A <code>Future</code> represents the result of an asynchronous computation. Methods are provided to check if the computation is complete, to wait for its completion, and to retrieve the result of the computation.
+The result can only be retrieved using method <code>get</code> when the computation has completed, blocking if necessary until it is ready. Cancellation is performed by the <code>cancel</code> method. Additional methods are provided to determine if the task completed normally or was cancelled. Once a computation has completed, the computation cannot be cancelled. If you would like to use a <code>Future</code> for the sake of cancellability but not provide a usable result, you can declare types of the form <code>Future&lt;?&gt;</code> and return <code>null</code> as a result of the underlying task.</p>
+</blockquote>
       
     </div>
 	
@@ -146,7 +149,7 @@
       
         
           <div class="alignleft">
-            <a href="/2020/10/19/20201019/#more" class="more-link">more</a>
+            <a href="/2021/08/14/20210814/#more" class="more-link">more</a>
           </div>
         
         
@@ -163,34 +166,39 @@
 
 
 
-  <article id="post-20201017" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20210805" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2020-10-16T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/10/17/20201017/" style="color: #736f6f;">2020-10-17</a></time>
+        <time class="dt-published" datetime="2021-08-04T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2021/08/05/20210805/" style="color: #736f6f;">2021-08-05</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2020/10/17/20201017/">Linux系统服务 守护进程</a>
+       <a href="/2021/08/05/20210805/">Netty NioEventLoopGroup</a>
     </h1>
     
   
   
 
 
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//js/busuanzi.js"></script>
 
 
     </header>
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>Linux系统服务也称为守护程序，是在Linux启动时自动加载，并在Linux退出时自动停止的系统任务。在早期版本中，linux对服务的操作是通过service来完成的，如果要创建自定义的服务则需要较为复杂的操作，而在新的Linux发行版中，Systemd基本已经成为了服务管理的标配。</p>
+        <p>在Java中，任务执行的主要抽象不是<code>Thread</code>，而是<code>Executor</code>，它提供了一种标准的方式将任务的提交过程与执行过程解耦开来，为灵活而强大的异步任务执行框架提供了基础，线程池<code>ThreadPoolExecutor</code>便是在此基础上实现的一套异步执行框架。</p>
+<p>Netty也在<code>Executor</code>的基础上自定义实现了一套高性能的任务执行框架，本文尝试从I&#x2F;O事件执行器<code>NioEventLoopGroup</code>作为切入点对其中的部分源码做一些分析，希望能从别人的设计中汲取一些思路和启发。建议在分析Netty中的任务执行机制之前先对Java中原生的任务执行框架有所了解，可以参考笔记：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2017/03/05/20170305/">《Java并发编程实战》 任务的执行</a></li>
+<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2017/03/06/20170306/">《Java并发编程实战》 任务的取消</a></li>
+</ul>
       
     </div>
 	
@@ -198,7 +206,7 @@
       
         
           <div class="alignleft">
-            <a href="/2020/10/17/20201017/#more" class="more-link">more</a>
+            <a href="/2021/08/05/20210805/#more" class="more-link">more</a>
           </div>
         
         
@@ -215,34 +223,44 @@
 
 
 
-  <article id="post-20201015" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20210801" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2020-10-14T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/10/15/20201015/" style="color: #736f6f;">2020-10-15</a></time>
+        <time class="dt-published" datetime="2021-07-31T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2021/08/01/20210801/" style="color: #736f6f;">2021-08-01</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2020/10/15/20201015/">vim 日常操作</a>
+       <a href="/2021/08/01/20210801/">Netty Channel</a>
     </h1>
     
   
   
 
 
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//js/busuanzi.js"></script>
 
 
     </header>
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>整理了一些日常工作中的vim操作，大部分操作用多了自然会记得，但脑子也容易忘记</p>
+        <p>Netty 中的通道 Channel 是对Java原生网络编程Api的封装，以TCP编程为例 ，在java中，有两种常用方式：</p>
+<ul>
+<li>基于BIO，在JDK1.4之前，可以使用 java.net 包中的<code>ServerSocket</code>&#x2F;<code>Socket</code>来代表服务端和客户端;</li>
+<li>基于NIO，在Jdk1.4引入Nio之后，可以使用 java.nio.channels 包中的<code>ServerSocketChannel</code>&#x2F;<code>SocketChannel</code>来代表服务端与客户端；</li>
+</ul>
+<p>在Netty中，分别进行了封装：</p>
+<ul>
+<li>使用<code>OioServerSocketChannel</code>&#x2F;<code>OioSocketChannel</code>对<code>ServerSocket</code>&#x2F;<code>Socket</code>进行了封装；</li>
+<li>使用<code>NioServerSocketChannel</code>&#x2F;<code>NioSocketChannel</code>对<code>ServerSocketChannel</code>&#x2F;<code>SocketChannel</code>进行了封装；</li>
+</ul>
+<p>封装主要有两个方面，<font color="#E51508">首先通过<code>ChannelConfig</code>来封装与Channel相关的配置，然后将对Channel的操作抽象成一个接口<code>ChannelHander</code>，并通过链表的形式来进行组织，以便定义操作的顺序</font>，本文尝试从这两个角度对Netty中的Channel进行一些分析。</p>
       
     </div>
 	
@@ -250,7 +268,7 @@
       
         
           <div class="alignleft">
-            <a href="/2020/10/15/20201015/#more" class="more-link">more</a>
+            <a href="/2021/08/01/20210801/#more" class="more-link">more</a>
           </div>
         
         
@@ -267,34 +285,34 @@
 
 
 
-  <article id="post-20200601" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20210321" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2020-05-31T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/06/01/20200601/" style="color: #736f6f;">2020-06-01</a></time>
+        <time class="dt-published" datetime="2021-03-20T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2021/03/21/20210321/" style="color: #736f6f;">2021-03-21</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2020/06/01/20200601/">关于文件</a>
+       <a href="/2021/03/21/20210321/">Linux I/O模型</a>
     </h1>
     
   
   
 
 
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//js/busuanzi.js"></script>
 
 
     </header>
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>Linux中所有的 I&#x2F;O 设备都被抽象为文件，这样所有的输入输出都被当作对相应的文件进行读写操作。这种将设备统一映射为文件的方式，允许Linux内核引出一个简单、低级的应用接口，称为 Unix I&#x2F;O， 使得所有的输入输出都能以一种统一的方式执行。</p>
+        <p>操作系统负责对计算机资源进行管理，并对上层应用提供支持。其核心是操作系统内核空间，独立于应用程序，可以访问受保护的内存空间以及底层硬件设备。为了保证内核的安全，避免用户进程直接操作内核，因此将内存空间划分为两部分，即<font style="color:#E51508;">内核空间</font>和<font style="color:#E51508;">用户空间</font>。</p>
       
     </div>
 	
@@ -302,7 +320,7 @@
       
         
           <div class="alignleft">
-            <a href="/2020/06/01/20200601/#more" class="more-link">more</a>
+            <a href="/2021/03/21/20210321/#more" class="more-link">more</a>
           </div>
         
         
@@ -319,34 +337,34 @@
 
 
 
-  <article id="post-20200109" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-20210315" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2020-01-08T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/01/09/20200109/" style="color: #736f6f;">2020-01-09</a></time>
+        <time class="dt-published" datetime="2021-03-14T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2021/03/15/20210315/" style="color: #736f6f;">2021-03-15</a></time>
       
       
 
   
   
     <h1 class="title">
-       <a href="/2020/01/09/20200109/">poi解析Excel(三) XML定义解析规则</a>
+       <a href="/2021/03/15/20210315/">并行组织与结构</a>
     </h1>
     
   
   
 
 
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//js/busuanzi.js"></script>
 
 
     </header>
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>相对于普通文本，Excel可以将表格数据描述得更结构化，它可以用不同的sheet存放不同的数据，并且在sheet中可指定各个字段的列头，在单元格中可以设置数据类型或格式校验。如果解析时能将这些结构信息利用并且支持可配，那么对解析处理将会有一些帮助</p>
+        <p>由于物理规律对半导体器件的限制，传统单处理机通过提高主频提升性能的方法受到制约，不得不转向并行处理体系结构。下面主要介绍一些并行性相关的概念，然后分别讨论多线程和超线程处理机、多处理机和多核处理机。</p>
       
     </div>
 	
@@ -354,7 +372,7 @@
       
         
           <div class="alignleft">
-            <a href="/2020/01/09/20200109/#more" class="more-link">more</a>
+            <a href="/2021/03/15/20210315/#more" class="more-link">more</a>
           </div>
         
         
@@ -401,37 +419,11 @@
   
   
   
+    <li style="white-space: nowrap"><a href="/categories/Java笔记/">Java笔记</a><small style="margin-left: 5px">23</small></li>
   
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <li style="white-space: nowrap"><a href="/categories/随想笔记/">随想笔记</a><small style="margin-left: 5px">1</small></li>
-  
-  
-
-  
-  
-  
-  
-    <li style="white-space: nowrap"><a href="/categories/Java笔记/">Java笔记</a><small style="margin-left: 5px">24</small></li>
   
   
   
@@ -459,34 +451,10 @@
 
   
   
-    <li style="white-space: nowrap"><a href="/categories/Devops笔记/">Devops笔记</a><small style="margin-left: 5px">10</small></li>
   
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
   
   
   
@@ -514,9 +482,13 @@
   
   
   
-  
-  
 
+  
+  
+  
+  
+  
+  
   
   
   
@@ -544,10 +516,42 @@
   
   
   
+
+  
+  
+    <li style="white-space: nowrap"><a href="/categories/Devops/">Devops</a><small style="margin-left: 5px">11</small></li>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
 
-  <li id="xx_ul" style="white-space: nowrap"><a href="#">开发框架</a><small style="margin-left: 5px">8</small></li>
+  <li id="xx_ul" style="white-space: nowrap"><a href="#">中间件</a><small style="margin-left: 5px">10</small></li>
   <ul id="xx_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
       
       
@@ -557,7 +561,11 @@
       
       
       
-      <li style="white-space: nowrap"><a href="/categories/Tomcat/">Tomcat</a><small style="margin-left: 5px">3</small></li>
+      
+      
+      <li style="white-space: nowrap"><a href="/categories/Tomcat/">Tomcat</a><small style="margin-left: 5px">2</small></li>
+      
+      
       
       
       
@@ -579,6 +587,8 @@
       
       
 
+      
+      
       
       
       
@@ -608,10 +618,84 @@
       
       
       
+      
+      
+
+      
+      
+      
+      
+      
+      
+      <li style="white-space: nowrap"><a href="/categories/Kafka/">Kafka</a><small style="margin-left: 5px">4</small></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <li style="white-space: nowrap"><a href="/categories/Zookeeper/">Zookeeper</a><small style="margin-left: 5px">4</small></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
   </ul>
 
   <li id="os_ul" style="white-space: nowrap"><a href="#">读书笔记</a><small style="margin-left: 5px">43</small></li>
   <ul id="os_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
+      
+      
+      
+      
       
       
       
@@ -658,6 +742,10 @@
       
       
       
+      
+      
+      
+      
       <li style="white-space: nowrap"><a href="/categories/《深入理解Java虚拟机》/">《深入理解Java虚拟机》</a><small style="margin-left: 5px">15</small></li>
       
       
@@ -672,6 +760,10 @@
       
       
 
+      
+      
+      
+      
       
       
       
@@ -720,6 +812,10 @@
       
       
       
+      
+      
+      
+      
       <li style="white-space: nowrap"><a href="/categories/《计算机组成原理》/">《计算机组成原理》</a><small style="margin-left: 5px">5</small></li>
       
       
@@ -732,6 +828,10 @@
       
       
 
+      
+      
+      
+      
       
       
       
@@ -787,9 +887,47 @@
   
   
   
+    <li style="white-space: nowrap"><a href="/categories/其它笔记/">其它笔记</a><small style="margin-left: 5px">1</small></li>
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
     <li style="white-space: nowrap"><a href="/categories/数据结构-算法/">数据结构&amp;算法</a><small style="margin-left: 5px">10</small></li>
-  
-  
   
   
 
@@ -810,7 +948,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 12.5px;">http</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
+    <a href="/tags/AQS/" style="font-size: 12.5px;">AQS</a> <a href="/tags/Aop/" style="font-size: 12.5px;">Aop</a> <a href="/tags/AspectJ/" style="font-size: 10px;">AspectJ</a> <a href="/tags/CAS/" style="font-size: 12.5px;">CAS</a> <a href="/tags/Excel/" style="font-size: 15px;">Excel</a> <a href="/tags/Future/" style="font-size: 17.5px;">Future</a> <a href="/tags/GC/" style="font-size: 12.5px;">GC</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/I-O/" style="font-size: 20px;">I/O</a> <a href="/tags/IOC/" style="font-size: 15px;">IOC</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Jdbc/" style="font-size: 15px;">Jdbc</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 12.5px;">Lock</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/String/" style="font-size: 10px;">String</a> <a href="/tags/ThreadLocal/" style="font-size: 12.5px;">ThreadLocal</a> <a href="/tags/ThreadPool/" style="font-size: 15px;">ThreadPool</a> <a href="/tags/Transactional/" style="font-size: 10px;">Transactional</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 17.5px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/feign/" style="font-size: 12.5px;">feign</a> <a href="/tags/final/" style="font-size: 12.5px;">final</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 12.5px;">http</a> <a href="/tags/intern/" style="font-size: 12.5px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/iptables/" style="font-size: 10px;">iptables</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 12.5px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 12.5px;">volatile</a>
   </div>
 </div>
 
