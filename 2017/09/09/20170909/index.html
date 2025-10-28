@@ -6,7 +6,8 @@
   <title>Ubuntu 16.04.2 安装 mysql 8.0.11 | Echo</title>
   <meta name="author" content="shanhm">
   
-  <meta name="description" content="ubuntu版本：16.04.2MySQL版本：8.0.11">
+  <meta name="description" content="ubuntu版本：16.04.2  
+MySQL版本：8.0.11">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -43,7 +44,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">It's a long long way to go</span>
-  <h2><font style="color: #736f6f;">articles:  106 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  115 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -91,7 +92,7 @@
    
   
   <div class="categories">
-    <a href="/categories/Devops笔记/">Devops笔记</a>
+    <a href="/categories/Devops/">Devops</a>
   </div>
 
 
@@ -107,7 +108,11 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>ubuntu版本：16.04.2<br>MySQL版本：8.0.11<br><a id="more"></a></p>
+        <ul>
+<li>ubuntu版本：16.04.2  </li>
+<li>MySQL版本：8.0.11  <a id="more"></a>
+</li>
+</ul>
 <h3 id="1-安装"><a href="#1-安装" class="headerlink" title="1. 安装"></a>1. 安装</h3><p>首先下载Mysql安装包：<a href="https://dev.mysql.com/downloads/mysql/" target="_blank" rel="noopener">https://dev.mysql.com/downloads/mysql/</a></p>
 <p>这里下载的包是 mysql-server_8.0.11-1ubuntu16.04_amd64.deb-bundle.tar，解压后按照以下顺序进行安装</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg -i mysql-common_8.0.11-1ubuntu16.04_amd64.deb</span><br><span class="line">sudo dpkg -i libmysqlclient-dev_8.0.11-1ubuntu16.04_amd64.deb</span><br><span class="line">sudo dpkg -i mysql-community-client-core_8.0.11-1ubuntu16.04_amd64.deb</span><br><span class="line">sudo dpkg -i mysql-community-client_8.0.11-1ubuntu16.04_amd64.deb</span><br><span class="line">sudo dpkg -i mysql-community-server-core_8.0.11-1ubuntu16.04_amd64.deb  (需要安装依赖：apt install libmecab2)</span><br><span class="line">sudo dpkg -i mysql-client_8.0.11-1ubuntu16.04_amd64.deb</span><br><span class="line">sudo dpkg -i mysql-community-server_8.0.11-1ubuntu16.04_amd64.deb  (需要设置root密码)</span><br><span class="line">sudo dpkg -i mysql-server_8.0.11-1ubuntu16.04_amd64.deb</span><br><span class="line">sudo dpkg -i mysql-community-test_8.0.11-1ubuntu16.04_amd64.deb (需要安装依赖：apt install libjson-perl)</span><br><span class="line">sudo dpkg -i mysql-testsuite_8.0.11-1ubuntu16.04_amd64.deb</span><br></pre></td></tr></table></figure>
@@ -189,7 +194,7 @@
         
   
   <div class="categories">
-    <a href="/categories/Devops笔记/">Devops笔记</a>
+    <a href="/categories/Devops/">Devops</a>
   </div>
 
 
@@ -214,9 +219,9 @@
         clientID: 'd7beb7890a79c73a3e3d',
         clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
         id: md5(window.location.pathname),
-        repo: 'shanhm1991.github.io',
-        owner: 'shanhm1991',
-        admin: 'shanhm1991'
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
     })
     gitalk.render('gitalk-container')
 </script>                              
