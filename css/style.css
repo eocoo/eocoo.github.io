@@ -792,6 +792,19 @@ footer .addthis iframe {
   font: 0.9em/1.6 "Times New Roman", Helvetica Neue, Helvetica, Arial, sans-serif;
   text-shadow: 0 0 1px #fff;
 }
+.code-copy-btn {
+  position: absolute;
+  cursor: pointer;
+  top: 2px;
+  right: 4px;
+  padding: 1px 4px;
+  border: none;
+  background: none;
+  color: #999;
+}
+.code-copy-btn:hover {
+  color: #000;
+}
 .entry .gist {
   background: #f0f0f0;
   border: 1px solid #ddd;

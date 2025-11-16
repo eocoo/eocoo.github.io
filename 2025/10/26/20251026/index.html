@@ -1,0 +1,444 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Ubuntu 24.04.3 安装 Kubernetes v1.28.2 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="ubuntu版本：24.04.3
+Kubernetes版本：v1.28.2
+网络插件CNI(Container Network Interface) ：calico v3.27.2
+容器运行时：Docker 28.2.2
+高可用部署方案：keepalived、haproxy">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Ubuntu 24.04.3 安装 Kubernetes v1.28.2"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  <header id="header" class="inner"><script async src="//js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">It's a long long way to go</span>
+  <h2><font style="color: #736f6f;">articles:  115 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_uv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20251026" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2025-10-25T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2025/10/26/20251026/" style="color: #736f6f;">2025-10-26</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Ubuntu 24.04.3 安装 Kubernetes v1.28.2
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="//js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 2.1k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 10min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/k8s/">k8s</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <ul>
+<li>ubuntu版本：24.04.3</li>
+<li>Kubernetes版本：v1.28.2</li>
+<li>网络插件CNI(Container Network Interface) ：calico v3.27.2</li>
+<li>容器运行时：Docker 28.2.2</li>
+<li>高可用部署方案：keepalived、haproxy</li>
+</ul>
+<span id="more"></span>
+
+<p>目标部署一个HA Kubernetes集群，使用堆叠(stacked)控制平面节点，etcd节点与控制平面节点共存，示意图如下：</p>
+<p><img src="/img/20251026/20251026.1.png"> </p>
+<p>部署完成的节点状态：</p>
+<p><img src="/img/20251026/20251026.2.png"> </p>
+<p>部署完成的基本组件：</p>
+<p><img src="/img/20251026/20251026.3.png"> </p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>默认已准备好三台虚拟机，网络正常，Docker环境已安装</p>
+<p><strong>Linux基础配置</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 时间同步</span></span></span><br><span class="line">sudo apt -y install chrony </span><br><span class="line">sudo systemctl enable chrony &amp;&amp; sudo systemctl start chrony</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看同步情况</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># sudo chronyc sources -v</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 设置时区</span></span></span><br><span class="line">sudo timedatectl set-timezone Asia/Shanghai</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 分别设置主机名(以节点1为例)</span></span></span><br><span class="line">sudo hostnamectl set-hostname k8s01</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 设置hosts文件</span></span></span><br><span class="line">cat &lt;&lt; EOF | sudo tee /etc/hosts </span><br><span class="line">192.168.141.10  vip.cluster.local</span><br><span class="line">192.168.141.17 k8s01</span><br><span class="line">192.168.141.18 k8s02</span><br><span class="line">192.168.141.19 k8s03</span><br><span class="line">EOF</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 分别设置免密登录</span></span></span><br><span class="line">ssh-keygen</span><br><span class="line">ssh-copy-id 192.168.141.17</span><br><span class="line">ssh-copy-id 192.168.141.18</span><br><span class="line">ssh-copy-id 192.168.141.19</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 禁用swap</span></span></span><br><span class="line">sudo swapoff -a &amp;&amp; sudo sed -i &#x27;/swap/s/^/#/&#x27; /etc/fstab</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 禁用防火墙</span></span></span><br><span class="line">sudo ufw disable</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 确认防火墙状态</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># sudo ufw status</span></span></span><br></pre></td></tr></table></figure>
+
+<p><strong>内核参数调整</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 加载模块</span></span></span><br><span class="line">sudo modprobe overlay</span><br><span class="line">sudo modprobe br_netfilter</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 设置开机加载</span></span></span><br><span class="line">cat &lt;&lt;EOF | sudo tee /etc/modules-load.d/k8s.conf</span><br><span class="line">overlay</span><br><span class="line">br_netfilter</span><br><span class="line">EOF</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 确认模块加载</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># sudo lsmod | grep br_netfilter</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># sudo lsmod | grep overlay</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 设置sysctl参数，将桥接的流量传递到iptables链，启用IPv4数据包转发</span></span></span><br><span class="line">cat &lt;&lt;EOF | sudo tee /etc/sysctl.d/k8s.conf</span><br><span class="line">net.bridge.bridge-nf-call-iptables  = 1</span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 1</span><br><span class="line">net.ipv4.ip_forward                 = 1</span><br><span class="line">EOF</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 应用sysctl参数</span></span></span><br><span class="line">sudo sysctl --system</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 确认参数设置</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># sudo sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward</span></span></span><br></pre></td></tr></table></figure>
+
+<p><strong>配置ipvs</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 安装</span></span></span><br><span class="line">sudo apt install -y ipset ipvsadm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 加载模块</span></span></span><br><span class="line">sudo modprobe ip_vs</span><br><span class="line">sudo modprobe ip_vs_rr</span><br><span class="line">sudo modprobe ip_vs_wrr</span><br><span class="line">sudo modprobe ip_vs_sh</span><br><span class="line">sudo modprobe nf_conntrack</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置开机加载</span></span><br><span class="line">cat &lt;&lt;EOF | sudo tee /etc/modules-load.d/ipvs.conf</span><br><span class="line">ip_vs</span><br><span class="line">ip_vs_rr</span><br><span class="line">ip_vs_wrr</span><br><span class="line">ip_vs_sh</span><br><span class="line">nf_conntrack</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装kubeadm、kubelet、kubectl"><a href="#安装kubeadm、kubelet、kubectl" class="headerlink" title="安装kubeadm、kubelet、kubectl"></a>安装kubeadm、kubelet、kubectl</h3><p><strong>安装cri-docker</strong></p>
+<p>Kubernetes1.20开始宣布要弃用dockershim，并在Kubernetes1.24正式移除，推荐直接使用containerd容器运行时，但是对于有历史使用习惯的人来说还是倾向选择docker，虽然它也只是在containerd上面加了一层而已。</p>
+<p>这里选择的是最新版本：cri-dockerd_0.4.0.3-0.debian-bookworm_amd64.deb，下载地址：<a target="_blank" rel="noopener" href="https://github.com/Mirantis/cri-dockerd/releases">https://github.com/Mirantis/cri-dockerd/releases</a></p>
+<ul>
+<li>修改服务启动</li>
+</ul>
+<p>修改下ExecStart，指定下网络插件和pause镜像</p>
+<figure class="highlight text"><figcaption><span>:/lib/systemd/system/cri-docker.service</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ExecStart=/usr/bin/cri-dockerd --network-plugin=cni --pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.9 --container-runtime-endpoint fd://</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改服务配置</li>
+</ul>
+<p>添加下面设置，让crictl能连接到Docker容器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo tee /etc/crictl.yaml &lt;&lt; EOF</span><br><span class="line">runtime-endpoint: unix:///var/run/cri-dockerd.sock</span><br><span class="line">image-endpoint: unix:///var/run/cri-dockerd.sock</span><br><span class="line">timeout: 10</span><br><span class="line">debug: false</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重启服务</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload &amp;&amp; systemctl restart cri-docker.service</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 检查状态</span></span></span><br><span class="line">sudo crictl info</span><br></pre></td></tr></table></figure>
+
+<p><strong>安装kubelet</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 安装依赖</span></span></span><br><span class="line">sudo apt-get update &amp;&amp; sudo apt-get install -y apt-transport-https ca-certificates curl gpg</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 添加kubernetes的key</span></span></span><br><span class="line">curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 添加kubernetes apt仓库，使用阿里云镜像源</span></span></span><br><span class="line">echo &#x27;deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main&#x27; | sudo tee /etc/apt/sources.list.d/kubernetes.list</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 更新apt索引</span></span></span><br><span class="line">sudo apt update</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看版本列表</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># apt-cache madison kubeadm</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 默认安装最新版本，这里是1.28.2</span></span></span><br><span class="line">sudo apt-get install -y kubelet kubeadm kubectl</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 锁定版本，不随apt upgrade更新</span></span></span><br><span class="line">sudo apt-mark hold kubelet kubeadm kubectl</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># kubectl命令补全</span></span></span><br><span class="line">sudo apt install -y bash-completion</span><br><span class="line">kubectl completion bash | sudo tee /etc/profile.d/kubectl_completion.sh &gt; /dev/null</span><br><span class="line">. /etc/profile.d/kubectl_completion.sh</span><br></pre></td></tr></table></figure>
+
+<h3 id="部署keepalived、haproxy"><a href="#部署keepalived、haproxy" class="headerlink" title="部署keepalived、haproxy"></a>部署keepalived、haproxy</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install keepalived haproxy</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 确认启动状态</span></span></span><br><span class="line">systemctl is-enabled keepalived</span><br><span class="line">systemctl is-enabled haproxy.service</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置haproxy</strong></p>
+<p>主要是追加frontend apiserver和backend apiserverbackend内容</p>
+<figure class="highlight text"><figcaption><span>:/etc/haproxy/haproxy.cfg</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">#---------------------------------------------------------------------</span><br><span class="line"># apiserver frontend which proxys to the control plane nodes</span><br><span class="line">#---------------------------------------------------------------------</span><br><span class="line">frontend apiserver</span><br><span class="line">    bind *:16443</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    default_backend apiserverbackend</span><br><span class="line"></span><br><span class="line">#---------------------------------------------------------------------</span><br><span class="line"># round robin balancing for apiserver</span><br><span class="line">#---------------------------------------------------------------------</span><br><span class="line">backend apiserverbackend</span><br><span class="line">    option httpchk</span><br><span class="line"></span><br><span class="line">    http-check connect ssl</span><br><span class="line">    http-check send meth GET uri /healthz</span><br><span class="line">    http-check expect status 200</span><br><span class="line"></span><br><span class="line">    mode tcp</span><br><span class="line">    balance     roundrobin</span><br><span class="line"></span><br><span class="line">    server k8s01 192.168.141.17:6443 check verify none</span><br><span class="line">    server k8s02 192.168.141.18:6443 check verify none</span><br><span class="line">    server k8s03 192.168.141.19:6443 check verify none</span><br></pre></td></tr></table></figure>
+
+<p>重启haproxy服务，haproxy会监听16443端口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart haproxy</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置keepalived</strong></p>
+<p>这里只需要用到它的虚拟ip功能，所以配置比较简单，指定一个脚本来检查apiserver状态即可</p>
+<figure class="highlight text"><figcaption><span>:/etc/keepalived/keepalived.conf</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File for keepalived</span><br><span class="line"></span><br><span class="line">global_defs &#123;</span><br><span class="line">   router_id LVS_DEVEL</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_script check_apiserver &#123;</span><br><span class="line">  script &quot;/etc/keepalived/check_apiserver.sh&quot;</span><br><span class="line">  interval 3</span><br><span class="line">  weight -2</span><br><span class="line">  fall 10</span><br><span class="line">  rise 2</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state MASTER           # 节点1设为MASTER，其他两台设为BACKUP</span><br><span class="line">    interface ens33        # 网卡名称</span><br><span class="line">    virtual_router_id 51</span><br><span class="line">    priority 110           # 节点1最高设为110，其他两台可以设为105、100</span><br><span class="line">    advert_int 1</span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass 1111</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        192.168.141.10     # 虚拟ip设置</span><br><span class="line">    &#125;</span><br><span class="line">    track_script &#123;</span><br><span class="line">        check_apiserver</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>apiserver检查脚本</li>
+</ul>
+<figure class="highlight text"><figcaption><span>:/etc/keepalived/check_apiserver.sh</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/sh</span><br><span class="line"></span><br><span class="line">errorExit() &#123;</span><br><span class="line">    echo &quot;*** $*&quot; 1&gt;&amp;2</span><br><span class="line">    exit 1</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">curl -sfk --max-time 2 https://localhost:16443/healthz -o /dev/null || errorExit &quot;Error GET https://localhost:16443/healthz&quot;</span><br></pre></td></tr></table></figure>
+
+<p>重启三个节点的keepalived服务，虚拟ip会落在k8s01节点上</p>
+<h3 id="安装k8s集群"><a href="#安装k8s集群" class="headerlink" title="安装k8s集群"></a>安装k8s集群</h3><p><strong>准备镜像</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看阿里云镜像</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># kubeadm config images list --image-repository registry.cn-hangzhou.aliyuncs.com/google_containers</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 下载阿里云镜像</span></span></span><br><span class="line">kubeadm config images pull --kubernetes-version=v1.28.2 --image-repository registry.aliyuncs.com/google_containers</span><br></pre></td></tr></table></figure>
+
+<p>包括下面的calico插件，所使用到的镜像列表如下：</p>
+<p><img src="/img/20251026/20251026.4.png"> </p>
+<p><strong>配置模板</strong></p>
+<p>生成配置文件模板（也可以直接敲命令，但是模板更方便后面重置初始化）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm config print init-defaults &gt; init.default.yaml</span><br></pre></td></tr></table></figure>
+
+<p>根据实际环境信息修改init.default.yaml文件内容：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubeadm.k8s.io/v1beta3</span></span><br><span class="line"><span class="attr">bootstrapTokens:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">system:bootstrappers:kubeadm:default-node-token</span></span><br><span class="line">  <span class="attr">token:</span> <span class="string">abcdef.0123456789abcdef</span></span><br><span class="line">  <span class="attr">ttl:</span> <span class="string">24h0m0s</span></span><br><span class="line">  <span class="attr">usages:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">signing</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">authentication</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">InitConfiguration</span></span><br><span class="line"><span class="attr">localAPIEndpoint:</span></span><br><span class="line">  <span class="attr">advertiseAddress:</span> <span class="number">192.168</span><span class="number">.141</span><span class="number">.17</span>             <span class="comment">## 实际ip</span></span><br><span class="line">  <span class="attr">bindPort:</span> <span class="number">6443</span></span><br><span class="line"><span class="attr">nodeRegistration:</span></span><br><span class="line">  <span class="attr">criSocket:</span> <span class="string">unix:///var/run/cri-dockerd.sock</span>  <span class="comment">## 换成docker</span></span><br><span class="line">  <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">k8s01</span>                                  <span class="comment">## 实际hostname</span></span><br><span class="line">  <span class="attr">taints:</span> <span class="literal">null</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiServer:</span></span><br><span class="line">  <span class="attr">timeoutForControlPlane:</span> <span class="string">4m0s</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubeadm.k8s.io/v1beta3</span></span><br><span class="line"><span class="attr">controlPlaneEndpoint:</span> <span class="string">vip.cluster.local:16443</span>  <span class="comment">## 控制平面端点使用vip访问</span></span><br><span class="line"><span class="attr">certificatesDir:</span> <span class="string">/etc/kubernetes/pki</span></span><br><span class="line"><span class="attr">clusterName:</span> <span class="string">kubernetes</span></span><br><span class="line"><span class="attr">controllerManager:</span> &#123;&#125;</span><br><span class="line"><span class="attr">dns:</span> &#123;&#125;</span><br><span class="line"><span class="attr">etcd:</span></span><br><span class="line">  <span class="attr">local:</span></span><br><span class="line">    <span class="attr">dataDir:</span> <span class="string">/var/lib/etcd</span></span><br><span class="line"><span class="attr">imageRepository:</span> <span class="string">registry.cn-hangzhou.aliyuncs.com/google_containers</span>  <span class="comment">## 与镜像保持一致</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ClusterConfiguration</span></span><br><span class="line"><span class="attr">kubernetesVersion:</span> <span class="number">1.28</span><span class="number">.2</span>                      <span class="comment">## 实际版本</span></span><br><span class="line"><span class="attr">networking:</span></span><br><span class="line">  <span class="attr">dnsDomain:</span> <span class="string">cluster.local</span></span><br><span class="line">  <span class="attr">podSubnet:</span> <span class="number">10.200</span><span class="number">.0</span><span class="number">.0</span><span class="string">/16</span>                     <span class="comment">## 后面安装calico时配置要一致</span></span><br><span class="line">  <span class="attr">serviceSubnet:</span> <span class="number">10.96</span><span class="number">.0</span><span class="number">.0</span><span class="string">/12</span></span><br><span class="line"><span class="attr">scheduler:</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>初始化Kubernetes</strong></p>
+<p>只需要在第一台控制节点上初始化就行，其它节点加入后会自动扩散pod组件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm init --config init.default.yaml --upload-certs</span><br></pre></td></tr></table></figure>
+
+<p>如果一切顺利，会得到下面的反馈：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">Your Kubernetes control-plane has initialized successfully!</span><br><span class="line"></span><br><span class="line">To start using your cluster, you need to run the following as a regular user:</span><br><span class="line"></span><br><span class="line">  mkdir -p $HOME/.kube</span><br><span class="line">  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line">  sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br><span class="line"></span><br><span class="line">Alternatively, if you are the root user, you can run:</span><br><span class="line"></span><br><span class="line">  export KUBECONFIG=/etc/kubernetes/admin.conf</span><br><span class="line"></span><br><span class="line">You should now deploy a pod network to the cluster.</span><br><span class="line">Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at:</span><br><span class="line">  https://kubernetes.io/docs/concepts/cluster-administration/addons/</span><br><span class="line"></span><br><span class="line">You can now join any number of the control-plane node running the following command on each as root:</span><br><span class="line"></span><br><span class="line">  kubeadm join vip.cluster.local:16443 --token abcdef.0123456789abcdef \</span><br><span class="line">	--discovery-token-ca-cert-hash sha256:562208147965e135a2b3ccead02c78a2be2925b4858103773d219468ba7ff6d7 \</span><br><span class="line">	--control-plane --certificate-key 33d03e7f28c79329c0c9fa4d919be264b658a0528224dbccd129b3c4b2686c1c</span><br><span class="line"></span><br><span class="line">Please note that the certificate-key gives access to cluster sensitive data, keep it secret!</span><br><span class="line">As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use</span><br><span class="line">&quot;kubeadm init phase upload-certs --upload-certs&quot; to reload certs afterward.</span><br><span class="line"></span><br><span class="line">Then you can join any number of worker nodes by running the following on each as root:</span><br><span class="line"></span><br><span class="line">kubeadm join vip.cluster.local:16443 --token abcdef.0123456789abcdef \</span><br><span class="line">	--discovery-token-ca-cert-hash sha256:562208147965e135a2b3ccead02c78a2be2925b4858103773d219468ba7ff6d7 </span><br></pre></td></tr></table></figure>
+
+<p><strong>配置kubeconfig</strong></p>
+<p>这个会影响kubectl命令的执行（其它节点只要把文件拷贝过去就行）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p $HOME/.kube</span><br><span class="line">sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line">sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装网络插件-calico"><a href="#安装网络插件-calico" class="headerlink" title="安装网络插件 calico"></a>安装网络插件 calico</h3><p>如果未安装网络插件将会看到节点一直处于NotReady状态</p>
+<p>可以下载一个部署文件：<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/calico.yaml">https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/calico.yaml</a></p>
+<p>确认pod网段与上面kubeadm init模板中的podSubnet一致，直接kubectrl apply -f部署就行</p>
+<h3 id="加入master节点"><a href="#加入master节点" class="headerlink" title="加入master节点"></a>加入master节点</h3><p>注意要指定一下cri-dockerd.sock</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> kubeadm join vip.cluster.local:16443 --token abcdef.0123456789abcdef \</span><br><span class="line">--discovery-token-ca-cert-hash sha256:562208147965e135a2b3ccead02c78a2be2925b4858103773d219468ba7ff6d7 \</span><br><span class="line">--control-plane --certificate-key 33d03e7f28c79329c0c9fa4d919be264b658a0528224dbccd129b3c4b2686c1c \</span><br><span class="line">--cri-socket unix:///var/run/cri-dockerd.sock</span><br></pre></td></tr></table></figure>
+
+<p>如果一切顺利，将会看到笔记开头处的状态</p>
+<h3 id="FAQ-故障恢复"><a href="#FAQ-故障恢复" class="headerlink" title="FAQ 故障恢复"></a>FAQ 故障恢复</h3><p>如果不幸遇到故障无法恢复，比如etcd存储报错导致apiserver失去一切响应，可以按下面操作进行重置，然后重新初始化环境</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">sudo kubeadm reset -f</span><br><span class="line">sudo rm -rf /etc/cni /etc/kubernetes /var/lib/etcd /var/lib/kubelet $HOME/.kube</span><br><span class="line">sudo ipvsadm --clear</span><br><span class="line">sudo iptables -F &amp;&amp; sudo iptables -t nat -F &amp;&amp; sudo iptables -t mangle -F &amp;&amp; sudo iptables -X</span><br><span class="line">sudo systemctl restart cri-docker docker kubelet</span><br></pre></td></tr></table></figure>
+
+<p><br><strong>参考：</strong></p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_37749659/article/details/130629326">https://blog.csdn.net/m0_37749659/article/details/130629326</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.redhat.com/zh-cn/topics/containers/what-is-kubernetes">https://www.redhat.com/zh-cn/topics/containers/what-is-kubernetes</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.midk9t.com/posts/k8s-on-ubuntu/">https://blog.midk9t.com/posts/k8s-on-ubuntu/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/lldhsds/p/18261304">https://www.cnblogs.com/lldhsds/p/18261304</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/niuben/p/18872088">https://www.cnblogs.com/niuben/p/18872088</a></li>
+</ol>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+	  
+	  
+		  <a class="alignright next" href="/2025/10/05/20251005/">
+		    Kafka Producer（下）
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/k8s/">k8s</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85kubeadm%E3%80%81kubelet%E3%80%81kubectl"><span class="toc-text">安装kubeadm、kubelet、kubectl</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2keepalived%E3%80%81haproxy"><span class="toc-text">部署keepalived、haproxy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85k8s%E9%9B%86%E7%BE%A4"><span class="toc-text">安装k8s集群</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E6%8F%92%E4%BB%B6-calico"><span class="toc-text">安装网络插件 calico</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E5%85%A5master%E8%8A%82%E7%82%B9"><span class="toc-text">加入master节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FAQ-%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D"><span class="toc-text">FAQ 故障恢复</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2025 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
