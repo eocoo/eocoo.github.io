@@ -6,7 +6,7 @@
   <title>关于代码评审 | Echo</title>
   <meta name="author" content="shanhm">
   
-  <meta name="description" content="很多团队都会面临这样的问题，开发人员想法不同，代码写出来各有各的风格，review起来又费时费力，总之很难让所有成员保持统一风格。以下是一些关于代码质量管理与提升的思考，也参考总结了他人的一些经验。">
+  <meta name="description" content="很多团队都有这样的问题，开发人员水平不一，想法不同，代码各有各的风格，Review起来又费时费力，感觉很难让所有成员保持统一风格。所以参考他人的一些经验，也总结了一些关于代码质量管理与提升的思考。">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -93,7 +93,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 3.4k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 12min</font>
+   <font style="color: #999;"> words: 2k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 6min</font>
    
    
   
@@ -114,77 +114,58 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>很多团队都会面临这样的问题，开发人员想法不同，代码写出来各有各的风格，review起来又费时费力，总之很难让所有成员保持统一风格。以下是一些关于代码质量管理与提升的思考，也参考总结了他人的一些经验。</p>
+        <p>很多团队都有这样的问题，开发人员水平不一，想法不同，代码各有各的风格，Review起来又费时费力，感觉很难让所有成员保持统一风格。所以参考他人的一些经验，也总结了一些关于代码质量管理与提升的思考。</p>
 <span id="more"></span>
 
-<h3 id="评审的目的"><a href="#评审的目的" class="headerlink" title="评审的目的"></a>评审的目的</h3><p>通常情况下，代码的质量都会随着时间推移而越来越差，尤其是在团队有明确时间限制，让开发觉得不得不采取一些投机取巧的方式才能完成任务的情况下。所以代码评审的主要目的就是保证随着时间的推移，代码能够越来越健康，而不是放任其腐化下去，越来越混乱，以至于最后不得不推倒重来。</p>
-<p>评审还有一个目的是希望能提升团队技术氛围，很多开发一味的埋头苦干，很容易忽视团队内的技术分享。再加上团队人员进进出出，有一些正能量的人当然也有负能量的人，这都很正常。但不管怎样我们相信做技术的人都愿意提升自己的技术能力，通过分享，将每个人擅长的领域分享给大家，互相学习来提升凝聚力和团队整体水平。</p>
-<h3 id="评审的原则"><a href="#评审的原则" class="headerlink" title="评审的原则"></a>评审的原则</h3><p>评审者不必要求开发者打磨好提交中的每个细节，相反应该权衡项目进度和开发给出的意见重要性，适当放宽要求。我们的目标是通过评审能提升整个系统的可维护性、可读性以及可以理解性。我们也不是追求完美，而是持续提高，因为没有完美无缺的代码，只有越来越好的代码。</p>
+<h3 id="评审的目的"><a href="#评审的目的" class="headerlink" title="评审的目的"></a>评审的目的</h3><p>代码评审的主要目的是希望随着时间的推移，代码能够越来越健康，而不是放任其腐化下去，越来越混乱，以至于最后不得不推倒重来。通常情况下，代码的质量都容易随着时间越来越差，尤其是在项目需求有明确时间限制，让开发觉得不得不采取一些投机取巧的方式才能完成任务的情况下。</p>
+<p>评审的另一个目的是希望能提升技术氛围，鼓励团队内的技术分享。团队人员有进有出，有一些正能量的人自然也有负能量的人，这都很正常。但不管怎样，我们相信做技术的人都有意愿提升自己的技术能力，通过分享各自擅长的领域，互相学习来了解彼此，提升团队凝聚力和整体水平。</p>
+<h3 id="评审的原则"><a href="#评审的原则" class="headerlink" title="评审的原则"></a>评审的原则</h3><p>评审并不是要求开发者打磨好提交中的每个细节，而是会根据项目进度和开发给出的意见重要性，适当权衡要求。最终目的是通过评审能提升整个系统的可维护性、可读性以及可理解性，而不是追求完美，也没有完美无缺的代码，只有越来越好的代码。</p>
 <ul>
 <li>技术和数据高于意见，鼓励质疑，尊重个人偏好；</li>
 <li>遵守开发规范，保持代码风格，关于风格应该与现有的保持一致，如果以前没有风格，可以就按作者的风格来；</li>
 <li>软件设计从来不是纯粹的代码风格或是个人偏好问题，它们是基于一些应当被权衡的规则而不仅仅是个人倾向；</li>
 </ul>
-<h3 id="评审的关注点"><a href="#评审的关注点" class="headerlink" title="评审的关注点"></a>评审的关注点</h3><p>代码评审中比较重要的一点是了解清楚开发者提交变更的意图，把握住变更中的整体设计。代码设计中的一个终极目标是希望能写出高内聚、低耦合的代码。在实际中，我们要求最低要保证代码在结构上层次清晰，逻辑上段落分明，风格应该尽量的简单直白并符合直觉，让别人能比较容易地明白意图。</p>
+<h3 id="评审的关注点"><a href="#评审的关注点" class="headerlink" title="评审的关注点"></a>评审的关注点</h3><p>评审中很重要的一点是要了解清楚开发者提交变更的意图，并确认其意图与实际需求或设计的吻合程度。代码质量同样重要，理想情况下，自然是希望代码具备高内聚、低耦合的特性，同时又能满足需求符合设计。</p>
+<p>实际项目中，可能由于各种原因会适当放宽要求，但至少还是会要求保证代码结构清晰，逻辑层次分明，风格应该尽量的简单直白，符合直觉，让别人能比较容易地明白意图。</p>
 <ul>
-<li>**设计良好：**首先保证良好的设计，不管是需求设计还是存储设计、接口Api、或是算法流程设计。如果有设计文档，则应该保证文档与代码实现同步；</li>
-<li>**提交说明：**描述清楚提交的内容，尽量言简意赅，并保持语义完整。保证提交的变更符合描述，尽量一次变更只做一件事情；</li>
-<li>**文件组织：**保证组织结构清晰，按照默认的约定来，比如springboot中的相关配置文件，mvc中的代码层次组织；</li>
-<li>**命名语义：**保证语义清晰，包括文件、库表字段、以及类、方法变量等，通过命名能明白其作用，最好能通过命名对文件完成自然的分类；</li>
-<li>**代码风格：**保证格式化，段落层次清晰，比如通过一些空行，方法拆解，来体现逻辑的层次感；我们鼓励对代码风格提出改进建议，但要避免吹毛求疵，尤其是通过一些评审工具给出的建议，可以视为锦上添花。</li>
-<li>**职责单一：**不管是类、接口、还是方法的定义，它们都有自己对应的角色或者职责，只是维度可能不一样，应该保证它们的分工明确，职责清晰；</li>
-<li>**复杂度：**除非一些特殊的处理，比如复杂的算法，否则单个方法的复杂度不应该过高。同样在设计上，如无必要，不增加复杂度。我们鼓励通过设计来提高可扩展性，但不应该为了扩展一些不存在的场景而过度设计，应该反思新增的复杂度是否值得；</li>
-<li>**代码注释：**准确而必要的注释(错误的注释不如没有，不必要的注释反而增加维护负担)。通常注释应该解释为什么这么做，而不是做了什么，应该说明代码中没有包含的信息，比如实现的背景。当然也有例外，比如正则表达式或复杂的算法，如果能解释清楚可以帮助别人更好的理解；</li>
-<li>**单元测试：**这个我们不做硬性的要求，毕竟写单元测试是一件比较枯燥的事情。但是对于一些关键的api或流程算法，应该进行充分的用例测试；</li>
-<li>**线程安全：**如果涉及到可变共享资源的访问，应该格外留意线程安全问题；</li>
+<li><strong>设计良好：</strong> 首先保证良好的设计，不管是需求设计还是存储设计、接口Api、或是算法流程，在实现上也应该保持与设计一致；</li>
+<li><strong>提交说明：</strong> 描述清楚提交的内容，应该言简意赅，并保持语义完整。可以参考git提交规范，尽量一次变更只做一件事情；</li>
+<li><strong>文件目录：</strong> 结构层次清晰，可以参考一些规范，比如MVC和DDD；</li>
+<li><strong>变量命名：</strong> 语义清晰，包括文件、库表字段、以及类、方法变量等，通过命名能明白其意图，以及所属归类；</li>
+<li><strong>代码风格：</strong> 保证格式化，段落层次清晰，可以通过一些空行，方法拆解，来体现逻辑的层次感；鼓励在风格上提出一些改进建议，但也要避免吹毛求疵。</li>
+<li><strong>职责单一：</strong> 不管是类、接口、还是方法的定义，都应该有自己对应的角色或者职责，只是维度可能不一样，应该保证它们的分工明确，职责清晰；</li>
+<li><strong>复杂度：</strong> 除非特殊处理，单个类或方法的复杂度不应该太高。设计上也应该避免引入不必要的复杂度，我们鼓励通过设计来提高可扩展性，但不应该为了扩展一些不存在的场景而过度设计，需要甄别引入的复杂度是否值得；</li>
+<li><strong>代码注释：</strong> 准确必要的注释(错误的注释不如没有，不必要的注释反而增加维护负担)，尽量使用类注释，接口注释来代替行注释；</li>
+<li><strong>单元测试：</strong> 必要的单元测试，比如对于一些关键的api或流程算法，应该提供充分的用例测试；</li>
+<li><strong>线程安全：</strong> 如果涉及到可变共享资源的访问，需要格外留意线程安全问题；</li>
 </ul>
 <h3 id="评审的步骤"><a href="#评审的步骤" class="headerlink" title="评审的步骤"></a>评审的步骤</h3><p>这里主要针对的是线下组织的评审会议，为了避免会议中的讨论走题浪费时间，所以我们应该在会前明确好会议的主题流程</p>
 <ol>
 <li>评审范围，首先明确改动范围，比如一次变更提交，某个功能或者模块；</li>
 <li>需求背景，说明改动的意图，说清楚做了什么，期望达到什么目的；</li>
-<li>设计思路，怎样做的，说明白实现的想法；</li>
-<li>代码实现，对照设计思路说明代码的实现细节；</li>
+<li>设计思路，怎样做的，说明设计意图；</li>
+<li>代码实现，对照设计说明实现细节；</li>
 <li>遗留问题，在设计实现过程中是否还有一些未完成的Todo，或者一些妥协；</li>
 <li>评审意见，可以在git上以Issues的方式提出意见，由评审人落实修改；</li>
 </ol>
-<h3 id="关于评审的过程实践"><a href="#关于评审的过程实践" class="headerlink" title="关于评审的过程实践"></a>关于评审的过程实践</h3><ul>
-<li>代码提交</li>
-</ul>
-<p>作为一个开发人员，写清楚提交备注是一个必要的职业素养，至于一些不按照规范来写的开发可以对他们提出要求。为了将提交记录与具体的开发任务关联起来，我们可以采用 git + jira 的方式，让开发人员在每次提交的comment中增加jira编号。但这只是一个规范，如何将规范真正落地，并避免开发人员在comment中忘记，可以采用一些工具帮助开发人员在提交时进行检查。git的hook机制在代码提交前后提供了一些钩子，可以用来控制提交允许或拒绝，比如说pre-commit或commit-msg。</p>
-<ul>
+<h3 id="代码评审的一些实践"><a href="#代码评审的一些实践" class="headerlink" title="代码评审的一些实践"></a>代码评审的一些实践</h3><ul>
 <li>代码检查</li>
 </ul>
-<p>对于编码规范，我们也采用了sonar去扫描问题，但这个方式的缺点是太过滞后，需要质量人员去跟进推动并且效果也不是很好。因为大多开发都有一种习惯，如果代码写完上线之后没有问题的话，他们很少会主动去优化代码，即使你告诉他扫描有问题他也会有各种理由推脱，也许你可以通过管理手段强制他们修改，但这些都是比较滞后的方式。可以考虑采用 git + checkstyle或fingbug等工具插件，来前置检查点帮助开发人员在开发过程中就发现问题并进行解决。在Maven工程中，也有代码检查相关的plugin，比如checkstyle、pmd或findbugs。</p>
+<p>对于代码规范，可以使用sonar进行扫描，但这个方式的问题是太过滞后，需要质量人员去跟进和推动，并且效果也不是很好。因为大多开发都有一种习惯，如果代码写完上线之后没有问题的话，他们很少会主动去优化代码，即使你告诉他扫描有问题他也会有各种理由推脱，虽然你可以通过kpi等管理手段强制要求修改，但肯定不是一个好的方式。</p>
+<p>可以使用git + checkstyle或fingbug等工具插件，来前置检查点帮助开发人员在开发过程中就发现问题并进行解决。在Maven工程中，也有代码检查相关的plugin，比如pmd插件结合阿里开发规范，如果不符合规范直接拒绝编译打包。</p>
+<ul>
+<li>代码提交</li>
+</ul>
+<p>作为开发，写清楚提交描述是必要的职业素养，至于一些不按照规范来写的开发可以直接对他们提出要求。</p>
+<p>可以将提交记录与具体的开发任务关联起来，比如在comment中添加项目管理工具上的需求或问题单号。如果想避免开发人员忘记，可以通过一些工具在提交时进行检查，比如git的hook机制在代码提交前后提供了一些钩子，pre-commit或commit-msg，可以用来控制提交允许或拒绝。</p>
 <ul>
 <li>代码分支</li>
 </ul>
-<p>团队中每个人或多或少对git的管理与使用理解有些不一致，可能造成分支、版本管理的混乱，这样在代码合并时可能产生很多不必要的冲突。我们可以制定一套规范性的东西，来进行进行分支和版本的管理，让开发在可控的范围内自由发挥。比如我们可以制定如下分支规范：
-<strong>master</strong>分支：只有一个，并且控制分支的push与merge权限；
-**dev-{taskName}**分支：开发分支，从master创建，可以结合jira的sprint，通常以是一个发布周期或者一个迭代来命名；
-**feat-{userName}**分支：开发人员分支，从开发分支dev-{taskName}创建，这个分支的声明周期通常很短，在功能开发完成通过Merge Request发起合并，并进行code review之后合并，最后删除分支；</p>
+<p>可以约定一些规范，来进行分支和版本的管理，比如：<br><strong>master</strong> ：主分支，限制分支的push与merge权限；<br><strong>version-{xxx}</strong> ：版本分支，从master创建，表示一个版本开发周期，版本结束后删除，打一个版本Tag然后合入主分支；<br><strong>dev-{xxx}</strong> ：开发分支，从版本分支创建，用于具体功能开发或bug修复，团队多人合作时的个人临时分支，合并后删除；   </p>
 <ul>
 <li>代码评审</li>
 </ul>
-<p>比较常见的方式是团队内定期组织全体开发人员进行集中式的code review，但长期这样会有点费时费力效率不高。可以参考开源团队，利用工具在线来进行review。比如说github有pull request，gitlab有merge request，可以在代码合并的节点上进行review，这样的好处是比较开放，而且可以留下review记录，互相的想法和沟通建议都可以很好的留存下来并通过UI的方式友好的展示出来。</p>
-<h3 id="Java代码示例"><a href="#Java代码示例" class="headerlink" title="Java代码示例"></a>Java代码示例</h3><ul>
-<li>代码组织</li>
-</ul>
-<p>对于一般的springboot应用，我们可以约定下面这样的工程结构。对于代码分层，可以沿用传统mvc的controller&#x2F;service&#x2F;mapper&#x2F;entity，当然如果想避免service层之间相互引用，导致循环依赖，可以在service与mapper之间再加一层manage，来定义service层中的公用处理。另外考虑到可能还有一些其他的package定义，比如util或者configuration之类，所以在mvc之上加一层api，并与其他的package保持同级，这样包的结构看起来更清晰一点，而且也对应我们的接口定义格式：<code>http://&#123;ip&#125;:&#123;port&#125;/&#123;cotext-path&#125;/api/v1/xxx</code></p>
-<figure class="highlight txt"><figcaption><span>:工程结构</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">&#123;项目&#125;-&#123;服务xxx&#125;</span><br><span class="line">   ├─bin                                      ## 应用脚本</span><br><span class="line">   │  └─env.properties</span><br><span class="line">   │  └─install.sh</span><br><span class="line">   │  └─run.sh</span><br><span class="line">   │  └─setenv.sh</span><br><span class="line">   ├─src</span><br><span class="line">   │  └─main</span><br><span class="line">   │     ├─java</span><br><span class="line">   │     │  └─com.&#123;公司名&#125;.&#123;项目名&#125;.&#123;服务名&#125;     ## 代码目录</span><br><span class="line">   │     │     ├─api                          </span><br><span class="line">   │     │     │  ├─controller</span><br><span class="line">   │     │     │  │  └─...</span><br><span class="line">   │     │     │  ├─entity</span><br><span class="line">   │     │     │  │  └─...</span><br><span class="line">   │     │     │  ├─manage</span><br><span class="line">   │     │     │  │  └─...</span><br><span class="line">   │     │     │  ├─mapper</span><br><span class="line">   │     │     │  │  └─...</span><br><span class="line">   │     │     │  └─service</span><br><span class="line">   │     │     │     └─...</span><br><span class="line">   │     │     ├─configuration </span><br><span class="line">   │     │     │  └─...</span><br><span class="line">   │     │     ├─...</span><br><span class="line">   │     │     └─Application.java</span><br><span class="line">   │     │      </span><br><span class="line">   │     └─resources</span><br><span class="line">   │        ├─smart-doc.json                  ## smart接口文档描述</span><br><span class="line">   │        ├─logback-spring.xml              ## 日志配置</span><br><span class="line">   │        ├─sql                             ## liquibase数据库管理</span><br><span class="line">   │        │  ├─changelog.yml</span><br><span class="line">   │        │  ├─...</span><br><span class="line">   │        ├─config                          ## 应用配置，区分dev和prod</span><br><span class="line">   │        │  ├─application.yml</span><br><span class="line">   │        │  ├─dev</span><br><span class="line">   │        │  │  ├─application.yml</span><br><span class="line">   │        │  │  ├─...</span><br><span class="line">   │        │  └─prod </span><br><span class="line">   │        │     ├─application.yml</span><br><span class="line">   │        │     ├─...</span><br><span class="line">   │        └─META-INF</span><br><span class="line">   │           ├─info.yml                     ## 默认加载的配置项</span><br><span class="line">   │           └─i18n                         ## 国际化资源</span><br><span class="line">   │              ├─...</span><br><span class="line">   │</span><br><span class="line">   ├─docker.build                             ## 镜像打包</span><br><span class="line">   ├─pom.xml</span><br><span class="line">   └─README.md</span><br></pre></td></tr></table></figure>
-
-<p>有的项目中，可能多个服务之间存在相互调用，依赖彼此提供的接口。那么这些接口应该由提供方来统一定义，然后由其他调用方来依赖和调用，而不是放在各个调用方中重复定义，容易造成混乱。针对这种场景，我们可以将代码拆成不同的module，可以参考下面结构：</p>
-<figure class="highlight txt"><figcaption><span>:工程结构</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;项目x&#125;-&#123;服务xxx&#125;</span><br><span class="line">   ├─xxx-api       ## 对应controller层和service层的定义，依赖xxx-core；</span><br><span class="line">   ├─xxx-core      ## 对应持久层、缓存、或消息中间件的处理，比如数据库mapper，redis或kafka之类的调用处理，依赖xxx-model；</span><br><span class="line">   ├─xxx-model     ## 应用模型定义，独立处理是考虑到remote与api可能存在共用模型定义的场景，如果不存在，也可以合并到core中定义；</span><br><span class="line">   ├─xxx-remote    ## 对外提供的Rpc接口，如果复用模型定义，可以依赖xxx-model，也可以使用门面模式单独定义接口的输入输出模型；   </span><br><span class="line">   ├─xxx-starter   ## 定义启动类，以及打包配置，依赖xxx-api，独立出来是考虑可能存在将多个springboot应用合并成一个程序启动的场景；</span><br><span class="line">   └─pom.xml</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>关于常量类和工具类</li>
-</ul>
-<p>很多开发同学喜欢定义Constants常量类以及Util工具类，但我们觉得应该尽量避免定义这样的额外类型。因为通常每个常量都应该有它对应的数据模型定义，比如下面这样：</p>
-<figure class="highlight java"><figcaption><span>:Constants</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Constants</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 性别：男 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">SEX_MALE</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 性别：女 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">SEX_FEMALE</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 状态：打开 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">STATUS_OPEN</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 状态：关闭 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">STATUS_CLOSE</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里定义了两组常量，人的性别和岗位的状态。但如果还有一个其他的数据也有状态这个属性，那么是让它复用这里岗位状态呢，还是通过前缀区分再加一组状态常量呢。虽然都可行，但是肯定不如将这个状态常量直接放到对应数据类型中来得更加直白。而且Constants没有具体的业务含义，当定义的常量值变多之后，容易变得混乱，如果项目中发生人员变动，后面接手的开发同学很容易继续向其中添加更多的常量，导致重复和更多混乱。</p>
-<figure class="highlight java"><figcaption><span>:SysPost</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SysPost</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 状态：打开 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">STATUS_OPEN</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 状态：关闭 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">STATUS_CLOSE</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ... </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>同样的对于一个方法，如果并不具备独立出来进行复用的价值，那么也不应该定义成Util中静态方法，既然是方法一般也有它对应的归属类型。对于那些确实可以定义成Util的方法，我们可以建议先检查一下这样的方法是否已经有人提供了，比如Apache的commons库，或者Hutool等第三方库。</p>
+<p>比较常见的方式是团队内定期组织相关开发人员以会议形式进行code review，如果觉得费时费力，也可以参考开源团队，利用工具在线来进行review。比如说github有pull request，gitlab有merge request，可以在代码合并的节点上进行review，这样的好处是比较开放，也方便留下review记录，以及互相的想法和沟通建议。</p>
 <p><br><strong>参考：</strong>
 1.<a target="_blank" rel="noopener" href="https://github.com/xindoo/eng-practices-cn">https://github.com/xindoo/eng-practices-cn</a></p>
 
@@ -270,7 +251,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%84%E5%AE%A1%E7%9A%84%E7%9B%AE%E7%9A%84"><span class="toc-text">评审的目的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%84%E5%AE%A1%E7%9A%84%E5%8E%9F%E5%88%99"><span class="toc-text">评审的原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%84%E5%AE%A1%E7%9A%84%E5%85%B3%E6%B3%A8%E7%82%B9"><span class="toc-text">评审的关注点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%84%E5%AE%A1%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="toc-text">评审的步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E8%AF%84%E5%AE%A1%E7%9A%84%E8%BF%87%E7%A8%8B%E5%AE%9E%E8%B7%B5"><span class="toc-text">关于评审的过程实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="toc-text">Java代码示例</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%84%E5%AE%A1%E7%9A%84%E7%9B%AE%E7%9A%84"><span class="toc-text">评审的目的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%84%E5%AE%A1%E7%9A%84%E5%8E%9F%E5%88%99"><span class="toc-text">评审的原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%84%E5%AE%A1%E7%9A%84%E5%85%B3%E6%B3%A8%E7%82%B9"><span class="toc-text">评审的关注点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%84%E5%AE%A1%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="toc-text">评审的步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E8%AF%84%E5%AE%A1%E7%9A%84%E4%B8%80%E4%BA%9B%E5%AE%9E%E8%B7%B5"><span class="toc-text">代码评审的一些实践</span></a></li></ol>
 </div>
 
 
