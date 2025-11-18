@@ -93,9 +93,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>主要演示一下http-client的使用方式，基本与Feign差不多，但是做了一些扩展，具体示例可以参考对应的测试用例</p>
-<blockquote>
-<p>&lt;dependency&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.cowave.commons&lt;&#x2F;groupId&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;http-client&lt;&#x2F;artifactId&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;2.7.5&lt;&#x2F;version&gt;<br>&lt;&#x2F;dependency&gt;    </p>
-</blockquote>
+<figure class="highlight xml"><figcaption><span>pom.xml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.cowave.zoo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>http-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
       
     </div>
 	
@@ -149,7 +147,7 @@
       
         <p>一个Java Http调用客户端，基于netflix feign的实现思路，使用apache的httpclient进行调用</p>
 <blockquote>
-<p><a target="_blank" rel="noopener" href="https://github.com/cowave5/http-client">https://github.com/cowave5/http-client</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/eozoo/http-client">https://github.com/eozoo/http-client</a></p>
 </blockquote>
       
     </div>
@@ -203,9 +201,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>说明一下schedule-fom的常见使用场景和使用方式</p>
-<blockquote>
-<p>&lt;dependency&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.cowave.commons&lt;&#x2F;groupId&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;schedule-fom&lt;&#x2F;artifactId&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;2.7.3&lt;&#x2F;version&gt;<br>&lt;&#x2F;dependency&gt;<br>&lt;!-— 需要依赖一下micrometer-core，版本根据使用的spring版本选择 —-&gt;<br>&lt;dependency&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;io.micrometer&lt;&#x2F;groupId&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;micrometer-core&lt;&#x2F;artifactId&gt;<br>&lt;&#x2F;dependency&gt;</p>
-</blockquote>
+<figure class="highlight xml"><figcaption><span>pom.xml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.cowave.zoo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>schedule-fom<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">&lt;!-— 需要依赖一下micrometer-core，版本根据使用的spring版本选择 —-&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.micrometer<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>micrometer-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
       
     </div>
 	
@@ -259,7 +255,7 @@
       
         <p>目标是实现一个轻量级的定时任务管理，简单好用，并有一定的扩展性；由于一开始是为了用来处理文件的，所以就取名为schedule-fom</p>
 <blockquote>
-<p><a target="_blank" rel="noopener" href="https://github.com/cowave5/schedule-fom">https://github.com/cowave5/schedule-fom</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/eozoo/schedule-fom">https://github.com/eozoo/schedule-fom</a></p>
 </blockquote>
       
     </div>
@@ -475,9 +471,9 @@
   
   
   
-  
-  
     <li style="white-space: nowrap"><a href="/categories/开发笔记/">开发笔记</a><small style="margin-left: 5px">7</small></li>
+  
+  
   
   
   
@@ -505,9 +501,9 @@
   
   
   
-  
-  
     <li style="white-space: nowrap"><a href="/categories/开发工具/">开发工具</a><small style="margin-left: 5px">4</small></li>
+  
+  
   
   
   
@@ -675,6 +671,38 @@
       
       
   </ul>
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      <li style="white-space: nowrap"><a href="/categories/未分类/">未分类</a><small style="margin-left: 5px">1</small></li>
+    
+    
 
   <li id="os_ul" style="white-space: nowrap"><a href="#">读书笔记</a><small style="margin-left: 5px">43</small></li>
   <ul id="os_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
@@ -861,45 +889,13 @@
   
   
   
-    <li style="white-space: nowrap"><a href="/categories/其它笔记/">其它笔记</a><small style="margin-left: 5px">1</small></li>
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   
   
   
     <li style="white-space: nowrap"><a href="/categories/数据结构-算法/">数据结构&amp;算法</a><small style="margin-left: 5px">12</small></li>
+  
+  
   
   
 
