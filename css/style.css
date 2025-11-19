@@ -350,7 +350,7 @@ article .entry dl,
 article .entry table,
 article .entry iframe,
 article .entry .video-container {
-  margin-top: 15px;
+  margin-top: 6px;
 }
 img {
   max-width: 100%;
@@ -903,6 +903,7 @@ table {
 figcaption {
   padding-left: 8px;
   padding-top: 2px;
+  font-size: small;
   white-space: nowrap;
   border-bottom: 1px solid #ddd;
 }
