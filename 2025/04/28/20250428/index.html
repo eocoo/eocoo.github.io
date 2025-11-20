@@ -121,13 +121,13 @@
         <p>Kafka Consumer是Kafka事件（消息）的消费端客户端，它是Kafka的关键组件之一。为了确保Kafka集群的高效运行，Kafka的客户端被设计为富客户端，例如，消费者组中的分区分配就是在客户端完成的。</p>
 <span id="more"></span>
 
-<h3 id="消费者的角色"><a href="#消费者的角色" class="headerlink" title="消费者的角色"></a>消费者的角色</h3><p>Kafka consumer一般是以group的形式消费的，group中的每个成员称为一个consumer member。</p>
+<h3 id="消费者的角色"><a href="#消费者的角色" class="headerlink" title="消费者的角色"></a>消费者的角色</h3><p>Kafka consumer一般是以group的形式消费的，group中的每个成员称为一个consumer member</p>
 <p>根据分配到的角色，可以进一步划分为：</p>
 <ul>
 <li>leader：特殊的一个member，负责分配所有member到topic partition的映射；</li>
 <li>follower：除了leader以外的其他所有 member；</li>
 </ul>
-<h3 id="消费流程涉及的核心组件"><a href="#消费流程涉及的核心组件" class="headerlink" title="消费流程涉及的核心组件"></a>消费流程涉及的核心组件</h3><p>Kafka consumer会不断与kafka broker通信。</p>
+<h3 id="消费流程涉及的核心组件"><a href="#消费流程涉及的核心组件" class="headerlink" title="消费流程涉及的核心组件"></a>消费流程涉及的核心组件</h3><p>Kafka consumer会不断与kafka broker通信</p>
 <p>broker侧组件：</p>
 <ul>
 <li>group coordinator：负责同步consumer member状态、监听心跳、触发 rebalance、挑选consumer leader等行为；</li>
