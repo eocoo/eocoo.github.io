@@ -259,7 +259,7 @@
 <p>在Linux系统中，一切皆文件，所以Socket也统一抽象为一个文件描述符，那么对应用程序来讲，收发消息就是对一个文件描述符进行读写。但是它与读写普通的本地磁盘文件也有区别，由于网络的延迟和不可靠性，在读Socket的过程中可能会有大量的时间花在等待数据包的到达上，因此如何提高应用程序在读写Socket过程中的响应性，就成了网络通信编程中一个很重要的问题。</p>
 <p>针对网络I&#x2F;O，Linux提供了五种IO模型，具体可以参考笔记</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2021/03/21/20210321/">Linux I&#x2F;O模型</a></li>
+<li><a target="_blank" rel="noopener" href="https://eocoo.github.io/2021/03/21/20210321/">Linux I&#x2F;O模型</a></li>
 </ul>
 <p>不过Java并没有全部支持，而是逐步选择支持了三种模型：
 在JDK1.4之前，Java的IO模型只支持阻塞式IO(Blocking IO)，简称为BIO；
@@ -319,8 +319,8 @@
         <p>Java在操作系统的基础上对I&#x2F;O操作提供了更高级的Api封装，可以对这些Api进行一些粗略的分类，比如从数据格式的角度可以分为基于字节操作的<code>InputStream</code>和<code>OutputStream</code>，以及基于字符操作的<code>Reader</code>和<code>Writer</code>，从数据传输方式的角度可以分为基于磁盘操作的<code>File</code>和基于网络操作的<code>Socket</code>，其实在Java中，<font color="#E51508">I&#x2F;O主要考虑的就是以怎样的方式将怎样格式的数据进行传输的问题</font>，然后从这两个方向考虑如何提高I&#x2F;O操作的效率</p>
 <p>由于I&#x2F;O类库有很多类，很难对每个都介绍到位，这里只是简单从文件操作的场景对一些常用的Api做一些梳理，尽量从中去体会Java语言对于I&#x2F;O操作支持和封装的思路，另外，如果想对I&#x2F;O有更好的理解，最好先有如下准备知识：</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2021/03/13/20210313/">计算机 输入输出系统</a></li>
-<li><a target="_blank" rel="noopener" href="https://shanhm1991.github.io/2021/03/21/20210321/">Linux I&#x2F;O模型</a></li>
+<li><a target="_blank" rel="noopener" href="https://eocoo.github.io/2021/03/13/20210313/">计算机 输入输出系统</a></li>
+<li><a target="_blank" rel="noopener" href="https://eocoo.github.io/2021/03/21/20210321/">Linux I&#x2F;O模型</a></li>
 </ul>
       
     </div>
@@ -374,7 +374,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>Channel 与 Stream 是一个级别，只不过 Stream 是单向的，比如<code>InputStream</code>或<code>OutputStream</code>，而 Channel 可以是单向的，也可以是双向的，既可以同时支持读和写操作，具体由其实现的接口所决定</p>
-<figure class="highlight java"><figcaption><span>:java.nio.channels</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ReadableByteChannel</span> <span class="keyword">extends</span> <span class="title class_">Channel</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">read</span><span class="params">(ByteBuffer dst)</span> <span class="keyword">throws</span> IOException;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">WritableByteChannel</span> <span class="keyword">extends</span> <span class="title class_">Channel</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">write</span><span class="params">(ByteBuffer src)</span> <span class="keyword">throws</span> IOException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>java.nio.channels</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ReadableByteChannel</span> <span class="keyword">extends</span> <span class="title class_">Channel</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">read</span><span class="params">(ByteBuffer dst)</span> <span class="keyword">throws</span> IOException;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">WritableByteChannel</span> <span class="keyword">extends</span> <span class="title class_">Channel</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">write</span><span class="params">(ByteBuffer src)</span> <span class="keyword">throws</span> IOException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>可以看到 read 和 write 方法接受的都是一个 ByteBuffer 参数，其中<font color="#E51508">Channel.read是向ByteBuffer中put数据</font>，然后应用从ByteBuffer中获取，而<font color="#E51508">Channel.write是从ByteBuffer中get数据</font>，然后发送给其他远程主机。两者均返回字节数，然后缓冲区的position位置也会前移对应的字节数，如果只进行了部分传输，缓冲区可以被重新提交给通道并从上次中断的地方继续传输，该过程可以重复进行直到缓冲区的<code>hasRemaining()</code>方法返回false </p>
       
