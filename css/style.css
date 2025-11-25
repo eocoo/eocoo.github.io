@@ -866,6 +866,7 @@ figure.highlight figcaption a {
 }
 figure.highlight pre {
   overflow-y: hidden;
+  margin-top: 8px;
 }
 overflow-x auto {
   border: none;
