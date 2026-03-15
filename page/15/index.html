@@ -48,7 +48,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  119 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  120 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -65,6 +65,60 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-20180705" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2018-07-04T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2018/07/05/20180705/" style="color: #736f6f;">2018-07-05</a></time>
+      
+      
+
+  
+  
+    <h1 class="title">
+       <a href="/2018/07/05/20180705/">设计模式 原则&amp;分类</a>
+    </h1>
+    
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>设计模式的主要目标在于保证程序的高可用及高扩展性，在实际开发中不应该过多地纠结使用哪种设计模式，而是应该多体会设计模式的原则，换言之，只要遵循一定的原则，这些所谓的模式完全可能在无意识的状态下自发出现在产品代码中。其实这些设计模式也都不是谁突然间硬想出来的，而是从大量实践中总结出来的比较好的组织代码结构的方式。  </p>
+<p>好的设计能够有效避免或者延缓程序<font color="#E51508">架构的腐化</font>，通常，很多程序结构一开始也许设计得还可以，但随着业务功能的不断扩展和变化，可能就不得不在结构上做出一些妥协让步，慢慢地也就失去了结构。</p>
+<p>另外，在设计过程中也要注意避免<font color="#E51508">过度设计</font>，即为不可能发生的变动付出过多的复杂度代价。总之不要滥用设计模式，不要觉得一个地方有可能会变动，就忍不住考虑是否应该增加复杂度来换取灵活性。而要避免过度设计，关键在于能正确的预见变化，以及权衡所引入的复杂度相对于发生变化的可能性和破坏力是否值得，当然这些都需要一定的经验积累以及对业务的认识。</p>
+      
+    </div>
+	
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2018/07/05/20180705/#more" class="more-link">more</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+
+
+
   <article id="post-20180701" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -342,61 +396,6 @@
 
 
 
-  <article id="post-20180406" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2018-04-05T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2018/04/06/20180406/" style="color: #736f6f;">2018-04-06</a></time>
-      
-      
-
-  
-  
-    <h1 class="title">
-       <a href="/2018/04/06/20180406/">JUC AbstractQueuedSynchronizer</a>
-    </h1>
-    
-  
-  
-
-
-<script async src="/js/busuanzi.js"></script>
-
-
-    </header>
-      
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>队列同步器 AbstractQueuedSynchronizer（AQS），是用来构建锁或者其他同步组件的基础框架。它使用一个int变量来表示同步状态，通过CAS操作对同步状态进行修改，确保状态的改变是安全的。通过内置的FIFO（First In First Out）队列来完成资源获取线程的排队工作。</p>
-<p>AQS同步与synchronized同步是采用的两种不同的机制：  </p>
-<p>synchronized在编译后，会在同步块的前后分别添加monitorenter和monitorexit两个字节码指令，这两个指令需要关联一个监视对象，当线程执行monitorenter指令时，需要首先获得获得监视对象的锁，即进入同步块的凭证，才能进入同步块，当线程离开同步块时，执行monitorexit指令，释放对象锁。    </p>
-<p>AQS同步中，使用一个int类型的变量state来表示当前同步块的状态。以独占式同步为例，state的有效值为0和1，其中0表示当前同步块中没有线程，1表示同步块中已经有线程在执行。当线程要进入同步块时，需要首先判断state的值是否为0，假设为0，会尝试将state修改为1，只有修改成功了之后，线程才可以进入同步块，并通过CAS操作确保同一时刻只有一个线程操作成功。当线程离开同步块时，会修改state的值为0，并唤醒等待的线程。所以<font style="color:red;">在AQS同步中，线程获得锁实际上是指线程成功修改了状态变量state，而释放锁就是是指线程将状态变量置为了可修改的状态，以便其他线程可以再次尝试修改状态变量</font></p>
-      
-    </div>
-	
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2018/04/06/20180406/#more" class="more-link">more</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-
-
-
 
 <nav id="pagination">
   
@@ -428,6 +427,8 @@
   
   
     <li style="white-space: nowrap"><a href="/categories/Java笔记/">Java笔记</a><small style="margin-left: 5px">23</small></li>
+  
+  
   
   
   
@@ -486,6 +487,8 @@
   
   
   
+  
+  
 
   
   
@@ -504,6 +507,8 @@
   
   
     <li style="white-space: nowrap"><a href="/categories/开发工具/">开发工具</a><small style="margin-left: 5px">4</small></li>
+  
+  
   
   
   
@@ -550,6 +555,8 @@
   
   
   
+  
+  
 
   
   
@@ -577,7 +584,75 @@
   
   
   
-    <li style="white-space: nowrap"><a href="/categories/未分类/">未分类</a><small style="margin-left: 5px">3</small></li>
+    <li style="white-space: nowrap"><a href="/categories/架构设计/">架构设计</a><small style="margin-left: 5px">2</small></li>
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <li style="white-space: nowrap"><a href="/categories/项目管理/">项目管理</a><small style="margin-left: 5px">2</small></li>
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -585,6 +660,8 @@
 
   <li id="xx_ul" style="white-space: nowrap"><a href="#">中间件</a></li>
   <ul id="xx_li" class="entry_li" style="list-style: none; padding-left: 5px; ">
+      
+      
       
       
       
@@ -646,6 +723,8 @@
       
       
       
+      
+      
 
       
       
@@ -676,6 +755,8 @@
       
       
       <li style="white-space: nowrap"><a href="/categories/消息队列/">消息队列</a><small style="margin-left: 5px">4</small></li>
+      
+      
       
       
   </ul>
@@ -711,6 +792,8 @@
   
   
   
+  
+  
 
   <li id="os_ul" style="white-space: nowrap"><a href="#">读书笔记</a></li>
   <ul id="os_li" class="entry_li" style="list-style: none; padding-left: 5px; display: none;">
@@ -721,6 +804,8 @@
       
       
       <li style="white-space: nowrap"><a href="/categories/《Java并发编程实战》/">《Java并发编程实战》</a><small style="margin-left: 5px">11</small></li>
+      
+      
       
       
       
@@ -777,6 +862,8 @@
       
       
       
+      
+      
 
       
       
@@ -789,6 +876,8 @@
       
       
       <li style="white-space: nowrap"><a href="/categories/《spring源码深度解析》/">《spring源码深度解析》</a><small style="margin-left: 5px">11</small></li>
+      
+      
       
       
       
@@ -841,6 +930,8 @@
       
       
       
+      
+      
 
       
       
@@ -851,6 +942,8 @@
       
       
       <li style="white-space: nowrap"><a href="/categories/《UNIX环境高级编程》/">《UNIX环境高级编程》</a><small style="margin-left: 5px">1</small></li>
+      
+      
       
       
       
@@ -898,6 +991,8 @@
   
   
     <li style="white-space: nowrap"><a href="/categories/散读随笔/">散读随笔</a><small style="margin-left: 5px">1</small></li>
+  
+  
   
   
   
