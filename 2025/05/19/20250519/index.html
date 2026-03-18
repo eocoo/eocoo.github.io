@@ -93,7 +93,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 3.7k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 12min</font>
+   <font style="color: #999;"> words: 3.9k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 13min</font>
    
    
   
@@ -124,6 +124,14 @@
 </ul>
 <p>架构是就是<strong>一个系统的结构</strong>，并不特指软件，比如人体，房屋，公司，手机电脑，我们都可以从各个层面或角度去描述它们，并浓缩成一张图来进行表达。不过对于架构师来说，并不是要描述一个已经存在的系统，而是要设计一个满足某种目标的系统，然后用架构图的方式描述给别人。</p>
 <p>所以架构首先要体现的是<strong>整体结构和组件之间的关系</strong>，然后在设计过程中，主要有两种变化驱动因素：一个是<strong>以满足客户需求为目的的外在功能性变化</strong>；另外一个是<strong>以改善软件质量为目的的内在结构性变化</strong>，也就是既要能支撑业务，也要能稳定运行，在满足业务愿景的前提下，管理好复杂度，对系统进行有序重构，不断减少系统的熵。</p>
+<br>
+
+<p>关于整体和部分，Linus 03年在聊到拆分和集成时有一个很好的描述：</p>
+<blockquote>
+<p>I claim that you want to start communicating between independent modules no sooner than you absolutely have to, and that you should avoid splitting things up until you really need to, because that communication complexity often swamps the complexity of the actual pieces involved in it.    </p>
+<p>我认为你应该在必要时才开始在独立模块之间进行通信，并且在此之前应避免拆分，因为这种通信的复杂性往往会淹没其中各个部分本身的复杂性。    </p>
+</blockquote>
+<p>对应现在流行的微服务设计，也就是不要盲目的拆分微服务，因为把复杂系统拆分成模块，并没有降低整个系统的复杂度。它降低的只是子系统的复杂度。而整个系统的复杂度，反而会由于拆分后的模块之间不得不进行交互，变得更加复杂。</p>
 <h3 id="架构图的目的"><a href="#架构图的目的" class="headerlink" title="架构图的目的"></a>架构图的目的</h3><p>A picture is worth a thousand words</p>
 <ol>
 <li><strong>解决沟通障碍：</strong> 达成共识、减少歧义。</li>
