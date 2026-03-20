@@ -48,7 +48,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  124 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  125 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -65,6 +65,60 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-20191121" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2019-11-20T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2019/11/21/20191121/" style="color: #736f6f;">2019-11-21</a></time>
+      
+      
+
+  
+  
+    <h1 class="title">
+       <a href="/2019/11/21/20191121/">排序算法</a>
+    </h1>
+    
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>排序即将一组对象按照某种逻辑顺序重新排列的过程，通常，整理数据的第一步就是进行排序，因此它是后面很多其它算法和数据结构的基础。在计算机早期年代，据说大约有30%的计算周期都花在了排序操作上，如今这个比例有所降低，并非排序的重要性降低了，而是前辈们不懈的研究，使得如今的排序算法更加高效。</p>
+<p>在不同的场景下选择合适的排序算法其实是很重要的，比如下面是使用文中的几种排序策略对同样的1000个随机数进行排序的结果，可以看出来差距还是比较大的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SELECT         comp=<span class="number">511566</span>  swap=<span class="number">251579</span>  cost=16355ms</span><br><span class="line">INSERT         comp=<span class="number">252594</span>  wap=<span class="number">251584</span>   cost=16449ms</span><br><span class="line">INSERT_BINARY  comp=<span class="number">14294</span>   move=<span class="number">1011</span>    cost=111ms</span><br><span class="line">INSERT_XIER    comp=<span class="number">13576</span>   swap=<span class="number">8453</span>    cost=578ms</span><br><span class="line">MERGE          comp=<span class="number">9413</span>    swap=<span class="number">0</span>       cost=68ms</span><br><span class="line">QUICK          comp=<span class="number">15391</span>   swap=<span class="number">2225</span>    cost=191ms</span><br><span class="line">QUICK2         comp=<span class="number">13857</span>   swap=<span class="number">13853</span>   cost=905ms</span><br></pre></td></tr></table></figure>
+      
+    </div>
+	
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2019/11/21/20191121/#more" class="more-link">more</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+
+
+
   <article id="post-20191115" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -336,59 +390,6 @@
 
 
 
-  <article id="post-20191105" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2019-11-04T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2019/11/05/20191105/" style="color: #736f6f;">2019-11-05</a></time>
-      
-      
-
-  
-  
-    <h1 class="title">
-       <a href="/2019/11/05/20191105/">二叉树</a>
-    </h1>
-    
-  
-  
-
-
-<script async src="/js/busuanzi.js"></script>
-
-
-    </header>
-      
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>前面介绍线性数据结构时提到，如果数据本身有序，那么可以用二分法来降低查找的时间复杂度，但是在线性结构上实现二分法总有一些局限，比如链表不好定位中间元素，而数组又免不了拷贝成本。</p>
-<p>因此，有人提出了树这种结构，<font color="#E51508">树本身也是一种链式数据结构，但它巧妙地解决了链式数据只能从头或者从尾开始查找的问题，而是从中间开始向两边查找</font>。不管是下文要介绍的二叉树，还是后面的Avl树、红黑树或者B树，其<font color="#E51508">基本思想都是二分法</font>，区别只在于通过不同的规则来维持树的平衡，以便使查找的复杂度更接近于二分法。</p>
-      
-    </div>
-	
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2019/11/05/20191105/#more" class="more-link">more</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-
-
-
 
 <nav id="pagination">
   
@@ -519,7 +520,7 @@
 
   
   
-    <li style="white-space: nowrap"><a href="/categories/Devops/">Devops</a><small style="margin-left: 5px">17</small></li>
+    <li style="white-space: nowrap"><a href="/categories/Devops/">Devops</a><small style="margin-left: 5px">18</small></li>
   
   
   
@@ -1012,7 +1013,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/aop/" style="font-size: 11.67px;">aop</a> <a href="/tags/aqs/" style="font-size: 11.67px;">aqs</a> <a href="/tags/aspectJ/" style="font-size: 10px;">aspectJ</a> <a href="/tags/cas/" style="font-size: 11.67px;">cas</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 15px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/excel/" style="font-size: 13.33px;">excel</a> <a href="/tags/feign/" style="font-size: 11.67px;">feign</a> <a href="/tags/final/" style="font-size: 11.67px;">final</a> <a href="/tags/future/" style="font-size: 15px;">future</a> <a href="/tags/gc/" style="font-size: 11.67px;">gc</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 11.67px;">http</a> <a href="/tags/intern/" style="font-size: 11.67px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/io/" style="font-size: 20px;">io</a> <a href="/tags/ioc/" style="font-size: 13.33px;">ioc</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/iptables/" style="font-size: 10px;">iptables</a> <a href="/tags/jdbc/" style="font-size: 13.33px;">jdbc</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/kafka/" style="font-size: 18.33px;">kafka</a> <a href="/tags/list/" style="font-size: 10px;">list</a> <a href="/tags/lock/" style="font-size: 11.67px;">lock</a> <a href="/tags/map/" style="font-size: 10px;">map</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/netty/" style="font-size: 16.67px;">netty</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 11.67px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/string/" style="font-size: 10px;">string</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/thread/" style="font-size: 16.67px;">thread</a> <a href="/tags/tomcat/" style="font-size: 11.67px;">tomcat</a> <a href="/tags/transactional/" style="font-size: 10px;">transactional</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 11.67px;">volatile</a>
+    <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/aop/" style="font-size: 11.67px;">aop</a> <a href="/tags/aqs/" style="font-size: 11.67px;">aqs</a> <a href="/tags/aspectJ/" style="font-size: 10px;">aspectJ</a> <a href="/tags/cas/" style="font-size: 11.67px;">cas</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 15px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/excel/" style="font-size: 13.33px;">excel</a> <a href="/tags/feign/" style="font-size: 11.67px;">feign</a> <a href="/tags/final/" style="font-size: 11.67px;">final</a> <a href="/tags/future/" style="font-size: 15px;">future</a> <a href="/tags/gc/" style="font-size: 11.67px;">gc</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 11.67px;">http</a> <a href="/tags/intern/" style="font-size: 11.67px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/io/" style="font-size: 20px;">io</a> <a href="/tags/ioc/" style="font-size: 13.33px;">ioc</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/iptables/" style="font-size: 10px;">iptables</a> <a href="/tags/jdbc/" style="font-size: 13.33px;">jdbc</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/kafka/" style="font-size: 18.33px;">kafka</a> <a href="/tags/list/" style="font-size: 10px;">list</a> <a href="/tags/lock/" style="font-size: 11.67px;">lock</a> <a href="/tags/map/" style="font-size: 10px;">map</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/netty/" style="font-size: 16.67px;">netty</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 11.67px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/string/" style="font-size: 10px;">string</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/tcp/" style="font-size: 10px;">tcp</a> <a href="/tags/tcpdump/" style="font-size: 10px;">tcpdump</a> <a href="/tags/thread/" style="font-size: 16.67px;">thread</a> <a href="/tags/tomcat/" style="font-size: 11.67px;">tomcat</a> <a href="/tags/transactional/" style="font-size: 10px;">transactional</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 11.67px;">volatile</a>
   </div>
 </div>
 
