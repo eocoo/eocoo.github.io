@@ -125,6 +125,7 @@
       
         <p>Kafka Consumer是Kafka事件（消息）的消费端客户端，它是Kafka的关键组件之一。为了确保Kafka集群的高效运行，Kafka的客户端被设计为富客户端，例如，消费者组中的分区分配就是在客户端完成的。</p>
 <span id="more"></span>
+
 <h3 id="消费者的角色"><a href="#消费者的角色" class="headerlink" title="消费者的角色"></a>消费者的角色</h3><p>Kafka consumer一般是以group的形式消费的，group中的每个成员称为一个consumer member</p>
 <p>根据分配到的角色，可以进一步划分为：</p>
 <ul>
@@ -154,13 +155,13 @@
 </ul>
 <p>在Kafka中，subscribe主要用于更新消费者状态信息，而commit则是将特定位点发送给broker。这两个接口的逻辑相对简单，我们不会在本文中详细展开讨论。接下来的章节将重点介绍poll和close两个接口的交互和原理。</p>
 <h3 id="consumer与broker交互流程解析"><a href="#consumer与broker交互流程解析" class="headerlink" title="consumer与broker交互流程解析"></a>consumer与broker交互流程解析</h3><p>下图展示了 consumer 和 broker 在消费过程中的交互逻辑，总体可以分为“消费过程”和“退出过程”</p>
-<p><img src="/img/20250428/20250428.1.png" alt=""> </p>
+<p><img src="/img/20250428/20250428.1.png"> </p>
 <h4 id="消费过程"><a href="#消费过程" class="headerlink" title="消费过程"></a>消费过程</h4><p>消费过程大体可以分为两块逻辑：</p>
 <ul>
 <li>加入consumer group，获取负责的topic partition；</li>
 <li>基于负责的topic partition，向所在的broker拉取消息；</li>
 </ul>
-<h5 id="加入consumer-group"><a href="#加入consumer-group" class="headerlink" title="加入consumer group"></a>加入consumer group</h5><h6 id="FindCoordinator阶段"><a href="#FindCoordinator阶段" class="headerlink" title="FindCoordinator阶段"></a>FindCoordinator阶段</h6><p><img src="/img/20250428/20250428.2.png" alt=""> </p>
+<h5 id="加入consumer-group"><a href="#加入consumer-group" class="headerlink" title="加入consumer group"></a>加入consumer group</h5><h6 id="FindCoordinator阶段"><a href="#FindCoordinator阶段" class="headerlink" title="FindCoordinator阶段"></a>FindCoordinator阶段</h6><p><img src="/img/20250428/20250428.2.png"> </p>
 <p>每次调用KafkaConsumer#poll时，都会触发ConsumerCoordinator#poll的调用，确保consumer到GroupCoordinator的通信是正常的。</p>
 <p>在consumer第一次poll时，肯定是找不到GroupCoordinator的，于是：</p>
 <ol>
@@ -173,7 +174,7 @@
 </ol>
 <p>在本阶段执行到最后时，HeartBeatThread线程将会启动，该线程主要负责向broker侧的GroupCoordinator发送心跳。GroupCoordinator会在HeartBeat response附带一些信息，例如指向了错误的GroupCoordinator、consumer group正在重平衡等信息。</p>
 <p>但此时consumer还没有加入group，HeartBeatThread虽然启动了，但没有enable，还不会向GroupCoordinator发送心跳</p>
-<h6 id="JoinGroup阶段"><a href="#JoinGroup阶段" class="headerlink" title="JoinGroup阶段"></a>JoinGroup阶段</h6><p><img src="/img/20250428/20250428.3.png" alt=""> </p>
+<h6 id="JoinGroup阶段"><a href="#JoinGroup阶段" class="headerlink" title="JoinGroup阶段"></a>JoinGroup阶段</h6><p><img src="/img/20250428/20250428.3.png"> </p>
 <p>如果consumer还没有加入consumer group，那么会向GroupCoordinator请求加入group：</p>
 <ol>
 <li><p>Consumer发送JoinGroup请求；</p>
@@ -189,34 +190,36 @@
 <p>开始rebalance后，broker会等待consumer加入group。等待会有超时时间，超时后broker会踢出没有及时加入group的旧member，将当前的group元数据持久化。</p>
 <blockquote>
 <p>一般来说，group的consumer leader是第一个向GroupCoordinator发起JoinGroup请求的consumer。</p>
+</blockquote>
+<blockquote>
 <p>member id是不可以手动设置的。但Consumer侧有个类似的配置是group.instance.id，用于声明consumer为静态consumer。静态consumer与普通consumer的最大区别在于退出时不会发送LeaveGroup请求。在用户业务升级时，普通 consumer退出后再拉起会导致较频繁的rebalance，静态consumer就可以规避这种情况（通常会搭配较大的 session timeout 配置）</p>
 </blockquote>
-<h6 id="SyncGroup阶段"><a href="#SyncGroup阶段" class="headerlink" title="SyncGroup阶段"></a>SyncGroup阶段</h6><p><img src="/img/20250428/20250428.4.png" alt=""> </p>
+<h6 id="SyncGroup阶段"><a href="#SyncGroup阶段" class="headerlink" title="SyncGroup阶段"></a>SyncGroup阶段</h6><p><img src="/img/20250428/20250428.4.png"> </p>
 <ol>
-<li>在consumer member中分配partition: </li>
+<li>在consumer member中分配partition:</li>
 </ol>
 <p>在收到JoinGroup response后，consumer group leader会根据指定的partition assignment strategy（partition.assignment.strategy设置），进行topic partition在各个member中的分配。</p>
-<ol>
+<ol start="2">
 <li>consumer执行SyncGroup请求：</li>
 </ol>
 <p>leader consumer会发送leader SyncGroup请求，附上topic partition与member的映射结果；其他member会发送follower SyncGroup请求，尝试获取自己需要负责的topic partition。</p>
 <blockquote>
 <p>在该阶段最后，GroupCoordinator会持久化group的metadata到该group绑定的某个__consumer_offsets的partition中。</p>
 </blockquote>
-<h5 id="拉取消息"><a href="#拉取消息" class="headerlink" title="拉取消息"></a>拉取消息</h5><h6 id="OffsetFetch阶段"><a href="#OffsetFetch阶段" class="headerlink" title="OffsetFetch阶段"></a>OffsetFetch阶段</h6><p><img src="/img/20250428/20250428.5.png" alt=""> </p>
+<h5 id="拉取消息"><a href="#拉取消息" class="headerlink" title="拉取消息"></a>拉取消息</h5><h6 id="OffsetFetch阶段"><a href="#OffsetFetch阶段" class="headerlink" title="OffsetFetch阶段"></a>OffsetFetch阶段</h6><p><img src="/img/20250428/20250428.5.png"> </p>
 <p>各个consumer member收到SyncGroup response以后，需要确定partition消费的起始位点。consumer会向GroupCoordinator查询该group关于指定partition已经提交的commited offset，</p>
 <p>此时：</p>
 <ul>
 <li>如果该partition查询到了commited offset记录，那么consumer会从该offset开始继续消费；</li>
 <li>否则，根据consumer配置的auto.offset.reset，决定起始消费位点；</li>
 </ul>
-<h6 id="ListOffset阶段"><a href="#ListOffset阶段" class="headerlink" title="ListOffset阶段"></a>ListOffset阶段</h6><p><img src="/img/20250428/20250428.6.png" alt=""> </p>
+<h6 id="ListOffset阶段"><a href="#ListOffset阶段" class="headerlink" title="ListOffset阶段"></a>ListOffset阶段</h6><p><img src="/img/20250428/20250428.6.png"> </p>
 <p>如果上一步中，partition没有查询到commited offset记录，那么consumer会利用ListOffset请求（基于auto.offset.reset对应的策略指定请求中的timestamp字段）的response，确定起始消费位点。</p>
-<h6 id="Fetch阶段"><a href="#Fetch阶段" class="headerlink" title="Fetch阶段"></a>Fetch阶段</h6><p><img src="/img/20250428/20250428.7.png" alt=""> </p>
+<h6 id="Fetch阶段"><a href="#Fetch阶段" class="headerlink" title="Fetch阶段"></a>Fetch阶段</h6><p><img src="/img/20250428/20250428.7.png"> </p>
 <p>基于此前的offset信息，consumer向partition所在的broker发起拉取消息的请求，拉取成功后会更新下次需要拉取的位点。</p>
-<h6 id="OffsetCommit阶段"><a href="#OffsetCommit阶段" class="headerlink" title="OffsetCommit阶段"></a>OffsetCommit阶段</h6><p><img src="/img/20250428/20250428.8.png" alt=""> </p>
+<h6 id="OffsetCommit阶段"><a href="#OffsetCommit阶段" class="headerlink" title="OffsetCommit阶段"></a>OffsetCommit阶段</h6><p><img src="/img/20250428/20250428.8.png"> </p>
 <p>在消费过程中，consumer自动或手动地提交当前消费位点到GroupCoordinator处。类似于SyncGroup请求，GroupCoordinator会将该位点信息持久化。</p>
-<h4 id="退出过程"><a href="#退出过程" class="headerlink" title="退出过程"></a>退出过程</h4><p><img src="/img/20250428/20250428.9.png" alt=""> </p>
+<h4 id="退出过程"><a href="#退出过程" class="headerlink" title="退出过程"></a>退出过程</h4><p><img src="/img/20250428/20250428.9.png"> </p>
 <ol>
 <li><p>Consumer同步提交位点信息；</p>
 </li>
@@ -239,7 +242,7 @@
 <li>Dead：group没有member，且offsets信息为空；Dead是最终状态，不可转化为其他状态；</li>
 </ul>
 <p>状态机视图如下：</p>
-<p><img src="/img/20250428/20250428.10.png" alt=""> </p>
+<p><img src="/img/20250428/20250428.10.png"> </p>
 <p>上图中为了简略性，只列出了两个常见的转化为 Dead 状态的情况，实际上以下四种情况都会导致状态转为 Dead：</p>
 <ul>
 <li>Empty Group（没有member）的手动删除；</li>
@@ -258,7 +261,7 @@
 </ul>
 <p>rebalance状态的通知：</p>
 <p>附在HeartbeatResponse或者OffsetCommitResponse中，以error code形式告知consumer需要rejoin group。</p>
-<h3 id="重平衡Q-amp-A"><a href="#重平衡Q-amp-A" class="headerlink" title="重平衡Q&amp;A"></a>重平衡Q&amp;A</h3><blockquote>
+<h3 id="重平衡Q-A"><a href="#重平衡Q-A" class="headerlink" title="重平衡Q&amp;A"></a>重平衡Q&amp;A</h3><blockquote>
 <p>PreparingRebalance状态下是否会停止消费？</p>
 </blockquote>
 <p>当且仅当consumer感知到自己需要rejoin group才会停止消费。PreparingRebalance状态下可以正常消费和提交位点。不过CompletingRebalance状态下不允许提交位点，会抛出Errors.REBALANCE_IN_PROGRESS，触发consumer 的rejoin动作。</p>
@@ -266,9 +269,11 @@
 <p>Consumer手动assign和rebalance两种模式的区别？</p>
 </blockquote>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">consumer.assign(Collections.singleton(<span class="keyword">new</span> <span class="title class_">TopicPartition</span>(<span class="string">&quot;test-topic&quot;</span>, <span class="number">0</span>)));</span><br><span class="line"></span><br><span class="line">consumer.subscribe(Collections.singleton(<span class="string">&quot;test-topic&quot;</span>));</span><br></pre></td></tr></table></figure>
+
 <p>手动assign时Kafka consumer跟topic partition是静态绑定的，Kafka consumer不会参与重平衡；rebalance模式会根据consumer加入、退出等情况触发重平衡，调整各个Kafka consumer分配到的topic partition；</p>
 <p>两种模式互斥，assign模式下，Kafka consumer不支持动态扩容，当生产速率突增时，无法及时加入新的消费者来提升消费的速率。如果业务希望完全避免消费过程中出现topic partition 漂移（一种可能的场景是，生产者将 user_id 作为 record key，且消费时要求只能有一个consumer处理同一个user的数据），那么才有必要考虑使用assign模式。</p>
-<p><br></p>
+<br>
+
 
       
     </div>
@@ -357,7 +362,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%9A%84%E8%A7%92%E8%89%B2"><span class="toc-text">消费者的角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E8%B4%B9%E6%B5%81%E7%A8%8B%E6%B6%89%E5%8F%8A%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="toc-text">消费流程涉及的核心组件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%8E%A5%E5%8F%A3"><span class="toc-text">常用接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#consumer%E4%B8%8Ebroker%E4%BA%A4%E4%BA%92%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90"><span class="toc-text">consumer与broker交互流程解析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B6%88%E8%B4%B9%E8%BF%87%E7%A8%8B"><span class="toc-text">消费过程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8A%A0%E5%85%A5consumer-group"><span class="toc-text">加入consumer group</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#FindCoordinator%E9%98%B6%E6%AE%B5"><span class="toc-text">FindCoordinator阶段</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#JoinGroup%E9%98%B6%E6%AE%B5"><span class="toc-text">JoinGroup阶段</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#SyncGroup%E9%98%B6%E6%AE%B5"><span class="toc-text">SyncGroup阶段</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8B%89%E5%8F%96%E6%B6%88%E6%81%AF"><span class="toc-text">拉取消息</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#OffsetFetch%E9%98%B6%E6%AE%B5"><span class="toc-text">OffsetFetch阶段</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#ListOffset%E9%98%B6%E6%AE%B5"><span class="toc-text">ListOffset阶段</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#Fetch%E9%98%B6%E6%AE%B5"><span class="toc-text">Fetch阶段</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#OffsetCommit%E9%98%B6%E6%AE%B5"><span class="toc-text">OffsetCommit阶段</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%80%E5%87%BA%E8%BF%87%E7%A8%8B"><span class="toc-text">退出过程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#broker%E4%BE%A7consumer-group%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86"><span class="toc-text">broker侧consumer group状态管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rebalance%E5%AE%9E%E7%8E%B0"><span class="toc-text">rebalance实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%B9%B3%E8%A1%A1Q-amp-A"><span class="toc-text">重平衡Q&amp;A</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%9A%84%E8%A7%92%E8%89%B2"><span class="toc-text">消费者的角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E8%B4%B9%E6%B5%81%E7%A8%8B%E6%B6%89%E5%8F%8A%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="toc-text">消费流程涉及的核心组件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%8E%A5%E5%8F%A3"><span class="toc-text">常用接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#consumer%E4%B8%8Ebroker%E4%BA%A4%E4%BA%92%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90"><span class="toc-text">consumer与broker交互流程解析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B6%88%E8%B4%B9%E8%BF%87%E7%A8%8B"><span class="toc-text">消费过程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8A%A0%E5%85%A5consumer-group"><span class="toc-text">加入consumer group</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#FindCoordinator%E9%98%B6%E6%AE%B5"><span class="toc-text">FindCoordinator阶段</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#JoinGroup%E9%98%B6%E6%AE%B5"><span class="toc-text">JoinGroup阶段</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#SyncGroup%E9%98%B6%E6%AE%B5"><span class="toc-text">SyncGroup阶段</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8B%89%E5%8F%96%E6%B6%88%E6%81%AF"><span class="toc-text">拉取消息</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#OffsetFetch%E9%98%B6%E6%AE%B5"><span class="toc-text">OffsetFetch阶段</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#ListOffset%E9%98%B6%E6%AE%B5"><span class="toc-text">ListOffset阶段</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#Fetch%E9%98%B6%E6%AE%B5"><span class="toc-text">Fetch阶段</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#OffsetCommit%E9%98%B6%E6%AE%B5"><span class="toc-text">OffsetCommit阶段</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%80%E5%87%BA%E8%BF%87%E7%A8%8B"><span class="toc-text">退出过程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#broker%E4%BE%A7consumer-group%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86"><span class="toc-text">broker侧consumer group状态管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rebalance%E5%AE%9E%E7%8E%B0"><span class="toc-text">rebalance实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%B9%B3%E8%A1%A1Q-A"><span class="toc-text">重平衡Q&amp;A</span></a></li></ol>
 </div>
 
 

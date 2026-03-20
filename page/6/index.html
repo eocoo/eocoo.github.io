@@ -93,10 +93,11 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>在Java中，任务执行的主要抽象不是<code>Thread</code>，而是<code>Executor</code>，它提供了一种标准的方式将任务的提交过程与执行过程解耦开来，为灵活而强大的异步任务执行框架提供了基础，线程池<code>ThreadPoolExecutor</code>便是在此基础上实现的一套异步执行框架。</p>
-<p>Netty也在<code>Executor</code>的基础上自定义实现了一套高性能的任务执行框架，本文尝试从I/O事件执行器<code>NioEventLoopGroup</code>作为切入点对其中的部分源码做一些分析，希望能从别人的设计中汲取一些思路和启发。建议在分析Netty中的任务执行机制之前先对Java中原生的任务执行框架有所了解，可以参考笔记：</p>
+<p>Netty也在<code>Executor</code>的基础上自定义实现了一套高性能的任务执行框架，本文尝试从I&#x2F;O事件执行器<code>NioEventLoopGroup</code>作为切入点对其中的部分源码做一些分析，希望能从别人的设计中汲取一些思路和启发。建议在分析Netty中的任务执行机制之前先对Java中原生的任务执行框架有所了解，可以参考笔记：</p>
 <ul>
 <li><a href="https://eocoo.github.io/2017/03/05/20170305/">《Java并发编程实战》 任务的执行</a></li>
-<li><a href="https://eocoo.github.io/2017/03/06/20170306/">《Java并发编程实战》 任务的取消</a>
+<li><a href="https://eocoo.github.io/2017/03/06/20170306/">《Java并发编程实战》 任务的取消</a></li>
+</ul>
       
     </div>
 	
@@ -150,15 +151,15 @@
       
         <p>Netty 中的通道 Channel 是对Java原生网络编程Api的封装，以TCP编程为例 ，在java中，有两种常用方式：</p>
 <ul>
-<li>基于BIO，在JDK1.4之前，可以使用 java.net 包中的<code>ServerSocket</code>/<code>Socket</code>来代表服务端和客户端;</li>
-<li>基于NIO，在Jdk1.4引入Nio之后，可以使用 java.nio.channels 包中的<code>ServerSocketChannel</code>/<code>SocketChannel</code>来代表服务端与客户端；</li>
+<li>基于BIO，在JDK1.4之前，可以使用 java.net 包中的<code>ServerSocket</code>&#x2F;<code>Socket</code>来代表服务端和客户端;</li>
+<li>基于NIO，在Jdk1.4引入Nio之后，可以使用 java.nio.channels 包中的<code>ServerSocketChannel</code>&#x2F;<code>SocketChannel</code>来代表服务端与客户端；</li>
 </ul>
 <p>在Netty中，分别进行了封装：</p>
 <ul>
-<li>使用<code>OioServerSocketChannel</code>/<code>OioSocketChannel</code>对<code>ServerSocket</code>/<code>Socket</code>进行了封装；</li>
-<li>使用<code>NioServerSocketChannel</code>/<code>NioSocketChannel</code>对<code>ServerSocketChannel</code>/<code>SocketChannel</code>进行了封装；</li>
+<li>使用<code>OioServerSocketChannel</code>&#x2F;<code>OioSocketChannel</code>对<code>ServerSocket</code>&#x2F;<code>Socket</code>进行了封装；</li>
+<li>使用<code>NioServerSocketChannel</code>&#x2F;<code>NioSocketChannel</code>对<code>ServerSocketChannel</code>&#x2F;<code>SocketChannel</code>进行了封装；</li>
 </ul>
-<p>封装主要有两个方面，<font color="#E51508">首先通过<code>ChannelConfig</code>来封装与Channel相关的配置，然后将对Channel的操作抽象成一个接口<code>ChannelHander</code>，并通过链表的形式来进行组织，以便定义操作的顺序</font>，本文尝试从这两个角度对Netty中的Channel进行一些分析。<br>
+<p>封装主要有两个方面，<font color="#E51508">首先通过<code>ChannelConfig</code>来封装与Channel相关的配置，然后将对Channel的操作抽象成一个接口<code>ChannelHander</code>，并通过链表的形式来进行组织，以便定义操作的顺序</font>，本文尝试从这两个角度对Netty中的Channel进行一些分析。</p>
       
     </div>
 	
@@ -210,7 +211,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>操作系统负责对计算机资源进行管理，并对上层应用提供支持。其核心是操作系统内核空间，独立于应用程序，可以访问受保护的内存空间以及底层硬件设备。为了保证内核的安全，避免用户进程直接操作内核，因此将内存空间划分为两部分，即<font style="color:#E51508;">内核空间</font>和<font style="color:#E51508;">用户空间</font>。<br>
+        <p>操作系统负责对计算机资源进行管理，并对上层应用提供支持。其核心是操作系统内核空间，独立于应用程序，可以访问受保护的内存空间以及底层硬件设备。为了保证内核的安全，避免用户进程直接操作内核，因此将内存空间划分为两部分，即<font style="color:#E51508;">内核空间</font>和<font style="color:#E51508;">用户空间</font>。</p>
       
     </div>
 	
@@ -262,7 +263,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>由于物理规律对半导体器件的限制，传统单处理机通过提高主频提升性能的方法受到制约，不得不转向并行处理体系结构。下面主要介绍一些并行性相关的概念，然后分别讨论多线程和超线程处理机、多处理机和多核处理机。<br>
+        <p>由于物理规律对半导体器件的限制，传统单处理机通过提高主频提升性能的方法受到制约，不得不转向并行处理体系结构。下面主要介绍一些并行性相关的概念，然后分别讨论多线程和超线程处理机、多处理机和多核处理机。</p>
       
     </div>
 	
@@ -314,17 +315,18 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>I/O功能模块通常简称为：I/O接口，也叫适配器，<font style="color:red;">指CPU、主存和外围设备之间通过系统总线进行连接的标准化逻辑部件</font>。为了保证处理器和不同外设之间高效和可靠的交互，CPU必须通过I/O接口与外设连接，其数据传送过程分为两个阶段：I/O接口与外设之间的数据传送，以及CPU与I/O接口之间的数据传送。</p>
-<p>下图展示了CPU、I/O接口和外围设备之间的连接关系。其中外围设备自身带有设备控制器，它是控制外围设备进行操作的控制部件，它通过I/O接口接收来自CPU传送的各种信息，并根据设备的不同要求将这些信息传送到设备，或者从设备中读出信息传送到I/O接口。</p>
-<p><img src="/img/20210313/20210313.1.jpg" alt=""> </p>
-<p>一个标准的I/O接口可以连接一个或多个设备，其结构也如图中所示，通常包括如下功能：</p>
+        <p>I&#x2F;O功能模块通常简称为：I&#x2F;O接口，也叫适配器，<font style="color:red;">指CPU、主存和外围设备之间通过系统总线进行连接的标准化逻辑部件</font>。为了保证处理器和不同外设之间高效和可靠的交互，CPU必须通过I&#x2F;O接口与外设连接，其数据传送过程分为两个阶段：I&#x2F;O接口与外设之间的数据传送，以及CPU与I&#x2F;O接口之间的数据传送。</p>
+<p>下图展示了CPU、I&#x2F;O接口和外围设备之间的连接关系。其中外围设备自身带有设备控制器，它是控制外围设备进行操作的控制部件，它通过I&#x2F;O接口接收来自CPU传送的各种信息，并根据设备的不同要求将这些信息传送到设备，或者从设备中读出信息传送到I&#x2F;O接口。</p>
+<p><img src="/img/20210313/20210313.1.jpg"> </p>
+<p>一个标准的I&#x2F;O接口可以连接一个或多个设备，其结构也如图中所示，通常包括如下功能：</p>
 <ul>
 <li>控制：接口模块根据指令信息来控制外围设备的动作，比如启动或者关闭；</li>
 <li>缓冲：接口模块在外围设备和计算机其他部件之间作为一个缓冲器，以补偿各种设备在速度上的差异；</li>
 <li>状态：接口模块监视外围设备的工作状态并保存，比如准备就绪或者忙，供CPU询问外围设备状态时用；</li>
 <li>转换：接口模块可以完成数据转换，保证数据能在外围设备和CPU之间正确的传送；</li>
 <li>整理：接口模块可以完成一些特别功能，当需要时可以修改字计数器或者当前内存地址寄存器；</li>
-<li>程序中断：当外围设备向CPU请求某种动作时，接口模块会产生一个中断请求信号到CPU;
+<li>程序中断：当外围设备向CPU请求某种动作时，接口模块会产生一个中断请求信号到CPU;</li>
+</ul>
       
     </div>
 	
@@ -380,7 +382,7 @@
 <ul>
 <li>内部总线：CPU内部连接各寄存器及运算部件之间的总线；</li>
 <li>系统总线：CPU同计算机的其他高速功能部件，如存储器、通道等互相连接的总线，称为系统总线；</li>
-<li>I/O总线：低速I/O设备之间互相连接的总线；</li>
+<li>I&#x2F;O总线：低速I&#x2F;O设备之间互相连接的总线；</li>
 </ul>
       
     </div>

@@ -123,12 +123,16 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>关于Kafka Producer的使用方法与实现原理<br><span id="more"></span></p>
+        <p>关于Kafka Producer的使用方法与实现原理</p>
+<span id="more"></span>
+
 <h3 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h3><figure class="highlight java"><figcaption><span>:示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Properties</span> <span class="variable">kafkaProps</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Properties</span>();</span><br><span class="line">kafkaProps.put(<span class="string">&quot;bootstrap.servers&quot;</span>, <span class="string">&quot;localhost:9092&quot;</span>);</span><br><span class="line">kafkaProps.put(<span class="string">&quot;key.serializer&quot;</span>, <span class="string">&quot;org.apache.kafka.common.serialization.StringSerializer&quot;</span>);</span><br><span class="line">kafkaProps.put(<span class="string">&quot;value.serializer&quot;</span>, <span class="string">&quot;org.apache.kafka.common.serialization.StringSerializer&quot;</span>);</span><br><span class="line"></span><br><span class="line">Producer&lt;String, String&gt; producer = <span class="keyword">new</span> <span class="title class_">KafkaProducer</span>&lt;&gt;(kafkaProps);</span><br><span class="line"></span><br><span class="line">ProducerRecord&lt;String, String&gt; record = <span class="keyword">new</span> <span class="title class_">ProducerRecord</span>&lt;&gt;(<span class="string">&quot;my-topic&quot;</span>, <span class="string">&quot;my-key&quot;</span>, <span class="string">&quot;my-value&quot;</span>);</span><br><span class="line">producer.send(record, (metadata, exception) -&gt; &#123;    </span><br><span class="line">    <span class="keyword">if</span> (exception != <span class="literal">null</span>) &#123;        </span><br><span class="line">        exception.printStackTrace();    </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;        </span><br><span class="line">        System.out.println(<span class="string">&quot;Record sent to partition &quot;</span> + metadata.partition() + <span class="string">&quot; with offset &quot;</span> + metadata.offset());  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">producer.close();</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>Kafka Producer的主要接口</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProducerRecord</span>&lt;K, V&gt; &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String topic;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Integer partition;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Headers headers;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> K key;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> V value;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Long timestamp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Callback</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">onCompletion</span><span class="params">(RecordMetadata metadata, Exception exception)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Producer</span>&lt;K, V&gt; &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    Future&lt;RecordMetadata&gt; <span class="title function_">send</span><span class="params">(ProducerRecord&lt;K, V&gt; record)</span>;</span><br><span class="line">    Future&lt;RecordMetadata&gt; <span class="title function_">send</span><span class="params">(ProducerRecord&lt;K, V&gt; record, Callback callback)</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">flush</span><span class="params">()</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">close</span><span class="params">()</span>;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h4 id="ProducerRecord"><a href="#ProducerRecord" class="headerlink" title="ProducerRecord"></a>ProducerRecord</h4><p>Producer发送出的一条消息，包含以下属性：</p>
 <ul>
 <li>topic：必选。用于指定该record发送到的topic</li>
@@ -190,7 +194,7 @@
 <li>TransactionManager</li>
 </ul>
 <p>负责实现幂等（idempotence）与事务（transaction）。包括分配序号（sequence number）、处理消息丢失与乱序、维护事务状态等。</p>
-<h3 id="发送流程"><a href="#发送流程" class="headerlink" title="发送流程"></a>发送流程</h3><p><img src="/img/20250527/20250527.1.png" alt=""> </p>
+<h3 id="发送流程"><a href="#发送流程" class="headerlink" title="发送流程"></a>发送流程</h3><p><img src="/img/20250527/20250527.1.png"> </p>
 <p>步骤：</p>
 <ol>
 <li>刷新元数据；</li>
@@ -242,6 +246,7 @@
 <p>选择partition时是否忽略消息的key，若为false，则根据key的哈希选择partition，否则忽略key值。仅在未配置partitioner.class时生效，默认为false</p>
 <h4 id="消息积攒"><a href="#消息积攒" class="headerlink" title="消息积攒"></a>消息积攒</h4><p>RecordAccumulator中，按照partition维度维护了所有待发送的batch，主要有几个方法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> RecordAppendResult <span class="title function_">append</span><span class="params">(String topic,</span></span><br><span class="line"><span class="params">                                 <span class="type">int</span> partition,</span></span><br><span class="line"><span class="params">                                 <span class="type">long</span> timestamp,</span></span><br><span class="line"><span class="params">                                 <span class="type">byte</span>[] key,</span></span><br><span class="line"><span class="params">                                 <span class="type">byte</span>[] value,</span></span><br><span class="line"><span class="params">                                 Header[] headers,</span></span><br><span class="line"><span class="params">                                 AppendCallbacks callbacks,</span></span><br><span class="line"><span class="params">                                 <span class="type">long</span> maxTimeToBlock,</span></span><br><span class="line"><span class="params">                                 <span class="type">boolean</span> abortOnNewBatch,</span></span><br><span class="line"><span class="params">                                 <span class="type">long</span> nowMs,</span></span><br><span class="line"><span class="params">                                 Cluster cluster)</span> <span class="keyword">throws</span> InterruptedException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> ReadyCheckResult <span class="title function_">ready</span><span class="params">(Metadata metadata, <span class="type">long</span> nowMs)</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> Map&lt;Integer, List&lt;ProducerBatch&gt;&gt; <span class="title function_">drain</span><span class="params">(Metadata metadata, Set&lt;Node&gt; nodes, <span class="type">int</span> maxSize, <span class="type">long</span> now)</span>;</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>append</li>
 </ul>
@@ -275,7 +280,7 @@
 </ul>
 <p>每次请求中消息总大小的最大值，同时也是每条消息的最大大小。默认为1MiB。另外broker配置message.max.bytes 和 topic配置max.message.bytes也对每条消息的最大大小做出了限制</p>
 <h4 id="超时处理"><a href="#超时处理" class="headerlink" title="超时处理"></a>超时处理</h4><p>Kafka Producer定义了一系列超时相关的配置，用于控制发送消息的各个阶段允许耗时的最大值</p>
-<p><img src="/img/20250527/20250527.2.png" alt=""> </p>
+<p><img src="/img/20250527/20250527.2.png"> </p>
 <p><strong>相关配置</strong></p>
 <ul>
 <li>buffer.memory</li>
@@ -300,8 +305,9 @@
 <ul>
 <li>retry.backoff.ms与retry.backoff.max.ms</li>
 </ul>
-<p>二者组合控制发送失败后重试的指数退避策略——随着重试次数的增加，从retry.backoff.ms开始按照2的指数次幂增加重试等待时间，并增加一个20%的扰动，且最大不超过retry.backoff.max.ms，默认为 100ms/1000ms。</p>
-<p><br></p>
+<p>二者组合控制发送失败后重试的指数退避策略——随着重试次数的增加，从retry.backoff.ms开始按照2的指数次幂增加重试等待时间，并增加一个20%的扰动，且最大不超过retry.backoff.max.ms，默认为 100ms&#x2F;1000ms。</p>
+<br>
+
 
       
     </div>

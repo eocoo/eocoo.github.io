@@ -119,32 +119,40 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>Kafka 4.1.0部署配置<br><span id="more"></span></p>
+        <p>Kafka 4.1.0部署配置</p>
+<span id="more"></span>
+
 <h4 id="集群部署"><a href="#集群部署" class="headerlink" title="集群部署"></a>集群部署</h4><p>下载kafka_2.13-4.1.0.tgz，<a target="_blank" rel="noopener" href="https://kafka.apache.org/downloads">https://kafka.apache.org/downloads</a></p>
 <ul>
 <li>分别修改kafka配置</li>
 </ul>
 <figure class="highlight properties"><figcaption><span>kafka1/config/server.properties</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The role of this server. Setting this puts us in KRaft mode</span></span><br><span class="line"><span class="attr">process.roles</span>=<span class="string">broker,controller</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># The node id associated with this instance&#x27;s roles</span></span><br><span class="line"><span class="attr">node.id</span>=<span class="string">1</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># List of controller endpoints used connect to the controller cluster</span></span><br><span class="line"><span class="attr">controller.quorum.voters</span>=<span class="string">1@127.0.0.1:9097,2@127.0.0.1:9098,3@127.0.0.1:9099</span></span><br><span class="line"></span><br><span class="line"><span class="attr">listeners</span>=<span class="string">PLAINTEXT://:9092,CONTROLLER://:9097</span></span><br><span class="line"><span class="attr">inter.broker.listener.name</span>=<span class="string">PLAINTEXT</span></span><br><span class="line"><span class="attr">controller.listener.names</span>=<span class="string">CONTROLLER</span></span><br><span class="line"></span><br><span class="line"><span class="attr">advertised.listeners</span>=<span class="string">PLAINTEXT://localhost:9092</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log.dirs</span>=<span class="string">/Users/shanhuiming/zooenv/kafka4.1.0/kafka1/data</span></span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>分别设置data目录</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">找一个节点获取uuid</span></span><br><span class="line">bin/kafka-storage.sh random-uuid</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用生成的uuid，分别给三个节点初始化data目录</span></span><br><span class="line">bin/kafka-storage.sh format --cluster-id AdqhtOERSymkCzOoOvtU0A --config config/server.properties</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>分别启动kafka</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-server-start.sh -daemon config/server.properties</span><br></pre></td></tr></table></figure>
+
 <h4 id="本地测试"><a href="#本地测试" class="headerlink" title="本地测试"></a>本地测试</h4><ul>
 <li>创建Topic</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./kafka-topics.sh --create --topic test --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>查看Topic</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./kafka-topics.sh --describe --bootstrap-server localhost:9092</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>收发消息</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 打开终端发送消息</span></span></span><br><span class="line">./kafka-console-producer.sh --topic test --bootstrap-server localhost:9092</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 打开终端消费消息</span></span></span><br><span class="line">./kafka-console-consumer.sh --topic test --from-beginning --bootstrap-server localhost:9092</span><br></pre></td></tr></table></figure>
+
 <h4 id="KRaft模式说明"><a href="#KRaft模式说明" class="headerlink" title="KRaft模式说明"></a>KRaft模式说明</h4><p>KRaft模式取代了Kafka使用ZooKeeper进行集群管理的方式，按照Raft协议内容，节点会被分为控制节点、数据节点。</p>
 <ul>
 <li>控制节点：在control plane中操作，使用基于Raft的共识协议管理集群元数据和集群状态</li>
@@ -155,11 +163,11 @@
 <ul>
 <li>使用专用控制节点进行集群管理</li>
 </ul>
-<p><img src="/img/20250321/20250321.1.png" alt=""> </p>
+<p><img src="/img/20250321/20250321.1.png"> </p>
 <ul>
 <li>使用双角色节点进行集群管理</li>
 </ul>
-<p><img src="/img/20250321/20250321.2.png" alt=""> </p>
+<p><img src="/img/20250321/20250321.2.png"> </p>
 <p><br><strong>参考：</strong></p>
 
       

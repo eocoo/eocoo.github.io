@@ -6,7 +6,7 @@
   <title>Kafka基本概念 | Echo</title>
   <meta name="author" content="shanhm">
   
-  <meta name="description" content="Kafka是一个高吞吐、低延迟、可水平扩展的分布式流数据平台。核心是一个基于发布/订阅模式的分布式消息系统，以持久化日志的形式存储数据流，兼具消息队列、数据集成和流处理能力。其通过“主题-分区”模型实现数据的并行处理和无限扩展，并借助多副本机制保障高可用与数据可靠性。生产者和消费者可异步解耦，实现每秒百万级的消息处理，是构建实时数据管道和流式应用的核心基础设施。">
+  <meta name="description" content="Kafka是一个高吞吐、低延迟、可水平扩展的分布式流数据平台。核心是一个基于发布&amp;#x2F;订阅模式的分布式消息系统，以持久化日志的形式存储数据流，兼具消息队列、数据集成和流处理能力。其通过“主题-分区”模型实现数据的并行处理和无限扩展，并借助多副本机制保障高可用与数据可靠性。生产者和消费者可异步解耦，实现每秒百万级的消息处理，是构建实时数据管道和流式应用的核心基础设施。">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -119,27 +119,34 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>Kafka是一个高吞吐、低延迟、可水平扩展的分布式流数据平台。核心是一个基于发布/订阅模式的分布式消息系统，以持久化日志的形式存储数据流，兼具消息队列、数据集成和流处理能力。其通过“主题-分区”模型实现数据的并行处理和无限扩展，并借助多副本机制保障高可用与数据可靠性。生产者和消费者可异步解耦，实现每秒百万级的消息处理，是构建实时数据管道和流式应用的核心基础设施。<br><span id="more"></span></p>
-<p><img src="/img/20250401/20250401.1.jpg" alt=""> </p>
+        <p>Kafka是一个高吞吐、低延迟、可水平扩展的分布式流数据平台。核心是一个基于发布&#x2F;订阅模式的分布式消息系统，以持久化日志的形式存储数据流，兼具消息队列、数据集成和流处理能力。其通过“主题-分区”模型实现数据的并行处理和无限扩展，并借助多副本机制保障高可用与数据可靠性。生产者和消费者可异步解耦，实现每秒百万级的消息处理，是构建实时数据管道和流式应用的核心基础设施。</p>
+<span id="more"></span>
+
+<p><img src="/img/20250401/20250401.1.jpg"> </p>
 <p>Kafka的消息组织方式：主题(Topic) -&gt; 分区(Partition) -&gt; 消息，主题下的每条消息只会保存在其中一个确定的分区中。</p>
 <h4 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h4><p>分区是物理上的划分，其主要作用是提供了水平扩展能力，不同的分区能够被放置到不同节点的机器上，而数据的读写也是以分区为单位进行划分的，这样每个节点的机器都能独立地执行各自分区的读写请求处理，那么当性能不足时就可以通过添加新的机器节点来增加整体系统的吞吐量。</p>
 <p>一个分区可以设置多个副本(Replica)，分为一个主副本和多个从副本，分布在不同的机器节点上，当主副本所在节点发生故障时，Kafka可以从同步的从副本中选举出一个新的主副本继续对外提供服务，以此实现故障转移，所以设置副本可以提升系统的高可用性。</p>
 <p>假设有三个节点，一个Topic的分区数和副本数都设置为3：</p>
-<p><img src="/img/20250401/20250401.2.jpg" alt=""> </p>
+<p><img src="/img/20250401/20250401.2.jpg"> </p>
 <p>分区策略，先看是否有指定分区，如果未指定，再看是否指定了key，根据key的hash选择分区；如果也没有指定key，那么使用轮询的方式选择分区；</p>
 <h4 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h4><p>主题是逻上的划分，假设Topic的分区数设为3，副本数设为2</p>
-<p><img src="/img/20250401/20250401.3.jpg" alt=""> </p>
+<p><img src="/img/20250401/20250401.3.jpg"> </p>
 <p>生产者发送的消息会封装成一个ProducerRecord对象。对象的参数包括：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">topic     string  NotNull</span><br><span class="line">partition int     Nullable</span><br><span class="line">timestamp long    Nullable</span><br><span class="line">key       序列化   Nullable</span><br><span class="line">value     序列化   Nullable</span><br><span class="line">headers   array   Nullable</span><br></pre></td></tr></table></figure>
+
 <p>ACK应答机制，据可靠性和延迟要求的权衡，Kafka提供了三种可靠性级别</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0  不等待Broker的ACK，延迟最低，Broker收到数据立即返回(还没有写入磁盘)，如果Broker故障可能丢失数据</span><br><span class="line">1  等待Broker的ACK，Partition的Leader落盘成功后返回ACK，如果在Follower同步成功之前Leader故障，那么也会丢失数据</span><br><span class="line">-1 等待Broker的ACK，Partition的Leader和Follower都落盘成功后才返回ACK。但是Broker发送ACK时，如果Leader发生故障，会造成数据重复</span><br></pre></td></tr></table></figure>
+
 <p>副本同步策略，如果设置所有Follower完成同步才返回ACK，那么有一个Follower出现故障，就会导致Leader一直等待</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">分区Leader会维护一个动态的ISR（in-sync replica set），包括Leader，和所有保持同步的Follower集；</span><br><span class="line">当ISR集合中的Follower完成数据同步后，Leader就可以给Producer回应ACK，如果Leader发生故障，可以从ISR中选举出新的Leader；</span><br><span class="line">如果Follower长时间未向Leader同步数据，则该Follower将被踢出ISR集合，该时间阈值由replica.lag.time.max.ms设定；</span><br></pre></td></tr></table></figure>
+
 <p>Consumer Group的分区分配策略，默认partition.assignment.strategy是CooperativeSticky</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">RoundRobin 将所有主题的分区混合排序，按消费者字典序轮询分配，分配更均衡</span><br><span class="line">Range      每个主题独立分配，分区数/消费者数 决定每个消费者消费几个分区，除不尽则前面几个消费者会多消费1个分区（topic很多容易产生数据倾斜）</span><br><span class="line">Sticky     尽量均衡放置分区到消费者上面，如果组内消费者出现问题的时候，会尽量保持原有分配的分区不变化</span><br><span class="line">CooperativeSticky 继承Sticky的均衡和粘性特性，支持增量再平衡，在不停止消费的情况下进行增量再平衡</span><br></pre></td></tr></table></figure>
+
 <h4 id="数据日志"><a href="#数据日志" class="headerlink" title="数据日志"></a>数据日志</h4><p>以Partition为单位划分文件夹，名称格式：Topic名称-分区号，其中的文件再分为多段Segment，每段Segment有4个文件，以第一条消息的offset进行命名</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.log文件       数据文件，存储实际的消息内容（键、值、时间戳等）和元数据，是日志的主体</span><br><span class="line">.index文件     位移索引文件，用于根据消息的Offset快速定位到其在.log文件中的物理位置（文件指针），实现高效随机读取</span><br><span class="line">.timeindex文件 时间戳索引文件，根据消息的时间戳快速定位到对应的Offset，可以实现“按时间范围查询”或“从指定时间点消费”的关键</span><br><span class="line">.snapshot文件  生产者状态快照文件，用于事务型生产者，记录未完成的事务状态，确保事务的原子性</span><br></pre></td></tr></table></figure>
-<p><img src="/img/20250401/20250401.4.jpg" alt=""> </p>
+
+<p><img src="/img/20250401/20250401.4.jpg"> </p>
 <p><br><strong>参考：</strong></p>
 
       
