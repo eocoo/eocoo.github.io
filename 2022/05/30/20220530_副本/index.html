@@ -3,17 +3,15 @@
 <head>
   <meta charset="utf-8">
   
-  <title>设计模式 原则&amp;分类 | Echo</title>
+  <title>tcpdump 网络抓包 | Echo</title>
   <meta name="author" content="shanhm">
   
-  <meta name="description" content="设计模式的主要目标在于保证程序的高可用及高扩展性，在实际开发中不应该过多地纠结使用哪种设计模式，而是应该多体会设计模式的原则，换言之，只要遵循一定的原则，这些所谓的模式完全可能在无意识的状态下自发出现在产品代码中。其实这些设计模式也都不是谁突然间硬想出来的，而是从大量实践中总结出来的比较好的组织代码结构的方式。  
-好的设计能够有效避免或者延缓程序架构的腐化，通常，很多程序结构一开始也许设计得还可以，但随着业务功能的不断扩展和变化，可能就不得不在结构上做出一些妥协让步，慢慢地也就失去了结构。
-另外，在设计过程中也要注意避免过度设计，即为不可能发生的变动付出过多的复杂度代价。总之不要滥用设计模式，不要觉得一个地方有可能会变动，就忍不住考虑是否应该增加复杂度来换取灵活性。而要避免过度设计，关键在于能正确的预见变化，以及权衡所引入的复杂度相对于发生变化的可能性和破坏力是否值得，当然这些都需要一定的经验积累以及对业务的认识。">
+  <meta name="description" content="常用的shell脚本整理">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="设计模式 原则&amp;分类"/>
+  <meta property="og:title" content="tcpdump 网络抓包"/>
   <meta property="og:site_name" content="Echo"/>
 
   
@@ -68,20 +66,20 @@
 <div class="clearfix"></div>
 </header>
   <div id="content" class="inner">
-    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20180705" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20220530_副本" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
     <header>
       
         <div class="icon"></div>
-        <time class="dt-published" datetime="2018-07-04T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2018/07/05/20180705/" style="color: #736f6f;">2018-07-05</a></time>
+        <time class="dt-published" datetime="2022-05-29T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2022/05/30/20220530_副本/" style="color: #736f6f;">2022-05-30</a></time>
       
       
 
   
   
     <h1 class="p-name title" itemprop="headline name">
-        设计模式 原则&amp;分类
+        tcpdump 网络抓包
     </h1>
     
     
@@ -95,12 +93,12 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 900  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 3min</font>
+   <font style="color: #999;"> words: 307  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 1min</font>
    
    
   
   <div class="categories">
-    <a href="/categories/Java笔记/">Java笔记</a>
+    <a href="/categories/Devops/">Devops</a>
   </div>
 
 
@@ -116,27 +114,13 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>设计模式的主要目标在于保证程序的高可用及高扩展性，在实际开发中不应该过多地纠结使用哪种设计模式，而是应该多体会设计模式的原则，换言之，只要遵循一定的原则，这些所谓的模式完全可能在无意识的状态下自发出现在产品代码中。其实这些设计模式也都不是谁突然间硬想出来的，而是从大量实践中总结出来的比较好的组织代码结构的方式。  </p>
-<p>好的设计能够有效避免或者延缓程序<font color="#E51508">架构的腐化</font>，通常，很多程序结构一开始也许设计得还可以，但随着业务功能的不断扩展和变化，可能就不得不在结构上做出一些妥协让步，慢慢地也就失去了结构。</p>
-<p>另外，在设计过程中也要注意避免<font color="#E51508">过度设计</font>，即为不可能发生的变动付出过多的复杂度代价。总之不要滥用设计模式，不要觉得一个地方有可能会变动，就忍不住考虑是否应该增加复杂度来换取灵活性。而要避免过度设计，关键在于能正确的预见变化，以及权衡所引入的复杂度相对于发生变化的可能性和破坏力是否值得，当然这些都需要一定的经验积累以及对业务的认识。<br><span id="more"></span></p>
-<h3 id="1-设计模式原则"><a href="#1-设计模式原则" class="headerlink" title="1. 设计模式原则"></a>1. 设计模式原则</h3><p>1.开闭原则</p>
-<p>即对扩展开放，对修改封闭。在程序需要扩展的时候，不要去修改原有的代码，而是扩展原有代码，实现一个热插拔的效果。</p>
-<p>2.单一职责原则</p>
-<p>不要存在多于一个导致类变更的原因，也就是说每个类的职责应该单一，否则就应该把类进行拆分。</p>
-<p>3.里氏替换原则</p>
-<p>任何引用基类的地方必须能透明地使用其子类的对象。里氏替换原则是继承复用的基石，只有当衍生类可以替换基类，软件单位的功能不受到影响时，基类才能真正被复用，而衍生类也能够在基类的基础上增加新的行为。</p>
-<p>4.依赖倒转原则</p>
-<p>面向接口编程，依赖于抽象而不依赖于具体。写代码时用到具体类时，不要直接与具体类交互，而与具体类的上层接口交互。</p>
-<p>5.接口隔离原则</p>
-<p>每个接口中不存在子类用不到却必须实现的方法，否则，就应该将接口拆分，使用多个隔离的接口。</p>
-<p>6.迪米特法则（最少知道原则）</p>
-<p>一个类对自己依赖的类知道的越少越好，无论被依赖的类多么复杂，都应该将逻辑封装在方法的内部，通过public方法提供给外部。这样当被依赖的类变化时，才能最小的影响该类。</p>
-<h3 id="2-设计模式分类"><a href="#2-设计模式分类" class="headerlink" title="2. 设计模式分类"></a>2. 设计模式分类</h3><p>1.创建型模式</p>
-<p>工厂模式、单例模式、建造者模式、原型模式等</p>
-<p>2.结构型模式</p>
-<p>适配器模式、组合模式、装饰器模式、代理模式、门面模式、桥接模式、享元模式等</p>
-<p>3.行为型模式</p>
-<p>策略模式、模板方法模式、观察者模式、迭代子模式、责任链模式、命令模式、备忘录模式、访问者模式、调停者模式等</p>
+        <p>常用的shell脚本整理<br><span id="more"></span></p>
+<h3 id="网络抓包-tcpdump"><a href="#网络抓包-tcpdump" class="headerlink" title="网络抓包 tcpdump"></a>网络抓包 tcpdump</h3><p>tcpdump可以将网络数据包截获下来提供分析，支持针对网络层、协议、主机、网络或端口的过滤，并提供and、or、not等逻辑语句来进行过滤</p>
+<p>常用选项：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">-i &lt;iface&gt;	指定接口，例如 -i eth0。</span><br><span class="line">-n	        不解析主机名，直接显示 IP 地址。</span><br><span class="line">-nn	        不解析主机名和端口号，显示数字形式。</span><br><span class="line">-v / -vv / -vvv	增加输出的详细程度。</span><br><span class="line">-c &lt;count&gt;	捕获指定数量的数据包后退出。</span><br><span class="line">-s &lt;snaplen&gt;	指定抓包长度，默认 262144 字节。</span><br><span class="line">-X	        显示数据包的 十六进制 + ASCII。</span><br><span class="line">-XX	        显示以太网头 + 十六进制 + ASCII。</span><br><span class="line">-A	        以 ASCII 形式显示数据内容（适合 HTTP 请求）。</span><br><span class="line">-w &lt;file&gt;	将抓到的数据包写入文件（例如 .pcap），可用于 Wireshark 分析。</span><br><span class="line">-r &lt;file&gt;	从抓包文件读取数据。</span><br><span class="line">-tt / -ttt / -T	显示时间戳格式，可精确到微秒。</span><br></pre></td></tr></table></figure>
+<p>示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">针对指定主机抓包</span></span><br><span class="line">tcpdump -i any -n -nn host 192.168.1.10 -w ./$(date +%Y%m%d%H%M%S).pcap</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">针对指定端口抓包</span></span><br><span class="line">tcpdump -i any -n -nn tcp and port 80 -w ./$(date +%Y%m%d%H%M%S).pcap</span><br></pre></td></tr></table></figure>
+<p><br><strong>参考：</strong></p>
 
       
     </div>
@@ -147,14 +131,14 @@
 	    
 	<nav id="pagination">
 	  
-		  <a class="alignleft prev" href="/2018/07/07/20180707/">
-		    设计模式 单例模式
+		  <a class="alignleft prev" href="/2024/03/14/20240314/">
+		    软件架构设计原则 Srinath
 		  </a>
 	  
 	  
 	  
-		  <a class="alignright next" href="/2018/07/01/20180701/">
-		    UML 关系图
+		  <a class="alignright next" href="/2022/05/01/20220501/">
+		    版本分支管理
 		  </a>
 	  
 	  <div class="clearfix"></div>
@@ -164,7 +148,7 @@
         
   
   <div class="categories">
-    <a href="/categories/Java笔记/">Java笔记</a>
+    <a href="/categories/Devops/">Devops</a>
   </div>
 
 
@@ -220,7 +204,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8E%9F%E5%88%99"><span class="toc-text">1. 设计模式原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%88%86%E7%B1%BB"><span class="toc-text">2. 设计模式分类</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E6%8A%93%E5%8C%85-tcpdump"><span class="toc-text">网络抓包 tcpdump</span></a></li></ol>
 </div>
 
 

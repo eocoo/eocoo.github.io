@@ -48,7 +48,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  123 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  124 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -65,6 +65,59 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-20181005" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2018-10-04T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2018/10/05/20181005/" style="color: #736f6f;">2018-10-05</a></time>
+      
+      
+
+  
+  
+    <h1 class="title">
+       <a href="/2018/10/05/20181005/">字节码指令</a>
+    </h1>
+    
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Java虚拟机的指令由一个字节长度（0 ~ 255）、代表着某种特定操作含义的数字（操作码），以及其后跟随的零至多个参数（操作数）构成。由于<font color="#E51508">Java虚拟机采用面向操作数栈而不是面向寄存器的架构</font>，所以大多数指令都不包含操作数，只有一个操作码，指令参数都存放在操作数栈中。</p>
+<p>采用一个字节来代表操作码，也是为了尽可能获得短小精干的编译代码，这种追求尽可能小数据量、高传输效率的设计，也是由于Java语言设计之初，主要面向网络、智能家电的技术背景所决定的，并一直沿用至今。<br>
+      
+    </div>
+	
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2018/10/05/20181005/#more" class="more-link">more</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+
+
+
   <article id="post-20181004" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -92,7 +145,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>这里讨论的对象仅限于普通java对象，不包括数组和Class对象等</p>
+        <p>这里讨论的对象仅限于普通java对象，不包括数组和Class对象等<br>
       
     </div>
 	
@@ -144,7 +197,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>在类加载成功之后，便以Class对象的形式保存在内存中。可以将Class对象理解成实例对象的元数据，通过Class对象中描述的类型信息，便可以创建对应的实例对象，从而进行方法调用，以及字段修改。那么，便可以通过反射根据运行时获取的类型信息来创建实例，而且可以跳过访问权限的限制访问字段和方法</p>
+        <p>在类加载成功之后，便以Class对象的形式保存在内存中。可以将Class对象理解成实例对象的元数据，通过Class对象中描述的类型信息，便可以创建对应的实例对象，从而进行方法调用，以及字段修改。那么，便可以通过反射根据运行时获取的类型信息来创建实例，而且可以跳过访问权限的限制访问字段和方法<br>
       
     </div>
 	
@@ -197,7 +250,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>类加载，即把描述类的字节数据（class文件）加载到内存，并对数据进行校验、转换解析和初始化，最终形成可以被虚拟机直接使用的Java类型。与那些编译时需要链接的语言不同，java中类型的加载、链接和初始化都在运行期间完成，这种策略虽然在类加载时增加了一些性能开销，但是为java应用程序提供了高度的灵活性，<font color="#E51508">Java能够动态扩展的语言特性</font>就是依赖<font color="#E51508">运行期动态加载</font>和<font color="#E51508">动态连接</font>这些特点来实现的。</p>
-<p>比如，编写一个面向接口的应用程序，可以等到运行时再指定其实现类。用户可以通过Java预定义或自定义的加载器，让一个本地应用程序在运行时从网络或其它地方加载一个二进制流作为程序代码的一部分。这种组装应用程序的方式已广泛应用于Java程序之中，从最基础的Applet、JSP到相对复杂的OSGI。</p>
+<p>比如，编写一个面向接口的应用程序，可以等到运行时再指定其实现类。用户可以通过Java预定义或自定义的加载器，让一个本地应用程序在运行时从网络或其它地方加载一个二进制流作为程序代码的一部分。这种组装应用程序的方式已广泛应用于Java程序之中，从最基础的Applet、JSP到相对复杂的OSGI。<br>
       
     </div>
 	
@@ -249,7 +302,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>class文件是一种字节码存储格式，它只与Java虚拟机绑定，因此它是Java实现平台无关性的基础。另外，任何其它语言，只要能编译成一个有效class文件，那么也可以在Java虚拟机上执行，因此，通过class这个媒介，Java虚拟机同时拥有语言无关的中立特性</p>
+        <p>class文件是一种字节码存储格式，它只与Java虚拟机绑定，因此它是Java实现平台无关性的基础。另外，任何其它语言，只要能编译成一个有效class文件，那么也可以在Java虚拟机上执行，因此，通过class这个媒介，Java虚拟机同时拥有语言无关的中立特性<br>
       
     </div>
 	
@@ -301,7 +354,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>代理是一种常用的设计模式，给某个对象提供一个代理，并由代理对象来控制对真实对象的访问。它的方式就是让代理类持有目标类的实例，并在对目标类进行操作的前后加入一层代理操作。</p>
+        <p>代理是一种常用的设计模式，给某个对象提供一个代理，并由代理对象来控制对真实对象的访问。它的方式就是让代理类持有目标类的实例，并在对目标类进行操作的前后加入一层代理操作。<br>
       
     </div>
 	
@@ -310,64 +363,6 @@
         
           <div class="alignleft">
             <a href="/2018/07/18/20180718/#more" class="more-link">more</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-
-
-
-  <article id="post-20180715" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2018-07-14T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2018/07/15/20180715/" style="color: #736f6f;">2018-07-15</a></time>
-      
-      
-
-  
-  
-    <h1 class="title">
-       <a href="/2018/07/15/20180715/">设计模式 原型模式</a>
-    </h1>
-    
-  
-  
-
-
-<script async src="/js/busuanzi.js"></script>
-
-
-    </header>
-      
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>通过给定的原型对象，获取所要创建的对象类型，然后复制这个原型对象创建出更多同类型的对象。</p>
-<h3 id="1-结构"><a href="#1-结构" class="headerlink" title="1. 结构"></a>1. 结构</h3><ul>
-<li>客户角色(Client)：客户类提出创建对象的请求。</li>
-<li>抽象原型角色(Prototype)：给出具体原型类需要的所有接口。</li>
-<li>具体原型角色(ConcretePrototype)：被复制的对象。</li>
-</ul>
-<p>原型模式的关键在于如何实现克隆方法。</p>
-      
-    </div>
-	
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2018/07/15/20180715/#more" class="more-link">more</a>
           </div>
         
         
@@ -514,7 +509,7 @@
 
   
   
-    <li style="white-space: nowrap"><a href="/categories/Devops/">Devops</a><small style="margin-left: 5px">16</small></li>
+    <li style="white-space: nowrap"><a href="/categories/Devops/">Devops</a><small style="margin-left: 5px">17</small></li>
   
   
   

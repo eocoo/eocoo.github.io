@@ -48,7 +48,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  123 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  124 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -65,6 +65,58 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-20170310" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2017-03-09T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2017/03/10/20170310/" style="color: #736f6f;">2017-03-10</a></time>
+      
+      
+
+  
+  
+    <h1 class="title">
+       <a href="/2017/03/10/20170310/">非阻塞的同步</a>
+    </h1>
+    
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>非阻塞算法可以使多个线程在竞争共享的数据时不发生阻塞，因此它能在粒度更细的层次上进行协调，并且极大地减少调度开销。在基于锁的算法中，如果一个线程在休眠或者自旋时持有锁，那么其他线程都无法执行下去，而非阻塞算法则不会受到单个线程失败的影响。<br>
+      
+    </div>
+	
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2017/03/10/20170310/#more" class="more-link">more</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+
+
+
   <article id="post-20170309" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -93,7 +145,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>创建状态依赖类最简单的方法通常是在类库中现有状态依赖类的基础上进行构造，如果类库不支持，则可以使用Java语言和类库提供的底层机制来构造自己的同步机制，包括内置的条件队列、显示的<code>Condition</code>对象以及<code>AbstractQueuedSynchronizer</code>框架。</p>
-<p>在单线程的程序中调用方法时，如果基于某个状态的前提条件未得到满足，那么这个条件永远无法成真。而在并发程序中，基于状态的条件可能会由于其他线程的操作而改变。</p>
+<p>在单线程的程序中调用方法时，如果基于某个状态的前提条件未得到满足，那么这个条件永远无法成真。而在并发程序中，基于状态的条件可能会由于其他线程的操作而改变。<br>
       
     </div>
 	
@@ -145,7 +197,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>在java 5.0之前，协调共享对象的访问可以使用的机制有<code>synchronized</code>和<code>volatile</code>，java 5.0中新增了一种新的机制：<code>ReentrantLock</code>。它的作用并不是用来替代内置锁，而是当内置锁不再适用时，作为一种可选择的高级功能。在java 6.0中，也使用了与<code>ReentrantLock</code>类似的算法对内置锁本身进行了改进，有效地提高了内置锁的可伸缩性。</p>
+        <p>在java 5.0之前，协调共享对象的访问可以使用的机制有<code>synchronized</code>和<code>volatile</code>，java 5.0中新增了一种新的机制：<code>ReentrantLock</code>。它的作用并不是用来替代内置锁，而是当内置锁不再适用时，作为一种可选择的高级功能。在java 6.0中，也使用了与<code>ReentrantLock</code>类似的算法对内置锁本身进行了改进，有效地提高了内置锁的可伸缩性。<br>
       
     </div>
 	
@@ -197,7 +249,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>在<font color="#E51508">安全性</font>与<font color="#E51508">活跃性</font>之间通常存在着某种制衡，我们可以使用加锁机制来确保线程安全，但如果过度的使用加锁，则可能导致死锁。</p>
+        <p>在<font color="#E51508">安全性</font>与<font color="#E51508">活跃性</font>之间通常存在着某种制衡，我们可以使用加锁机制来确保线程安全，但如果过度的使用加锁，则可能导致死锁。<br>
       
     </div>
 	
@@ -309,7 +361,7 @@
       
         <p>任务通常是一些抽象且离散的工作单元，通过把程序中的工作分解到多个任务中，可以简化程序的组织结构，提供一种自然的事务边界来优化错误恢复过程，并提供一种自然的并行工作结构来提升并发性。</p>
 <p>在正常的负载下，服务器应用程序应该同时表现出<font color="#E51508">良好的吞吐量</font>和<font color="#E51508">快速的响应性</font> 。程序提供商希望程序支持尽可能多的用户，从而降低每个用户的服务成本，而用户则希望获得尽快的响应。当负荷过载时，程序的性能应该是逐渐降低，而不是直接失败。</p>
-<p>理想情况下，可以找出清晰的任务边界，各个任务之间是相互独立的，即任务不依赖于其他任务的状态、结果或边界效应。<font color="#E51508">独立性有助于并发</font>，因为如果存在足够多的处理资源，那么这些独立的任务就可以并行执行，这也为调度与负载均衡等的实现提供了更好的灵活性。  </p>
+<p>理想情况下，可以找出清晰的任务边界，各个任务之间是相互独立的，即任务不依赖于其他任务的状态、结果或边界效应。<font color="#E51508">独立性有助于并发</font>，因为如果存在足够多的处理资源，那么这些独立的任务就可以并行执行，这也为调度与负载均衡等的实现提供了更好的灵活性。<br>
       
     </div>
 	
@@ -318,58 +370,6 @@
         
           <div class="alignleft">
             <a href="/2017/03/05/20170305/#more" class="more-link">more</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-
-
-
-  <article id="post-20170304" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2017-03-03T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2017/03/04/20170304/" style="color: #736f6f;">2017-03-04</a></time>
-      
-      
-
-  
-  
-    <h1 class="title">
-       <a href="/2017/03/04/20170304/">线程安全性的委托</a>
-    </h1>
-    
-  
-  
-
-
-<script async src="/js/busuanzi.js"></script>
-
-
-    </header>
-      
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p><font color="#E51508">委托是创建线程安全类的一个最有效策略：只需让现有的线程安全类管理所有的状态即可</font>。Java类库包含丰富的并发构建模块，如线程安全容器以及各种用于协调多个相互协作的线程的同步工具类。</p>
-      
-    </div>
-	
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2017/03/04/20170304/#more" class="more-link">more</a>
           </div>
         
         
@@ -516,7 +516,7 @@
 
   
   
-    <li style="white-space: nowrap"><a href="/categories/Devops/">Devops</a><small style="margin-left: 5px">16</small></li>
+    <li style="white-space: nowrap"><a href="/categories/Devops/">Devops</a><small style="margin-left: 5px">17</small></li>
   
   
   

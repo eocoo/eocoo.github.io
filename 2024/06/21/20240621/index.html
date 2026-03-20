@@ -55,7 +55,7 @@ Safety：保证Log和Committed State的一致性">
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  123 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  124 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -124,46 +124,43 @@ Safety：保证Log和Committed State的一致性">
 <ol>
 <li>Leader Election：选举出一个单一Leader负责log的所有操作，Strong Leader极大的简化了算法的设计</li>
 <li>Log Replication：Leader从Client获取Log，并在其他的Server之间Replicate</li>
-<li>Safety：保证Log和Committed State的一致性</li>
+<li>Safety：保证Log和Committed State的一致性<span id="more"></span>
+</li>
 </ol>
-<span id="more"></span>
-
-<h4 id="Raft规则"><a href="#Raft规则" class="headerlink" title="Raft规则"></a>Raft规则</h4><p><img src="/img/20240621/20240621.1.png"> </p>
+<h4 id="Raft规则"><a href="#Raft规则" class="headerlink" title="Raft规则"></a>Raft规则</h4><p><img src="/img/20240621/20240621.1.png" alt=""> </p>
 <p>raft.pdf中的这张图已经描述了Raft的所有内容，下面整理下对算法规则的理解</p>
 <p><strong>节点三种状态</strong></p>
 <ul>
 <li>跟随者 Follower  </li>
 <li>候选者 Candidate </li>
-<li>领导者 Leader</li>
+<li>领导者 Leader    </li>
 </ul>
 <p>所有节点的状态都是从Follower开始，如果超过Election Timeout（150ms至300ms之间随机）没有收到来自Leader的AppendEntires RPC，那么转变为Candidate，并将term加1；</p>
 <p>转为Candidate后会向所有其它节点请求投票，如果从多数节点获得选票，那么转变为Leader；</p>
 <p>转为Leader后需要向所有其它节点周期性（heartbeat timeout）发送心跳消息，以阻止其它节点转为Candidate；如果Leader如果从任何RPC的请求或响应中发现有term大于自己的currentTerm，那么将自己转变为Foller，并将currentTerm置为term;</p>
 <p><strong>RequestVote RPC 投票请求</strong></p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">type RequestVoteArgs struct <span class="punctuation">&#123;</span></span><br><span class="line">    term         int <span class="comment">// 候选人的任期</span></span><br><span class="line">    candidateId  int <span class="comment">// 候选人的id</span></span><br><span class="line">    lastLogIndex int <span class="comment">// 候选人最新日志的索引</span></span><br><span class="line">    lastLogTerm  int <span class="comment">// 候选人最新日志的任期</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">type RequestVoteReply struct <span class="punctuation">&#123;</span></span><br><span class="line">    term        int  <span class="comment">// 接收者当前任期，用于候选人更新自己</span></span><br><span class="line">    voteGranted bool <span class="comment">// 是否获得选票</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
 <p>如果投票响应中的term大于请求中的term，那么一定返回false，发起RequestVote RPC的候选者会退回Follower，将自己的任期设为响应中的term，重置Election Timeout，并清空选票（每个节点在每次term中只能投一票，之前任期已经作废，现在新的任期可以给其它节点投票），然后等待来自其它节点的投票请求，如果超时没有收到来自新任期Leaderd的消息，那么进入下轮选举，自己再次尝试（尝试前会先term加1）；</p>
 <p>由于每次重置Election Timeout是随机的，结合任期term的单调递增属性，可以确保在经历有限轮选举后，总能选出一个Leader，避免选举进入死循环；（成为Candidate后会立即发起投票，先给自己投一票；成为Leader后会立即发起心跳阻止其它节点进入选举）</p>
 <p>当然只是通过Term机制确保能选出一个Leader还不够，还要是我们期望的那一个，也就是成为Leader的节点要拥有最新的日志。这个就通过参数lastLogTerm和lastLogIndex来进行验证，接收者如果发现候选者的日志比自己还落后的话，那么也会返回false；</p>
-<p><strong>AppendEntries RPC 日志复制&#x2F;心跳消息</strong></p>
+<p><strong>AppendEntries RPC 日志复制/心跳消息</strong></p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">type AppendEntriesArgs struct <span class="punctuation">&#123;</span></span><br><span class="line">    term         int          <span class="comment">// Leader的任期</span></span><br><span class="line">    leaderId     int          <span class="comment">// Leader的id，Follower重定向请求会用到</span></span><br><span class="line">    prevLogIndex int          <span class="comment">// 追加日志之前的索引</span></span><br><span class="line">    prevLogTerm  int          <span class="comment">// 追加日志之前的任期</span></span><br><span class="line">    entries      <span class="punctuation">[</span><span class="punctuation">]</span>LogEntry   <span class="comment">// 需要追加的新日志条目（如果为空，表示心跳）</span></span><br><span class="line">    leaderCommit int          <span class="comment">// Leader的提交索引</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">type AppendEntriesReply struct <span class="punctuation">&#123;</span></span><br><span class="line">    term    int  <span class="comment">// 接收者任期，方便Leader确认自己是否过期</span></span><br><span class="line">    success bool <span class="comment">// 如果Follower包含与PrevLogIndex和PrevLogTerm匹配的条目，则为true</span></span><br><span class="line">    </span><br><span class="line">    ConflictIndex int <span class="comment">// 优化字段, 冲突条目的索引</span></span><br><span class="line">    ConflictTerm  int <span class="comment">// 优化字段, 冲突条目的任期</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
 <p>通过entries是否为空来区分请求是日志复制还是心跳消息，term是用来判定当前Leader是否已经过期，如果没有过期再继续下面看是否要追加日志；</p>
 <p>每个日志都有两个属性（任期、索引），如果需要追加entries日志条目，需要先判断prevLogIndex和prevLogTerm是否匹配</p>
 <ol>
 <li>如果Follower在索引prevLogIndex处存在日志，并且term匹配，那么直接追加entries日志条目，返回true（Follower会删除从prevLogIndex + 1开始的所有冲突日志，如果存在的话）；</li>
-<li>如果Follower在索引prevLogIndex处不存在日志，那么返回false，ConflictTerm &#x3D; -1，ConflictIndex &#x3D; lastLogIndex + 1；</li>
-<li>如果Follower在索引prevLogIndex处存在日志，但是term不匹配，那么返回false，ConflictTerm &#x3D; term，ConflictIndex &#x3D; term任期下的第一条日志索引；</li>
+<li>如果Follower在索引prevLogIndex处不存在日志，那么返回false，ConflictTerm = -1，ConflictIndex = lastLogIndex + 1；</li>
+<li>如果Follower在索引prevLogIndex处存在日志，但是term不匹配，那么返回false，ConflictTerm = term，ConflictIndex = term任期下的第一条日志索引；</li>
 </ol>
 <p>Leader对于场景3中响应的处理（此时ConflictTerm必然小于等于Leader）：</p>
 <ul>
-<li>Leader如果自己存在ConflictTerm，那么nextIndex &#x3D; ConflictTerm任期的最后一条日志索引 + 1，然后从nextIndex以及往后的内容放到entries中；也就是ConflictTerm任期的内容将以Leader为准，Follower中超过Leader的部分将被覆盖更新；</li>
+<li>Leader如果自己存在ConflictTerm，那么nextIndex = ConflictTerm任期的最后一条日志索引 + 1，然后从nextIndex以及往后的内容放到entries中；也就是ConflictTerm任期的内容将以Leader为准，Follower中超过Leader的部分将被覆盖更新；</li>
 </ul>
-<p><img src="/img/20240621/20240621.2.png"> </p>
+<p><img src="/img/20240621/20240621.2.png" alt=""> </p>
 <ul>
-<li>Leader如果自己不存在ConflictTerm（说明Follower的这段日志是过期的），那么nextIndex &#x3D; ConflictIndex，然后从nextIndex以及往后的内容放到entries中；当Follower再次收到消息时会重新尝试，如果nextIndex之前能匹配，那么将从nextIndex往后进行覆盖追加；</li>
+<li>Leader如果自己不存在ConflictTerm（说明Follower的这段日志是过期的），那么nextIndex = ConflictIndex，然后从nextIndex以及往后的内容放到entries中；当Follower再次收到消息时会重新尝试，如果nextIndex之前能匹配，那么将从nextIndex往后进行覆盖追加；</li>
 </ul>
-<p><img src="/img/20240621/20240621.3.png"> </p>
+<p><img src="/img/20240621/20240621.3.png" alt=""> </p>
 <h4 id="ZAB协议对比"><a href="#ZAB协议对比" class="headerlink" title="ZAB协议对比"></a>ZAB协议对比</h4><p>与ZAB协议类似，Raft的运作过程也是分为两个阶段，领导者选举和日志复制，因此也属于CP系统，选举阶段无法响应外部请求。其中RequestVote RPC确保能够选举出一个正确的Leader，AppendEntries RPC则确保能够准确的复制日志，最终日志提交后应用到状态机进行操作。</p>
 <p><br><strong>参考：</strong></p>
 <ol>
