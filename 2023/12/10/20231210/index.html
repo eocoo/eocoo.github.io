@@ -1,0 +1,490 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Tcp/Ip网络模型 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="20世纪60年代，美国国防部希望研究一种即使部分通信线路被破坏也能维持通信的技术，这一需求促进了分组交换网络的发展。分组交换使得多个节点之间的通信可以在节点受损时通过备用路径继续。
+这一研究推动了ARPANET的建设，ARPANET是最早采用分组交换的广域网络之一，1970年代，文顿·瑟夫与罗伯特·卡恩设计了TCP&amp;#x2F;IP协议，并于1983年在ARPANET上全面部署，奠定了现代互联网的基础。1980年代，ISO推动OSI参考模型及其协议栈的标准化，但因实现复杂、市场推广不及TCP&amp;#x2F;IP等原因，未能取得广泛应用。同时TCP&amp;#x2F;IP随着互联网的私有化与万维网的兴起，逐渐成为了全球通信的事实标准。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Tcp/Ip网络模型"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  126 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20231210" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2023-12-09T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2023/12/10/20231210/" style="color: #736f6f;">2023-12-10</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Tcp/Ip网络模型
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 2.8k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 10min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/网络基础/">网络基础</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/tcp/">tcp</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>20世纪60年代，美国国防部希望研究一种即使部分通信线路被破坏也能维持通信的技术，这一需求促进了分组交换网络的发展。分组交换使得多个节点之间的通信可以在节点受损时通过备用路径继续。</p>
+<p>这一研究推动了ARPANET的建设，ARPANET是最早采用分组交换的广域网络之一，1970年代，文顿·瑟夫与罗伯特·卡恩设计了TCP&#x2F;IP协议，并于1983年在ARPANET上全面部署，奠定了现代互联网的基础。1980年代，ISO推动OSI参考模型及其协议栈的标准化，但因实现复杂、市场推广不及TCP&#x2F;IP等原因，未能取得广泛应用。同时TCP&#x2F;IP随着互联网的私有化与万维网的兴起，逐渐成为了全球通信的事实标准。</p>
+<span id="more"></span>
+
+<h3 id="Tcp-IP网络模型"><a href="#Tcp-IP网络模型" class="headerlink" title="Tcp&#x2F;IP网络模型"></a>Tcp&#x2F;IP网络模型</h3><p>相较于OSI提出的七层理论模型，TCP&#x2F;IP实际采用的是四层模型</p>
+<p><img src="/img/20231210/20231210.1.png"> </p>
+<ul>
+<li><strong>链路层</strong> 包括物理层和数据链路层，负责在相邻节点之间传输数据</li>
+</ul>
+<p>物理层将数据转换为物理信号，在传输介质（如双绞线、光纤、无线电波）上进行传输；</p>
+<p>数据链路层将二进制数据封装成帧，识别帧边界，并通过差错检测机制（如CRC）确保帧的完整性，丢弃受损的帧。</p>
+<p>这一层有一个重要的概念，MAC物理地址，它是设备在当前网络中的唯一标识。在以太网中，每个设备都有一个唯一的MAC地址，如果要与一个设备通信，需要先通过ARP(Address Resolution Protocol 地址解析协议)将IP地址转换为MAC地址，然后才能发送数据包；</p>
+<p><img src="/img/20231210/20231210.11.png"> </p>
+<ul>
+<li><strong>网络层</strong> 主要负责在不同网络之间路由数据，其主要内容包括IP协议和路由协议</li>
+</ul>
+<p>IP是一种用于在互联网上路由数据的协议，它定义了一个包含源IP和目的IP的数据报，在网络中传输时，路由器会根据其目的IP来决定发往哪个网络；</p>
+<p><img src="/img/20231210/20231210.5.png"> </p>
+<p>路由协议是网络层的导航系统，用于在路由器之间动态交换路由信息，自动计算并维护路由表。当网络拓扑发生变化时（链路故障），路由协议能够自动调整，使数据包绕过故障路径继续传输。</p>
+<ul>
+<li><strong>传输层</strong> 负责在主机应用之间提供可靠的数据传输，核心协议包括TCP和UDP</li>
+</ul>
+<p>TCP提供的是面向连接的、可靠的、有序的（基于字节流）数据传输服务；</p>
+<p><img src="/img/20231210/20231210.6.png"> </p>
+<p>UDP提供的是一种无连接的、不可靠的、无序的（基于消息报文）的数据传输服务；</p>
+<ul>
+<li><strong>应用层</strong> 负责为应用程序提供网络服务，它定义了用于在应用程序之间传递信息的协议，如HTTP、FTP等</li>
+</ul>
+<h3 id="Tcp连接"><a href="#Tcp连接" class="headerlink" title="Tcp连接"></a>Tcp连接</h3><p>服务端对socket执行bind方法可以绑定监听端口，然后执行listen方法后就会进入LISTEN状态，等待客户端连接</p>
+<ul>
+<li>三次握手</li>
+</ul>
+<table width=100%>
+    <tr style="border-bottom:0.01rem solid grey;">
+        <th width=50%>客户端</th>
+        <th width=50%>服务端</th>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>发送SYN报文，等待服务端的ACK，进入SYN_SENT状态</td>
+        <td></td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td></td>
+        <td>收到SYN报文，给客户端返回(ACK+SYN)报文，等待客户端的ACK，进入SYN_RCVD状态</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>收到(ACK+SYN)报文，给服务端返回ACK报文，进入ESTABLISHED状态</td>
+        <td></td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td></td>
+        <td>收到ACK报文，进入ESTABLISHED状态</td>
+    </tr>
+</table>
+
+<p><img src="/img/20231210/20231210.2.png"> </p>
+<p>服务端在第一次收到SYN后，会将socket放入一个半连接队列（SYN队列），使用哈希表维护；在第三次收到ACK后，再从半连接队列中取出socket并放入全连接队列（ACCEPT队列），使用链表维护，等待执行accept()调用时取出，所以accetp并没有参与连接过去，其作用只是取出一个准备好的连接；不管是全连接还是半连接队列，都是内存中的结构，都有长度限制；</p>
+<ul>
+<li>全连接队列</li>
+</ul>
+<p>通过 ss -lnt 可以查看全连接队列，Send-Q表示队列最大值，Recv-Q表示当前使用值，0表示队列当前为空，连接都被取出来了；</p>
+<p><img src="/img/20231210/20231210.7.jpg"> </p>
+<p>当Send-Q与Recv-Q的数值很接近，就表示队列要满了，可以通过<code>watch -d &#39;netstat -s | grep overflow&#39;</code>来查看溢出发生过的次数；</p>
+<p>如果全连接队列满了，服务端继续收到客户端的第三次ACK包默认会丢弃，并根据<code>/proc/sys/net/ipv4/tcp_abort_on_overflow</code>配置进行处理：<br>配置为0，在丢弃ACK后会开启一个定时器，充传(SYN+ACK)包，如果重传超过一定次数，会删除半连接队列中的对应连接；<br>配置为1，会直接给客户端会RST，效果上看就是连接断了，与服务端未开启端口监听的现象一样；</p>
+<ul>
+<li>半连接队列</li>
+</ul>
+<p>半连接队列无法直接查看，统计SYN_RCVD状态的连接可以获得：<code>netstat -nt | grep -i &#39;127.0.0.1:8080&#39; | grep -i &#39;SYN_RCVD&#39; | wc -l</code></p>
+<p>同样，通过netstat统计也可以查看半连接队列的溢出情况：<code>watch -d &#39;netstat -s | grep -i &quot;SYNs to LISTEN sockets dropped&quot;&#39;</code></p>
+<p><strong>SYN Flood攻击</strong>：一般半连接的存活时间很短，如果队列满了，那么大概率是被攻击了，攻击者模拟客户端疯狂发送SYN但不回复ACK，导致队列撑满；<br>如果<code>/proc/sys/net/ipv4/tcp_syncookies</code>置为1，可以绕过半连接队列，服务端收到SYN时，不会再放入队列，而是直接生成一个cookies，放在返回的(SYN+ACK)报文中，然后再收到ACK时进行验证，不通过直接丢弃。<br><strong>ACK攻击</strong>：cookies虽然避免了半连接队列撑满的问题，但是其编解码都是比较耗CPU的，攻击者可以编造大量的ACK包，通过瞎编的cookies信息来耗尽服务端的CPU资源；另外由于cookies方案没有保存连接信息，所以如果(SYN+ACK)报文丢包了，也不会再重传；</p>
+<h3 id="Tcp断开"><a href="#Tcp断开" class="headerlink" title="Tcp断开"></a>Tcp断开</h3><p>正常情况下，只要数据传输完，不管是客户端还是服务端，都可以主动发起断开连接</p>
+<ul>
+<li>四次挥手</li>
+</ul>
+<table width=100%>
+    <tr style="border-bottom:0.01rem solid grey;">
+        <th width=50%>主动方</th>
+        <th width=50%>被动方</th>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>数据发送完主动调用关闭，发送Fin报文，进入FIN_WAIT_1状态</td>
+        <td></td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td></td>
+        <td>收到Fin报文，立刻回应Ack报文，通知并等待应用层关闭，进入CLOSE_WAIT状态</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>收到对方ACK回复，等待对方的FIN报文，进入FIN_WAIT_2状态</td>
+        <td></td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td></td>
+        <td>应用层完成关闭，发送FIN报文，等待回复，进入LAST_ACK状态</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>收到对方的Fin报文，回应Ack，进入TIME_WAIT状态，等待2MSL时间，防止Ack丢包，对方重发FIN需要处理，以及处理掉一些由于网络原因导致的延迟数据包（MSL表示一个TCP报文在网络中存在的最长时间，超过这个时间，报文必须被丢弃），</td>
+        <td></td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td></td>
+        <td>收到Ack确认，完成连接CLOSED</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>等待结束，连接CLOSED</td>
+        <td></td>
+    </tr>
+</table>
+
+<p><img src="/img/20231210/20231210.3.png"> </p>
+<p>如果被动方没有数据要发送，也可以将第二次Ack和第三次Fin合并发送，变成三次挥手，这个取决于操作系统的具体实现，并不属于TCP的规定；</p>
+<ul>
+<li>close()关闭连接</li>
+</ul>
+<p>一般情况下，通过对socket执行close()或shutdown()会发出Fin，实际上只要应用程序退出，不管主动还是被动kill，都会发出Fin。shutdown()有参数可以选择性关闭读或写，而close会同时关闭socket的读和写通道，当执行close()时：<br>如果对应socket的接收缓冲区有数据，那么会发RST；<br>如果是发送缓冲区有数据，那么会等待数据发送完，再发送Fin数据包；</p>
+<p>所以虽然理论上被动方在关闭前还是可以发送数据的，但如果主动方是调用的close()，那么主动方是不会去收这个消息的，并会返回一个RST，然后直接结束连接；被动方的内核协议栈收到RST，也会关闭连接，此时被动方的应用层：<br>如果进行读操作，则会返回RST报错，也就是常见的Connection reset by peer；<br>如果进行写操作，程序会反馈SIGPIPE信号，如果不捕获处理，默认会进程终止；</p>
+<p><img src="/img/20231210/20231210.8.png"> </p>
+<ul>
+<li>异常情况</li>
+</ul>
+<p>如果主动方一直收不到第三次Fin，连接会一直卡在FIN_WAIT_2状态，此时根据调用方式会有不同的表现行为：<br>调用的shutdown()并且只关闭了写，那么此时还可以读，会一直等待对方Fin数据包；<br>调用的close()关闭读和写，那么会等一段时间(&#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;tcp_fin_timeout)，超时后变为TIME_WAIT状态；</p>
+<p>如果被动方一直收不到第四次Ack，那么会尝试重发第三次Fin，默认重试8次(&#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;tcp_orphan_retries)</p>
+<h3 id="一次网页访问的过程"><a href="#一次网页访问的过程" class="headerlink" title="一次网页访问的过程"></a>一次网页访问的过程</h3><p><img src="/img/20231210/20231210.4.png"> </p>
+<ol>
+<li><p><strong>解析URL</strong>，一般是：http:&#x2F;&#x2F;服务域名&#x2F;资源路径；</p>
+</li>
+<li><p><strong>DNS解析</strong>，也就是查询服务器域名对应的IP地址，一般是先看操作系统缓存，没有在看hosts文件，然后再找本地dns服务器，根服务器；</p>
+</li>
+<li><p><strong>建立TCP连接</strong>，应用调用Socket库，委托操作系统建立TCP连接；</p>
+</li>
+<li><p><strong>数据包封装</strong>，操作系统封装数据，添加TCP和IP头部(源IP和目的IP)，并根据路由配置，决定从哪个网卡出去（route -n可以查看当前系统的路由表）；</p>
+</li>
+<li><p><strong>链路层发送</strong>，如果目标IP不在当前网络（交换机二层网络），主机会通过ARP广播查询网关的MAC地址，也就是路由器的网口；</p>
+</li>
+</ol>
+<p>交换机工作在数据链路层，根据MAC地址转发帧，不会修改数据内容。其内部维护了一张MAC地址表，记录了端口号与MAC地址的对应关系，当节点A主机发消息从1号口进来，地址表就会记录一条A和1的关系，如果A长时间没有发消息，这条记录也会过期被删除；</p>
+<p><img src="/img/20231210/20231210.9.png"> </p>
+<ol start="6">
+<li><strong>路由器转发</strong>，路由器收到数据包，根据目标IP查询路由表，决定出口和下一跳，可能经过多跳路由，最终到达目标网络的路由器；</li>
+</ol>
+<p>路由器工作在网络层，其每个端口都有一个MAC地址和IP地址，可以根据IP地址转发数据包，并重新封装（主要是修改目的MAC地址）。内部维护了一张路由表，用来作为数据包转发依据，如果没有匹配的记录，并且没有配置默认路由，那么会丢弃数据包，并通过ICMP消息告知发送方。（交换机在转发时如果MAC地址表没有对应记录，处理方式是进行广播，由于其网络规模小，也不用担心造成网络拥塞问题）。</p>
+<p><img src="/img/20231210/20231210.10.png"> </p>
+<ol start="7">
+<li><strong>到达目标主机</strong>，到达目标网络后，再通过ARP协议找到对应主机的MAC地址，进入其协议栈，再进行数据包解封，最终到达目标应用程序；</li>
+</ol>
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2024/03/14/20240314/">
+		    软件架构设计原则 Srinath
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2023/03/21/20230321/">
+		    wireshark分析TCP吞吐瓶颈
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/网络基础/">网络基础</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/tcp/">tcp</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E8%BF%9E%E6%8E%A5"><span class="toc-text">Tcp连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E6%96%AD%E5%BC%80"><span class="toc-text">Tcp断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
