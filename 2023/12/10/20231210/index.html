@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Tcp/Ip网络模型 | Echo</title>
+  <title>Tcp/Ip协议理解 | Echo</title>
   <meta name="author" content="shanhm">
   
   <meta name="description" content="20世纪60年代，美国国防部希望研究一种即使部分通信线路被破坏也能维持通信的技术，这一需求促进了分组交换网络的发展。分组交换使得多个节点之间的通信可以在节点受损时通过备用路径继续。
@@ -12,7 +12,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="Tcp/Ip网络模型"/>
+  <meta property="og:title" content="Tcp/Ip协议理解"/>
   <meta property="og:site_name" content="Echo"/>
 
   
@@ -80,7 +80,7 @@
   
   
     <h1 class="p-name title" itemprop="headline name">
-        Tcp/Ip网络模型
+        Tcp/Ip协议理解
     </h1>
     
     
@@ -94,7 +94,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 2.8k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 10min</font>
+   <font style="color: #999;"> words: 3.8k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 13min</font>
    
    
   
@@ -242,6 +242,15 @@
 </ul>
 <p>如果主动方一直收不到第三次Fin，连接会一直卡在FIN_WAIT_2状态，此时根据调用方式会有不同的表现行为：<br>调用的shutdown()并且只关闭了写，那么此时还可以读，会一直等待对方Fin数据包；<br>调用的close()关闭读和写，那么会等一段时间(&#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;tcp_fin_timeout)，超时后变为TIME_WAIT状态；</p>
 <p>如果被动方一直收不到第四次Ack，那么会尝试重发第三次Fin，默认重试8次(&#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;tcp_orphan_retries)</p>
+<h3 id="Tcp的可靠性"><a href="#Tcp的可靠性" class="headerlink" title="Tcp的可靠性"></a>Tcp的可靠性</h3><p>实现可靠传输最简单的方法是<strong>停止等待</strong>，发送一个数据包，然后等待回复，再继续发送下一个数据包。但是网络环境不可靠，导致每一次发送的数据包都可能会丢，如果主机A发送的数据包丢失了，那么主机B永远收不到数据进行回复，机器A就永远卡在等待。解决方法是<strong>超时重传</strong>，发完数据包后开始计时，超过时间还没收到回复就认为是发生了丢包，重新发送。但如果原先的数据包并没有丢失，只是在网络中被延迟了，重传就会导致主机B受到两个数据包，为了区分可以<strong>对数据包进行编号</strong>，这样接收方就可以根据编号判断是不是重传的数据（TCP的头部有两个32位字段，序列号和确认号，它们表示发送方数据第一个字节的编号，和接收方期待的下一包数据的第一个字节的编号）。</p>
+<p>上面的办法虽然满足了可靠传输的要求，但问题是效率太低，所以办法是<strong>连续发送数据包</strong>，这样接收方会不断收到数据，然后逐一进行确认回复。但是这样需要考虑接收方的缓冲区大小，以及数据处理能力。如果由于发送太快导致接收方无法接收，那么只是会导致频繁重传，浪费网络资源，所以要根据接收方缓冲区的情况来确定发送数据的范围，也就是<strong>滑动窗口</strong>（TCP头部有一个16位的窗口大小，表示接收方剩余的缓冲区大小，发送方可以根据这个调整自己的发送窗口）</p>
+<p><img src="/img/20231210/20231210.12.png"> </p>
+<ul>
+<li>发送方根据接收方的缓冲区大小，设置自己的可发送窗口大小，处于窗口内的数据表示可发送，之外的数据不可发送；</li>
+<li>当窗口内的数据收到确认回复时，整个窗口会往前移动，直到发送完成所有的数据；</li>
+</ul>
+<p>如果每发一个送数据包，都必须有一个回复，就会导致网络中充斥着和发送数据包一样数量的回复报文，从而导致网络效率低下。解决办法是<strong>累积确认</strong>，接收方不需要逐个进行回复，而是累积到一定量的数据包之后，告诉发送方在此数据包之前的数据已全都收到。比如收到1234，只需要告诉发送方收到了4，那么发送方就知道1234都收到了；</p>
+<p>累积确认可以提高网络效率，但是如果遇到丢包情况，比如接收方收到了123567，编号4的数据包丢失了，那么是否就回一个3，然后将567丢掉呢。此时应该告诉发送方只需要重传4即可，所以还需要<strong>选择确认SACK</strong>机制来配合（TCP头部的选项字段，可以设置已经收到的报文段，每个报文段通过两个边界来确定）</p>
 <h3 id="一次网页访问的过程"><a href="#一次网页访问的过程" class="headerlink" title="一次网页访问的过程"></a>一次网页访问的过程</h3><p><img src="/img/20231210/20231210.4.png"> </p>
 <ol>
 <li><p><strong>解析URL</strong>，一般是：http:&#x2F;&#x2F;服务域名&#x2F;资源路径；</p>
@@ -252,8 +261,11 @@
 </li>
 <li><p><strong>数据包封装</strong>，操作系统封装数据，添加TCP和IP头部(源IP和目的IP)，并根据路由配置，决定从哪个网卡出去（route -n可以查看当前系统的路由表）；</p>
 </li>
-<li><p><strong>链路层发送</strong>，如果目标IP不在当前网络（交换机二层网络），主机会通过ARP广播查询网关的MAC地址，也就是路由器的网口；</p>
-</li>
+</ol>
+<p>应用程序调用write或send系统调用开始发包时，数据包会从用户缓冲区复制到TCP发送缓冲区(TCP Send Buffer)，详细过程参考下图</p>
+<p><img src="/img/20231210/20231210.13.png"> </p>
+<ol start="5">
+<li><strong>链路层发送</strong>，如果目标IP不在当前网络（交换机二层网络），主机会通过ARP广播查询网关的MAC地址，也就是路由器的网口；</li>
 </ol>
 <p>交换机工作在数据链路层，根据MAC地址转发帧，不会修改数据内容。其内部维护了一张MAC地址表，记录了端口号与MAC地址的对应关系，当节点A主机发消息从1号口进来，地址表就会记录一条A和1的关系，如果A长时间没有发消息，这条记录也会过期被删除；</p>
 <p><img src="/img/20231210/20231210.9.png"> </p>
@@ -265,6 +277,8 @@
 <ol start="7">
 <li><strong>到达目标主机</strong>，到达目标网络后，再通过ARP协议找到对应主机的MAC地址，进入其协议栈，再进行数据包解封，最终到达目标应用程序；</li>
 </ol>
+<p>数据包到达网卡后会触发中断irq通知CPU读取数据包，高性能网络场景中数据包量大，频繁中断会影响性能，NAPI机制可以通过轮询poll批量处理数据包，轮询数量可以通过net.core.netdev_budget配置，详细过程示意如下</p>
+<p><img src="/img/20231210/20231210.14.png"> </p>
 <p><br><strong>参考：</strong></p>
 
       
@@ -354,7 +368,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E8%BF%9E%E6%8E%A5"><span class="toc-text">Tcp连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E6%96%AD%E5%BC%80"><span class="toc-text">Tcp断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E8%BF%9E%E6%8E%A5"><span class="toc-text">Tcp连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E6%96%AD%E5%BC%80"><span class="toc-text">Tcp断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="toc-text">Tcp的可靠性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li></ol>
 </div>
 
 
