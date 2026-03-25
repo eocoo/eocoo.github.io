@@ -94,7 +94,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 3.9k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 13min</font>
+   <font style="color: #999;"> words: 4.7k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 16min</font>
    
    
   
@@ -145,6 +145,7 @@
 <p>TCP提供的是面向连接的、可靠的、有序的（基于字节流）数据传输服务；</p>
 <p><img src="/img/20231210/20231210.6.png"> </p>
 <p>UDP提供的是一种无连接的、不可靠的、无序的（基于消息报文）的数据传输服务；</p>
+<p><img src="/img/20231210/20231210.16.png"> </p>
 <ul>
 <li><strong>应用层</strong> 负责为应用程序提供网络服务，它定义了用于在应用程序之间传递信息的协议，如HTTP、FTP等</li>
 </ul>
@@ -249,9 +250,25 @@
 <li>发送方根据接收方的缓冲区大小，设置自己的可发送窗口大小，处于窗口内的数据表示可发送，之外的数据不可发送；</li>
 <li>当窗口内的数据收到确认回复时，整个窗口会往前移动，直到发送完成所有的数据；</li>
 </ul>
-<p>滑动窗口是想办法避免重传（重传是下下策，浪费网络资源），但如果确实发生了，<strong>分段机制</strong>可以降低它的影响，也就是将大段数据包分成一小包一小包，如果发生了丢包，那么只要重传对应的小包就行。由于网络复杂，在接收端很难按顺序依次收到数据包，那么会根据序列对数据包进行<strong>乱序重排</strong>；</p>
+<p>滑动窗口是想办法避免重传（重传是下下策，浪费网络资源），但如果确实发生了，<strong>TCP分段机制</strong>可以降低它的影响，也就是将大段数据包分成一小包一小包，如果发生了丢包，那么只要重传对应的小包就行。由于网络复杂，在接收端很难按顺序依次收到数据包，那么会根据序列对数据包进行<strong>乱序重排</strong>；</p>
 <p>如果每发一个送数据包，都必须有一个回复，就会导致网络中充斥着和发送数据包一样数量的回复报文，从而导致网络效率低下。解决办法是<strong>累积确认</strong>，接收方不需要逐个进行回复，而是累积到一定量的数据包之后，告诉发送方在此数据包之前的数据已全都收到。比如收到1234，只需要告诉发送方收到了4，那么发送方就知道1234都收到了（具体做法是默认等40ms，比如收到1之后等40ms，如果期间收到了2，那么再等40ms看能不能收到3，如果等不到3就立即回复2的Ack）；</p>
 <p>累积确认可以提高网络效率，但是如果遇到丢包情况，比如接收方收到了123567，编号4的数据包丢失了，那么是否就回一个3，然后将567丢掉呢。此时应该告诉发送方只需要重传4即可，所以还需要<strong>选择确认SACK</strong>机制来配合（TCP头部的选项字段，可以设置已经收到的报文段，每个报文段通过两个边界来确定）</p>
+<h3 id="TCP粘包拆包"><a href="#TCP粘包拆包" class="headerlink" title="TCP粘包拆包"></a>TCP粘包拆包</h3><p>数据链路层受物理限制，传输能力必然有限，将其一次能够传输的最大数据称为MTU，并要求网络层（IP层）对发送的超长数据进行分片；</p>
+<ul>
+<li><p><strong>MTU</strong>：Max Transmit Unit最大传输单元，是<strong>数据链路层提供给网络层的一次传输数据最大值</strong>，一般是1500字节。如果数据包不超过1500字节，那么一个IP包就可以完成发送，如果超过了，就需要分片进行发送，分片后的IP Header ID相同；</p>
+</li>
+<li><p><strong>MSS</strong>：Max Segment Size最大分段大小，是<strong>TCP用来限制应用层最大的发送字节数</strong>。假设MTU&#x3D;1500，那么MSS&#x3D;1500 - 20(IP头) - 20(TCP头)&#x3D;1460，如果有2000字节需要发送，就需要分成两段才可以完成发送；</p>
+</li>
+</ul>
+<p><img src="/img/20231210/20231210.15.png"> </p>
+<p>TCP不只是会对数据进行分段，也可能进行数据包组装的操作，目的是为了节约网络I&#x2F;O资源，如果前后两次TCP发的数据都远小于MSS，可以进行合并发送，具体办法是<strong>Nagle算法</strong>，通过延迟发送小数据包，然后将多个小数据包合并发送；</p>
+<ul>
+<li>如果包长度达到MSS就立即发送，否则等待下一个包到来；如果下一个包到来后两个包的总长度超过MSS，再进行拆分发送；</li>
+<li>等待超时(一般200ms)，虽然包长度没有达到MSS，但迟迟等不来下一个包，那么也进行发送；</li>
+</ul>
+<p>Nagle算法考虑的是节约网络资源，但是可能导致延迟变大，现在一般网络环境都比较好，所以建议会选择将它关闭，也就是将TCP_NODELAY置为1；</p>
+<p>也就是说TCP很可能将数据包进行分段或者合并发送，再加上TCP是基于二进制字节流发送的，就无法知道消息的起始和结束，也就是粘包拆包现象。不过应用层协议可以自己解决，办法一般是使用特殊标志来作为消息边界，以及消息头中加入消息长度信息。</p>
+<p>根因还是字节流发送，就算关闭Nagle，消息到了TCP缓存还是会合并导致粘包。而基于数据报的UDP，无论应用层要发送怎样的数据，都是照样发送，如果数据包太长需要分片，那也是IP层的事情（与UDP不同，TCP的分段操作会尽量避免IP层继续分片，当然如果网络链路中有其它设备MTU更小，还是可能导致分片）。IP层虽然进行分片，但是在对端会自己将分片组装完成再交给传输层，上层收到的永远是完整的报文。</p>
 <h3 id="一次网页访问的过程"><a href="#一次网页访问的过程" class="headerlink" title="一次网页访问的过程"></a>一次网页访问的过程</h3><p><img src="/img/20231210/20231210.4.png"> </p>
 <ol>
 <li><p><strong>解析URL</strong>，一般是：http:&#x2F;&#x2F;服务域名&#x2F;资源路径；</p>
@@ -369,7 +386,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E8%BF%9E%E6%8E%A5"><span class="toc-text">Tcp连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E6%96%AD%E5%BC%80"><span class="toc-text">Tcp断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="toc-text">Tcp的可靠性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E8%BF%9E%E6%8E%A5"><span class="toc-text">Tcp连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E6%96%AD%E5%BC%80"><span class="toc-text">Tcp断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="toc-text">Tcp的可靠性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP%E7%B2%98%E5%8C%85%E6%8B%86%E5%8C%85"><span class="toc-text">TCP粘包拆包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li></ol>
 </div>
 
 
