@@ -94,7 +94,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 4.7k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 16min</font>
+   <font style="color: #999;"> words: 5.2k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 19min</font>
    
    
   
@@ -243,7 +243,7 @@
 </ul>
 <p>如果主动方一直收不到第三次Fin，连接会一直卡在FIN_WAIT_2状态，此时根据调用方式会有不同的表现行为：<br>调用的shutdown()并且只关闭了写，那么此时还可以读，会一直等待对方Fin数据包；<br>调用的close()关闭读和写，那么会等一段时间(&#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;tcp_fin_timeout)，超时后变为TIME_WAIT状态；</p>
 <p>如果被动方一直收不到第四次Ack，那么会尝试重发第三次Fin，默认重试8次(&#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;tcp_orphan_retries)</p>
-<h3 id="Tcp的可靠性"><a href="#Tcp的可靠性" class="headerlink" title="Tcp的可靠性"></a>Tcp的可靠性</h3><p>实现可靠传输最简单的方法是<strong>停止等待</strong>，发送一个数据包，然后等待回复，再继续发送下一个数据包。但是网络环境不可靠，导致每一次发送的数据包都可能会丢，如果主机A发送的数据包丢失了，那么主机B永远收不到数据进行回复，机器A就永远卡在等待。解决方法是<strong>超时重传</strong>，发完数据包后开始计时，超过时间还没收到回复就认为是发生了丢包，重新发送。但如果原先的数据包并没有丢失，只是在网络中被延迟了，重传就会导致主机B受到两个数据包，为了区分可以<strong>对数据包进行编号</strong>，这样接收方就可以根据编号判断是不是重传的数据（TCP的头部有两个32位字段，序列号和确认号，它们表示发送方数据第一个字节的编号，和接收方期待的下一包数据的第一个字节的编号）。</p>
+<h3 id="可靠性问题"><a href="#可靠性问题" class="headerlink" title="可靠性问题"></a>可靠性问题</h3><p>实现可靠传输最简单的方法是<strong>停止等待</strong>，发送一个数据包，然后等待回复，再继续发送下一个数据包。但是网络环境不可靠，导致每一次发送的数据包都可能会丢，如果主机A发送的数据包丢失了，那么主机B永远收不到数据进行回复，机器A就永远卡在等待。解决方法是<strong>超时重传</strong>，发完数据包后开始计时，超过时间还没收到回复就认为是发生了丢包，重新发送。但如果原先的数据包并没有丢失，只是在网络中被延迟了，重传就会导致主机B受到两个数据包，为了区分可以<strong>对数据包进行编号</strong>，这样接收方就可以根据编号判断是不是重传的数据（TCP的头部有两个32位字段，序列号和确认号，它们表示发送方数据第一个字节的编号，和接收方期待的下一包数据的第一个字节的编号）。</p>
 <p>以上办法虽然满足了可靠传输的要求，但问题是效率太低，所以办法是<strong>连续发送数据包</strong>，这样接收方会不断收到数据，然后逐一进行确认回复。但是这样需要考虑接收方的缓冲区大小，以及数据处理能力。如果由于发送太快导致接收方无法接收，那么只是会导致频繁重传，浪费网络资源，所以要根据接收方缓冲区的情况来确定发送数据的范围，也就是<strong>滑动窗口</strong>（TCP头部有一个16位的窗口大小，表示接收方剩余的缓冲区大小，发送方可以根据这个调整自己的发送窗口）</p>
 <p><img src="/img/20231210/20231210.12.png"> </p>
 <ul>
@@ -253,7 +253,7 @@
 <p>滑动窗口是想办法避免重传（重传是下下策，浪费网络资源），但如果确实发生了，<strong>TCP分段机制</strong>可以降低它的影响，也就是将大段数据包分成一小包一小包，如果发生了丢包，那么只要重传对应的小包就行。由于网络复杂，在接收端很难按顺序依次收到数据包，那么会根据序列对数据包进行<strong>乱序重排</strong>；</p>
 <p>如果每发一个送数据包，都必须有一个回复，就会导致网络中充斥着和发送数据包一样数量的回复报文，从而导致网络效率低下。解决办法是<strong>累积确认</strong>，接收方不需要逐个进行回复，而是累积到一定量的数据包之后，告诉发送方在此数据包之前的数据已全都收到。比如收到1234，只需要告诉发送方收到了4，那么发送方就知道1234都收到了（具体做法是默认等40ms，比如收到1之后等40ms，如果期间收到了2，那么再等40ms看能不能收到3，如果等不到3就立即回复2的Ack）；</p>
 <p>累积确认可以提高网络效率，但是如果遇到丢包情况，比如接收方收到了123567，编号4的数据包丢失了，那么是否就回一个3，然后将567丢掉呢。此时应该告诉发送方只需要重传4即可，所以还需要<strong>选择确认SACK</strong>机制来配合（TCP头部的选项字段，可以设置已经收到的报文段，每个报文段通过两个边界来确定）</p>
-<h3 id="TCP粘包拆包"><a href="#TCP粘包拆包" class="headerlink" title="TCP粘包拆包"></a>TCP粘包拆包</h3><p>数据链路层受物理限制，传输能力必然有限，将其一次能够传输的最大数据称为MTU，并要求网络层（IP层）对发送的超长数据进行分片；</p>
+<h3 id="粘包拆包问题"><a href="#粘包拆包问题" class="headerlink" title="粘包拆包问题"></a>粘包拆包问题</h3><p>数据链路层受物理限制，传输能力必然有限，将其一次能够传输的最大数据称为MTU，并要求网络层（IP层）对发送的超长数据进行分片；</p>
 <ul>
 <li><p><strong>MTU</strong>：Max Transmit Unit最大传输单元，是<strong>数据链路层提供给网络层的一次传输数据最大值</strong>，一般是1500字节。如果数据包不超过1500字节，那么一个IP包就可以完成发送，如果超过了，就需要分片进行发送，分片后的IP Header ID相同；</p>
 </li>
@@ -267,8 +267,25 @@
 <li>等待超时(一般200ms)，虽然包长度没有达到MSS，但迟迟等不来下一个包，那么也进行发送；</li>
 </ul>
 <p>Nagle算法考虑的是节约网络资源，但是可能导致延迟变大，现在一般网络环境都比较好，所以建议会选择将它关闭，也就是将TCP_NODELAY置为1；</p>
-<p>也就是说TCP很可能将数据包进行分段或者合并发送，再加上TCP是基于二进制字节流发送的，就无法知道消息的起始和结束，也就是粘包拆包现象。不过应用层协议可以自己解决，办法一般是使用特殊标志来作为消息边界，以及消息头中加入消息长度信息。</p>
+<p>所以TCP很可能将数据包进行分段或者合并发送，再加上TCP是基于二进制字节流发送的，就无法知道消息的起始和结束，也就是粘包拆包现象。不过应用层协议可以自己解决，办法一般是使用特殊标志来作为消息边界，以及消息头中加入消息长度信息。</p>
 <p>根因还是字节流发送，就算关闭Nagle，消息到了TCP缓存还是会合并导致粘包。而基于数据报的UDP，无论应用层要发送怎样的数据，都是照样发送，如果数据包太长需要分片，那也是IP层的事情（与UDP不同，TCP的分段操作会尽量避免IP层继续分片，当然如果网络链路中有其它设备MTU更小，还是可能导致分片）。IP层虽然进行分片，但是在对端会自己将分片组装完成再交给传输层，上层收到的永远是完整的报文。</p>
+<h3 id="Keepalive机制"><a href="#Keepalive机制" class="headerlink" title="Keepalive机制"></a>Keepalive机制</h3><p>Keepalive是TCP协议内置的探测机制，用于检测长时间未活动的连接是否仍然存活。目的是检测并清理无效连接，防止资源长期占用。</p>
+<p>相关参数可以通过&#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;文件调整</p>
+<ul>
+<li>tcp_keepalive_time：连接空闲多久后开始发送探测包，默认7200秒；</li>
+<li>tcp_keepalive_intvl：探测包之间的间隔时间，默认75秒；</li>
+<li>tcp_keepalive_probes：探测失败前最多发送的探测包数量，默认9次；</li>
+</ul>
+<p>但是Keepalive功能必须由应用程序显式设置SO_KEEPALIVE选项开启，如果仅调整上面三个参数是无效的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 客户端</span></span><br><span class="line"><span class="type">Socket</span> <span class="variable">socket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Socket</span>();</span><br><span class="line">socket.setKeepAlive(<span class="literal">true</span>); </span><br><span class="line"></span><br><span class="line"><span class="comment">// 服务端</span></span><br><span class="line"><span class="type">ServerSocket</span> <span class="variable">serverSocket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServerSocket</span>(port);</span><br><span class="line">serverSocket.setKeepAlive(<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+
+<p>可以通过netstat确认</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">netstat -4npo | grep -i established | head</span><br><span class="line">tcp        0      0 172.18.120.55:2379      172.18.120.56:52104     ESTABLISHED 8072/etcd            keepalive (11.02/0/0)</span><br><span class="line">tcp        0      0 172.18.120.55:2379      172.18.20.153:48184     ESTABLISHED 8072/etcd            keepalive (0.52/0/0)</span><br><span class="line">tcp        0      0 172.18.120.55:2379      172.18.120.55:49988     ESTABLISHED 8072/etcd            keepalive (5.13/0/0)</span><br><span class="line">tcp        0      0 172.18.120.55:2379      172.18.120.56:52176     ESTABLISHED 8072/etcd            keepalive (24.84/0/0)</span><br><span class="line">tcp        0      0 172.18.120.55:51590     172.18.20.153:2379      ESTABLISHED 8804/kube-apiserver  keepalive (1.42/0/0)</span><br><span class="line">tcp        0      0 172.18.120.55:49878     172.18.120.55:2379      ESTABLISHED 8804/kube-apiserver  keepalive (8.01/0/0)</span><br><span class="line">tcp        0      0 172.18.120.55:49564     172.18.20.153:2379      ESTABLISHED 8804/kube-apiserver  keepalive (12.87/0/0)</span><br><span class="line">tcp        0      0 172.18.120.55:2379      172.18.120.56:50060     ESTABLISHED 8072/etcd            keepalive (5.77/0/0)</span><br><span class="line">tcp        0      0 172.18.120.55:2379      172.18.120.55:48138     ESTABLISHED 8072/etcd            keepalive (19.08/0/0)</span><br><span class="line">tcp        0      0 172.18.120.55:37618     172.18.20.153:2379      ESTABLISHED 8804/kube-apiserver  keepalive (14.60/0/0)</span><br><span class="line"></span><br><span class="line">keepalive (11.02/0/0)表示当前TCP连接已启用Keepalive：（距离下次发送的剩余时间/失败的探测包计数/累积重传次数）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>理解HTTP Keepalive</li>
+</ul>
+<p>相对TCP的Keepalive是决定是否进行<strong>存活探测</strong>，并关闭无效连接；HTTP（Nginx、Redis、数据库等其它各种应用层协议都一样）的Keepalive是决定<strong>是否复用</strong>TCP连接，也就是消息发送结束后是否立即发送Fin。如果不是立即发Fin，而是等待一段时间超时后再发Fin，也就是我们常说的<strong>长连接了</strong>，只要在发送Fin之前，就可以连续发送应用层的消息；</p>
 <h3 id="一次网页访问的过程"><a href="#一次网页访问的过程" class="headerlink" title="一次网页访问的过程"></a>一次网页访问的过程</h3><p><img src="/img/20231210/20231210.4.png"> </p>
 <ol>
 <li><p><strong>解析URL</strong>，一般是：http:&#x2F;&#x2F;服务域名&#x2F;资源路径；</p>
@@ -386,7 +403,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E8%BF%9E%E6%8E%A5"><span class="toc-text">Tcp连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E6%96%AD%E5%BC%80"><span class="toc-text">Tcp断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="toc-text">Tcp的可靠性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP%E7%B2%98%E5%8C%85%E6%8B%86%E5%8C%85"><span class="toc-text">TCP粘包拆包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E8%BF%9E%E6%8E%A5"><span class="toc-text">Tcp连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E6%96%AD%E5%BC%80"><span class="toc-text">Tcp断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7%E9%97%AE%E9%A2%98"><span class="toc-text">可靠性问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B2%98%E5%8C%85%E6%8B%86%E5%8C%85%E9%97%AE%E9%A2%98"><span class="toc-text">粘包拆包问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Keepalive%E6%9C%BA%E5%88%B6"><span class="toc-text">Keepalive机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li></ol>
 </div>
 
 
