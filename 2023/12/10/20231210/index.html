@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Tcp/Ip协议理解 | Echo</title>
+  <title>Tcp/Ip协议 | Echo</title>
   <meta name="author" content="shanhm">
   
   <meta name="description" content="20世纪60年代，美国国防部希望研究一种即使部分通信线路被破坏也能维持通信的技术，这一需求促进了分组交换网络的发展。分组交换使得多个节点之间的通信可以在节点受损时通过备用路径继续。
@@ -12,7 +12,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="Tcp/Ip协议理解"/>
+  <meta property="og:title" content="Tcp/Ip协议"/>
   <meta property="og:site_name" content="Echo"/>
 
   
@@ -51,7 +51,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  127 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  128 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -80,7 +80,7 @@
   
   
     <h1 class="p-name title" itemprop="headline name">
-        Tcp/Ip协议理解
+        Tcp/Ip协议
     </h1>
     
     
@@ -94,7 +94,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 5.2k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 19min</font>
+   <font style="color: #999;"> words: 6.5k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 24min</font>
    
    
   
@@ -314,6 +314,52 @@
 </ol>
 <p>数据包到达网卡后会触发中断irq通知CPU读取数据包，高性能网络场景中数据包量大，频繁中断会影响性能，NAPI机制可以通过轮询poll批量处理数据包，轮询数量可以通过net.core.netdev_budget配置，详细过程示意如下</p>
 <p><img src="/img/20231210/20231210.14.png"> </p>
+<h3 id="可能的丢包原因"><a href="#可能的丢包原因" class="headerlink" title="可能的丢包原因"></a>可能的丢包原因</h3><p>了解数据发送的过程后，可以梳理一下其中可能丢包的环节</p>
+<ul>
+<li>连接丢包</li>
+</ul>
+<p>连接过程中有两个队列，半连接队列和全连接队列，如果队列满了，那么新来的包就会被丢弃，具体现象就是连接失败；</p>
+<ul>
+<li>流量控制丢包</li>
+</ul>
+<p>应用层需要发送网络数据包的应用有很多，如果不加控制的话，网卡会吃不消。所以需要流量控制(qdisc)，让数据按一定的规则排队依次处理，但排队的队列有长度限制，当数据过快而队列长度又不够时，就容易出现丢包。</p>
+<p>ifconfig命令可以查看丢包情况，TX和RX分别代表了发送和接收情况</p>
+<figure class="highlight text"><figcaption><span>ifconfig</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ens33: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 192.168.141.74  netmask 255.255.255.0  broadcast 192.168.141.255</span><br><span class="line">        inet6 fe80::20c:29ff:fe8d:a98d  prefixlen 64  scopeid 0x20&lt;link&gt;</span><br><span class="line">        ether 00:0c:29:8d:a9:8d  txqueuelen 1000  (Ethernet)</span><br><span class="line">        RX packets 50436  bytes 53859719 (53.8 MB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 12372  bytes 1083579 (1.0 MB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br></pre></td></tr></table></figure>
+
+<p>tc命令可以进一步判断是不是流控导致的丢包</p>
+<figure class="highlight text"><figcaption><span>tc -s qdisc show dev ens33</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn </span><br><span class="line"> Sent 1005621 bytes 12447 pkt (dropped 0, overlimits 0 requeues 2) </span><br><span class="line"> backlog 0b 0p requeues 2</span><br><span class="line">  maxpacket 54 drop_overlimit 0 new_flow_count 1 ecn_mark 0</span><br><span class="line">  new_flows_len 0 old_flows_len 0</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>网卡丢包</li>
+</ul>
+<p>网卡和驱动丢包也很常见，比如网线质量差、接触不良、网卡性能等原因，或者由于ring buffer的限制，上面ifconfig中overruns记录的就是由于ring buffer长度不足导致的溢出次数</p>
+<p>查看网卡配置，如果要修改ring buffer长度，可以执行：<code>ethtool -G ens33 rx 4096 tx 4096</code></p>
+<figure class="highlight text"><figcaption><span>ethtool -g ens33</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Ring parameters for ens33:</span><br><span class="line">Pre-set maximums:</span><br><span class="line">RX:		4096</span><br><span class="line">RX Mini:	0</span><br><span class="line">RX Jumbo:	0</span><br><span class="line">TX:		4096</span><br><span class="line">Current hardware settings:</span><br><span class="line">RX:		256</span><br><span class="line">RX Mini:	0</span><br><span class="line">RX Jumbo:	0</span><br><span class="line">TX:		256</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>接收缓冲区丢包</li>
+</ul>
+<p>使用Tcp socket进行网络通信时，内核会分配一个发送缓冲区和一个接收缓冲区</p>
+<p>查看发送缓冲区大小</p>
+<figure class="highlight text"><figcaption><span>sysctl net.ipv4.tcp_rmem</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net.ipv4.tcp_rmem = 4096	131072	6291456</span><br></pre></td></tr></table></figure>
+
+<p>查看接收缓冲区大小</p>
+<figure class="highlight text"><figcaption><span>sysctl net.ipv4.tcp_wmem</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net.ipv4.tcp_rmem = 4096	131072	6291456</span><br></pre></td></tr></table></figure>
+
+<p>对于发送缓冲区，如果满了会阻塞调用，或立即返回一个错误信号让应用层等下再重试。而如果接收缓冲区满了，那么Tcp的窗口会变为0，会通知发送方停止发送数据，但发送方在收到通知前已经发送的数据可能就丢包了</p>
+<ul>
+<li>网络过程丢包</li>
+</ul>
+<p>在发送端和接收端之间，存在各种路由器、交换机还有光缆等设备，发生丢包是很正常的，而且作为发送方并没有办法去处理，但是可以通过mtr命令查看是在哪一个节点发生的丢包</p>
+<figure class="highlight text"><figcaption><span>mtr -r baidu.com</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Start: 2026-03-29T00:23:46+0000</span><br><span class="line">HOST: java                        Loss%   Snt   Last   Avg  Best  Wrst StDev</span><br><span class="line">  1.|-- 192.168.141.1              0.0%    10    0.3   0.3   0.1   0.4   0.1</span><br><span class="line">  2.|-- 192.168.1.1                0.0%    10    7.5  29.4   2.4 108.2  38.4</span><br><span class="line">  3.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0</span><br><span class="line">  4.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0</span><br><span class="line">  5.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0</span><br><span class="line">  6.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0</span><br><span class="line">  7.|-- 202.97.126.37             90.0%    10   22.5  22.5  22.5  22.5   0.0</span><br><span class="line">  8.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0</span><br><span class="line">  9.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0</span><br><span class="line"> 10.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0</span><br><span class="line"> 11.|-- 219.158.11.90             50.0%    10  141.1  72.5  28.4 141.1  59.5</span><br><span class="line"> 12.|-- 110.242.66.186             0.0%    10   28.3  44.0  26.4 108.4  27.0</span><br></pre></td></tr></table></figure>
+
+<p>解释一下为什么最后一跳丢包0%，前面的节点却丢包100%</p>
+<p>IP数据包有个TTL属性，表示数据包能允许的最大跳数，每经过一跳，TTL计数减1，如过计数为0，那么收到这个数据包的节点必须丢弃，不可以再转发下一跳，并且应该向源端发送一个ICMP Time Exceeded消息（有的节点可能设置不进行icmp响应，就会静默丢弃）；</p>
+<p>mtr的办法就是逐步提高数据包的TTL跳数，直到能够跳到目标节点，TTL刚好为0。这样源端就能知道要经过多少跳可以到达目标，对于中间的节点，如果正常回复icmp就不会丢包，而如果限制了icmp回复频率或者干脆不回复，可能就会出现类似丢包的现象。</p>
+<p>可以指定使用TCP协议进行探测，但是mtr在使用TCP探测时，每轮会递增源端口，而ECMP网络多路径负载均衡会根据五元组进行路径规划，会导致每轮探测包所走的路径都不一样（目的就是为了遍历所有的路径），最后mtr把这些不同路径的信息一起统计，可能只显示最优路径的信息。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mtr -r -c 100 --tcp -P 80 baidu.com</span><br></pre></td></tr></table></figure>
+
+
 <p><br><strong>参考：</strong></p>
 
       
@@ -403,7 +449,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E8%BF%9E%E6%8E%A5"><span class="toc-text">Tcp连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E6%96%AD%E5%BC%80"><span class="toc-text">Tcp断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7%E9%97%AE%E9%A2%98"><span class="toc-text">可靠性问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B2%98%E5%8C%85%E6%8B%86%E5%8C%85%E9%97%AE%E9%A2%98"><span class="toc-text">粘包拆包问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Keepalive%E6%9C%BA%E5%88%B6"><span class="toc-text">Keepalive机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E8%BF%9E%E6%8E%A5"><span class="toc-text">Tcp连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E6%96%AD%E5%BC%80"><span class="toc-text">Tcp断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7%E9%97%AE%E9%A2%98"><span class="toc-text">可靠性问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B2%98%E5%8C%85%E6%8B%86%E5%8C%85%E9%97%AE%E9%A2%98"><span class="toc-text">粘包拆包问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Keepalive%E6%9C%BA%E5%88%B6"><span class="toc-text">Keepalive机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%83%BD%E7%9A%84%E4%B8%A2%E5%8C%85%E5%8E%9F%E5%9B%A0"><span class="toc-text">可能的丢包原因</span></a></li></ol>
 </div>
 
 

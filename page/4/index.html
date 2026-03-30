@@ -48,7 +48,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  127 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  128 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -170,6 +170,196 @@
 
 
 
+  <article id="post-20231227" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2023-12-26T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2023/12/27/20231227/" style="color: #736f6f;">2023-12-27</a></time>
+      
+      
+
+  
+  
+    <h1 class="title">
+       <a href="/2023/12/27/20231227/">Icmp协议</a>
+    </h1>
+    
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <h3 id="Icmp协议"><a href="#Icmp协议" class="headerlink" title="Icmp协议"></a>Icmp协议</h3><p>ICMP(Internet Control Message Protocol)互联网控制报文协议，和IP协议一样属于网络层。最常见的用途就是用来测试网络节点的可达性，源主机封装一个Icmp消息，发往目的主机，目的主机根据情况选择回复或者不回复，源主机依据回复判断网络通不通，如果途径的路由节点发现目的主机不可达，可能会在Icmp的回复中带上具体的原因，这些错误原因有助于故障诊断和排除。</p>
+<p>除了判断网络不通，Icmp也能通过重定向消息，反馈源主机一些信息，比如更优的网络路径，或者消息发太快了，源主机可以选择进行处理或者不处理。</p>
+<p>报文格式</p>
+<p><img src="/img/20231227/20231227.1.png"> </p>
+<ul>
+<li>Type占1字节，报文主要可以分为两类：<strong>查询报文</strong>和<strong>差错报文</strong>，查询报文用于获取有关网络或目标主机的特定信息，差错报文主要用于报告网络错误；</li>
+<li>Code占1字节，提供有关报文类型更详细的信息；</li>
+</ul>
+<table width=100%>
+    <tr style="border-bottom:0.01rem solid grey;">
+        <th width=15%></th>
+        <th width=15%>Type</th>
+        <th width=15%>Code</th>
+        <th width=55%>描述</th>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>查询报文</td>
+        <td>0</td>
+        <td>0</td>
+        <td>Echo Reply</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>3</td>
+        <td>0</td>
+        <td>Network Unreachable</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>3</td>
+        <td>1</td>
+        <td>Host Unreachable</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>3</td>
+        <td>2</td>
+        <td>Protocol Unreachable</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>3</td>
+        <td>3</td>
+        <td>Port Unreachable</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>3</td>
+        <td>4</td>
+        <td>Fragmentation Needed and DF Set 需要分片，但设置了不分片标志</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>3</td>
+        <td>5</td>
+        <td>Source Route Failed</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>4</td>
+        <td>0</td>
+        <td>Source Quench 源抑制</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>5</td>
+        <td>0</td>
+        <td>Redirect for the Network</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>5</td>
+        <td>1</td>
+        <td>Redirect for the Host</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>5</td>
+        <td>2</td>
+        <td>Redirect for the Type of Service and Network</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>5</td>
+        <td>3</td>
+        <td>Redirect for the Type of Service and Host</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>查询报文</td>
+        <td>8</td>
+        <td>0</td>
+        <td>Echo Request</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>11</td>
+        <td>0</td>
+        <td>Time to live Exceeded in Transit 传输超时</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>11</td>
+        <td>1</td>
+        <td>Fragment Reassembly Time Exceeded 分片重组超时</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>差错报文</td>
+        <td>12</td>
+        <td>0</td>
+        <td>Parameter Problem</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>查询报文</td>
+        <td>13</td>
+        <td>0</td>
+        <td>Timestamp Request</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>查询报文</td>
+        <td>14</td>
+        <td>0</td>
+        <td>Timestamp Reply</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>查询报文</td>
+        <td>15</td>
+        <td>0</td>
+        <td>Information Request</td>
+    </tr>
+    <tr style="border-bottom:0.01rem solid #e6e0e0;">
+        <td>查询报文</td>
+        <td>16</td>
+        <td>0</td>
+        <td> Information Reply</td>
+    </tr>
+</table>
+
+<h3 id="Ping与Tcp发消息区别"><a href="#Ping与Tcp发消息区别" class="headerlink" title="Ping与Tcp发消息区别"></a>Ping与Tcp发消息区别</h3><p>Ping的作用是用来判断目标机器是否可达，它是一个应用层命令，依赖的网络层的ICMP协议，而ICMP也是利用IP协议进行消息传输的</p>
+<p>如果与TCP发消息对比可以如下图所示</p>
+<p><img src="/img/20231227/20231227.2.png"> </p>
+<p>所以ICMP在传输的过程中，从外部看来就是一个IP数据包，只有解析了IP报头，取出里面的数据，才能获取ICMP的报头信息。在ICMP报文中也可能存放着请求报文报头信息，比如A给C发消息经过B，结果B发现C不可达，于是就给A回了一个ICMP消息，这个消息的IP报头中放的就是B和A的IP信息，而ICMP消息中放的就是A和C的IP信息。</p>
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+
+
+
   <article id="post-20231223" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -197,7 +387,7 @@
       
     <div class="e-content entry" itemprop="articleBody">
       
-        <p>总结一下为什么需要NAT网络，以及NAT网络的原理和用</p>
+        <p>总结一下为什么需要NAT网络，以及NAT网络的原理和作用</p>
       
     </div>
 	
@@ -235,7 +425,7 @@
   
   
     <h1 class="title">
-       <a href="/2023/12/10/20231210/">Tcp/Ip协议理解</a>
+       <a href="/2023/12/10/20231210/">Tcp/Ip协议</a>
     </h1>
     
   
@@ -311,58 +501,6 @@
         
           <div class="alignleft">
             <a href="/2023/03/21/20230321/#more" class="more-link">more</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-
-
-
-  <article id="post-20220530" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2022-05-29T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2022/05/30/20220530/" style="color: #736f6f;">2022-05-30</a></time>
-      
-      
-
-  
-  
-    <h1 class="title">
-       <a href="/2022/05/30/20220530/">tcpdump 网络抓包</a>
-    </h1>
-    
-  
-  
-
-
-<script async src="/js/busuanzi.js"></script>
-
-
-    </header>
-      
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>整理下tcpdump的常见抓包用法</p>
-      
-    </div>
-	
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2022/05/30/20220530/#more" class="more-link">more</a>
           </div>
         
         
@@ -543,7 +681,7 @@
   
   
   
-    <li style="white-space: nowrap"><a href="/categories/网络基础/">网络基础</a><small style="margin-left: 5px">2</small></li>
+    <li style="white-space: nowrap"><a href="/categories/网络基础/">网络基础</a><small style="margin-left: 5px">3</small></li>
   
   
   
@@ -1072,7 +1210,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/aop/" style="font-size: 11.67px;">aop</a> <a href="/tags/aqs/" style="font-size: 11.67px;">aqs</a> <a href="/tags/aspectJ/" style="font-size: 10px;">aspectJ</a> <a href="/tags/cas/" style="font-size: 11.67px;">cas</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 15px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/excel/" style="font-size: 13.33px;">excel</a> <a href="/tags/feign/" style="font-size: 11.67px;">feign</a> <a href="/tags/final/" style="font-size: 11.67px;">final</a> <a href="/tags/future/" style="font-size: 15px;">future</a> <a href="/tags/gc/" style="font-size: 11.67px;">gc</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 11.67px;">http</a> <a href="/tags/intern/" style="font-size: 11.67px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/io/" style="font-size: 20px;">io</a> <a href="/tags/ioc/" style="font-size: 13.33px;">ioc</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/iptables/" style="font-size: 10px;">iptables</a> <a href="/tags/jdbc/" style="font-size: 13.33px;">jdbc</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/kafka/" style="font-size: 18.33px;">kafka</a> <a href="/tags/list/" style="font-size: 10px;">list</a> <a href="/tags/lock/" style="font-size: 11.67px;">lock</a> <a href="/tags/map/" style="font-size: 10px;">map</a> <a href="/tags/nat/" style="font-size: 10px;">nat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/netty/" style="font-size: 16.67px;">netty</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 11.67px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/string/" style="font-size: 10px;">string</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/tcp/" style="font-size: 11.67px;">tcp</a> <a href="/tags/tcpdump/" style="font-size: 10px;">tcpdump</a> <a href="/tags/thread/" style="font-size: 16.67px;">thread</a> <a href="/tags/tomcat/" style="font-size: 11.67px;">tomcat</a> <a href="/tags/transactional/" style="font-size: 10px;">transactional</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 11.67px;">volatile</a>
+    <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/aop/" style="font-size: 11.67px;">aop</a> <a href="/tags/aqs/" style="font-size: 11.67px;">aqs</a> <a href="/tags/aspectJ/" style="font-size: 10px;">aspectJ</a> <a href="/tags/cas/" style="font-size: 11.67px;">cas</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 15px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/excel/" style="font-size: 13.33px;">excel</a> <a href="/tags/feign/" style="font-size: 11.67px;">feign</a> <a href="/tags/final/" style="font-size: 11.67px;">final</a> <a href="/tags/future/" style="font-size: 15px;">future</a> <a href="/tags/gc/" style="font-size: 11.67px;">gc</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 11.67px;">http</a> <a href="/tags/icmp/" style="font-size: 10px;">icmp</a> <a href="/tags/intern/" style="font-size: 11.67px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/io/" style="font-size: 20px;">io</a> <a href="/tags/ioc/" style="font-size: 13.33px;">ioc</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/iptables/" style="font-size: 10px;">iptables</a> <a href="/tags/jdbc/" style="font-size: 13.33px;">jdbc</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/kafka/" style="font-size: 18.33px;">kafka</a> <a href="/tags/list/" style="font-size: 10px;">list</a> <a href="/tags/lock/" style="font-size: 11.67px;">lock</a> <a href="/tags/map/" style="font-size: 10px;">map</a> <a href="/tags/nat/" style="font-size: 10px;">nat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/netty/" style="font-size: 16.67px;">netty</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/ping/" style="font-size: 10px;">ping</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 11.67px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/string/" style="font-size: 10px;">string</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/tcp/" style="font-size: 13.33px;">tcp</a> <a href="/tags/tcpdump/" style="font-size: 10px;">tcpdump</a> <a href="/tags/thread/" style="font-size: 16.67px;">thread</a> <a href="/tags/tomcat/" style="font-size: 11.67px;">tomcat</a> <a href="/tags/transactional/" style="font-size: 10px;">transactional</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 11.67px;">volatile</a>
   </div>
 </div>
 
