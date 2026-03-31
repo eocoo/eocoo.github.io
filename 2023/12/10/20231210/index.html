@@ -51,7 +51,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  128 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  129 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -94,7 +94,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 6.5k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 24min</font>
+   <font style="color: #999;"> words: 6.8k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 25min</font>
    
    
   
@@ -149,7 +149,7 @@
 <ul>
 <li><strong>应用层</strong> 负责为应用程序提供网络服务，它定义了用于在应用程序之间传递信息的协议，如HTTP、FTP等</li>
 </ul>
-<h3 id="Tcp连接"><a href="#Tcp连接" class="headerlink" title="Tcp连接"></a>Tcp连接</h3><p>服务端对socket执行bind方法可以绑定监听端口，然后执行listen方法后就会进入LISTEN状态，等待客户端连接</p>
+<h3 id="连接过程"><a href="#连接过程" class="headerlink" title="连接过程"></a>连接过程</h3><p>服务端对socket执行bind方法可以绑定监听端口，然后执行listen方法后就会进入LISTEN状态，等待客户端连接</p>
 <ul>
 <li>三次握手</li>
 </ul>
@@ -191,7 +191,7 @@
 <p>半连接队列无法直接查看，统计SYN_RCVD状态的连接可以获得：<code>netstat -nt | grep -i &#39;127.0.0.1:8080&#39; | grep -i &#39;SYN_RCVD&#39; | wc -l</code></p>
 <p>同样，通过netstat统计也可以查看半连接队列的溢出情况：<code>watch -d &#39;netstat -s | grep -i &quot;SYNs to LISTEN sockets dropped&quot;&#39;</code></p>
 <p><strong>SYN Flood攻击</strong>：一般半连接的存活时间很短，如果队列满了，那么大概率是被攻击了，攻击者模拟客户端疯狂发送SYN但不回复ACK，导致队列撑满；<br>如果<code>/proc/sys/net/ipv4/tcp_syncookies</code>置为1，可以绕过半连接队列，服务端收到SYN时，不会再放入队列，而是直接生成一个cookies，放在返回的(SYN+ACK)报文中，然后再收到ACK时进行验证，不通过直接丢弃。<br><strong>ACK攻击</strong>：cookies虽然避免了半连接队列撑满的问题，但是其编解码都是比较耗CPU的，攻击者可以编造大量的ACK包，通过瞎编的cookies信息来耗尽服务端的CPU资源；另外由于cookies方案没有保存连接信息，所以如果(SYN+ACK)报文丢包了，也不会再重传；</p>
-<h3 id="Tcp断开"><a href="#Tcp断开" class="headerlink" title="Tcp断开"></a>Tcp断开</h3><p>正常情况下，只要数据传输完，不管是客户端还是服务端，都可以主动发起断开连接</p>
+<h3 id="断开过程"><a href="#断开过程" class="headerlink" title="断开过程"></a>断开过程</h3><p>正常情况下，只要数据传输完，不管是客户端还是服务端，都可以主动发起断开连接</p>
 <ul>
 <li>四次挥手</li>
 </ul>
@@ -233,16 +233,24 @@
 <p><img src="/img/20231210/20231210.3.png"> </p>
 <p>如果被动方没有数据要发送，也可以将第二次Ack和第三次Fin合并发送，变成三次挥手，这个取决于操作系统的具体实现，并不属于TCP的规定；</p>
 <ul>
-<li>close()关闭连接</li>
-</ul>
-<p>一般情况下，通过对socket执行close()或shutdown()会发出Fin，实际上只要应用程序退出，不管主动还是被动kill，都会发出Fin。shutdown()有参数可以选择性关闭读或写，而close会同时关闭socket的读和写通道，当执行close()时：<br>如果对应socket的接收缓冲区有数据，那么会发RST；<br>如果是发送缓冲区有数据，那么会等待数据发送完，再发送Fin数据包；</p>
-<p>所以虽然理论上被动方在关闭前还是可以发送数据的，但如果主动方是调用的close()，那么主动方是不会去收这个消息的，并会返回一个RST，然后直接结束连接；被动方的内核协议栈收到RST，也会关闭连接，此时被动方的应用层：<br>如果进行读操作，则会返回RST报错，也就是常见的Connection reset by peer；<br>如果进行写操作，程序会反馈SIGPIPE信号，如果不捕获处理，默认会进程终止；</p>
-<p><img src="/img/20231210/20231210.8.png"> </p>
-<ul>
 <li>异常情况</li>
 </ul>
 <p>如果主动方一直收不到第三次Fin，连接会一直卡在FIN_WAIT_2状态，此时根据调用方式会有不同的表现行为：<br>调用的shutdown()并且只关闭了写，那么此时还可以读，会一直等待对方Fin数据包；<br>调用的close()关闭读和写，那么会等一段时间(&#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;tcp_fin_timeout)，超时后变为TIME_WAIT状态；</p>
 <p>如果被动方一直收不到第四次Ack，那么会尝试重发第三次Fin，默认重试8次(&#x2F;proc&#x2F;sys&#x2F;net&#x2F;ipv4&#x2F;tcp_orphan_retries)</p>
+<h3 id="RST异常断开"><a href="#RST异常断开" class="headerlink" title="RST异常断开"></a>RST异常断开</h3><p>正常情况下，Tcp可以进行四次挥手优雅地断开连接，但在异常情况下，双方无法正常挥手，所以就需要一个机制去强行关闭连接。RST就是用来处理这种异常情况，不管是发出还是收到标记了RST的数据包，对应的内存、端口等连接资源都会被释放，接收RST的一方一般会反馈connection reset或connection refused报错</p>
+<p><strong>出现RST的情况：</strong></p>
+<ul>
+<li>对端端口不可用</li>
+</ul>
+<p>如果服务端端口未开启，在收到数据包时内核会找不到对应的sock（操作系统维护的一个全局哈希表，里面包含所有的socket，服务执行listen时就会创建一个sock放入表中），那么就会给客户端回一个RST。</p>
+<p>当然在回复RST之前，会首先对数据包进行校验和验证，如果不通过则直接丢弃（可能是发送过程中被篡改了，或者本就是一个伪造的包，在四层网络中，不管是哪一层，只要收到这种数据包，推荐做法都是默默丢弃）。</p>
+<ul>
+<li>socket提前关闭</li>
+</ul>
+<p>对于应用程序的退出，无论是正常还是异常，主动还是被动kill，都会发出Fin。对socket执行close()或shutdown()也会发出Fin，不过shutdown()有参数可以选择性的关闭读或写，而close会同时关闭socket的读和写通道。</p>
+<p>当执行close()时，如果socket的接收缓冲区还有数据，那么会发RST；如果是发送缓冲区有数据，那么会等待数据发送完，再发送Fin数据包；</p>
+<p>虽然主动方close()发完Fin，被动方在响应Ack后还可以发送数据，但主动方是不会去收这个消息的，并会返回一个RST，然后直接结束连接。最后被动方的内核协议栈收到RST后，也会关闭连接，此时应用层如果继续读取数据，会收到报错connection reset by peer，而如果尝试进行写数据，会收到Broken pipe错误。</p>
+<p><img src="/img/20231210/20231210.8.png"> </p>
 <h3 id="可靠性问题"><a href="#可靠性问题" class="headerlink" title="可靠性问题"></a>可靠性问题</h3><p>实现可靠传输最简单的方法是<strong>停止等待</strong>，发送一个数据包，然后等待回复，再继续发送下一个数据包。但是网络环境不可靠，导致每一次发送的数据包都可能会丢，如果主机A发送的数据包丢失了，那么主机B永远收不到数据进行回复，机器A就永远卡在等待。解决方法是<strong>超时重传</strong>，发完数据包后开始计时，超过时间还没收到回复就认为是发生了丢包，重新发送。但如果原先的数据包并没有丢失，只是在网络中被延迟了，重传就会导致主机B受到两个数据包，为了区分可以<strong>对数据包进行编号</strong>，这样接收方就可以根据编号判断是不是重传的数据（TCP的头部有两个32位字段，序列号和确认号，它们表示发送方数据第一个字节的编号，和接收方期待的下一包数据的第一个字节的编号）。</p>
 <p>以上办法虽然满足了可靠传输的要求，但问题是效率太低，所以办法是<strong>连续发送数据包</strong>，这样接收方会不断收到数据，然后逐一进行确认回复。但是这样需要考虑接收方的缓冲区大小，以及数据处理能力。如果由于发送太快导致接收方无法接收，那么只是会导致频繁重传，浪费网络资源，所以要根据接收方缓冲区的情况来确定发送数据的范围，也就是<strong>滑动窗口</strong>（TCP头部有一个16位的窗口大小，表示接收方剩余的缓冲区大小，发送方可以根据这个调整自己的发送窗口）</p>
 <p><img src="/img/20231210/20231210.12.png"> </p>
@@ -449,7 +457,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E8%BF%9E%E6%8E%A5"><span class="toc-text">Tcp连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp%E6%96%AD%E5%BC%80"><span class="toc-text">Tcp断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7%E9%97%AE%E9%A2%98"><span class="toc-text">可靠性问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B2%98%E5%8C%85%E6%8B%86%E5%8C%85%E9%97%AE%E9%A2%98"><span class="toc-text">粘包拆包问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Keepalive%E6%9C%BA%E5%88%B6"><span class="toc-text">Keepalive机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%83%BD%E7%9A%84%E4%B8%A2%E5%8C%85%E5%8E%9F%E5%9B%A0"><span class="toc-text">可能的丢包原因</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcp-IP%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-text">Tcp&#x2F;IP网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E8%BF%87%E7%A8%8B"><span class="toc-text">连接过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%AD%E5%BC%80%E8%BF%87%E7%A8%8B"><span class="toc-text">断开过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RST%E5%BC%82%E5%B8%B8%E6%96%AD%E5%BC%80"><span class="toc-text">RST异常断开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7%E9%97%AE%E9%A2%98"><span class="toc-text">可靠性问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B2%98%E5%8C%85%E6%8B%86%E5%8C%85%E9%97%AE%E9%A2%98"><span class="toc-text">粘包拆包问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Keepalive%E6%9C%BA%E5%88%B6"><span class="toc-text">Keepalive机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%BD%91%E9%A1%B5%E8%AE%BF%E9%97%AE%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">一次网页访问的过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%83%BD%E7%9A%84%E4%B8%A2%E5%8C%85%E5%8E%9F%E5%9B%A0"><span class="toc-text">可能的丢包原因</span></a></li></ol>
 </div>
 
 

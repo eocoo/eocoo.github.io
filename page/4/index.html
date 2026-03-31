@@ -48,7 +48,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  128 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  129 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -360,6 +360,70 @@
 
 
 
+  <article id="post-20231225" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2023-12-24T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2023/12/25/20231225/" style="color: #736f6f;">2023-12-25</a></time>
+      
+      
+
+  
+  
+    <h1 class="title">
+       <a href="/2023/12/25/20231225/">如果Tcp的连接目标不存在</a>
+    </h1>
+    
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <h3 id="家用路由器"><a href="#家用路由器" class="headerlink" title="家用路由器"></a>家用路由器</h3><p>现在的家用路由器的功能都已经集成了NAT路由、交换机和WFI接入点功能了，可简单如图所示</p>
+<p><img src="/img/20231225/20231225.1.png"> </p>
+<p>一般可以直接登录网关<a target="_blank" rel="noopener" href="http://192.168.0.1/">http://192.168.1</a> 进行配置查询和修改</p>
+<p><img src="/img/20231225/20231225.2.png"> </p>
+<h3 id="IP在局域网内"><a href="#IP在局域网内" class="headerlink" title="IP在局域网内"></a>IP在局域网内</h3><p>如果IP属于当前子网，但是不存在，那么连接会卡在ARP流程，找不到目标主机，无法拼凑MAC报头，也就发不出SYN数据包。至于一直重试ARP，是由于TCP本身的可靠性机制</p>
+<figure class="highlight text"><figcaption><span>sudo tcpdump host 192.168.1.128</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tcpdump: data link type PKTAP</span><br><span class="line">tcpdump: verbose output suppressed, use -v[v]... for full protocol decode</span><br><span class="line">listening on pktap, link-type PKTAP (Apple DLT_PKTAP), snapshot length 524288 bytes</span><br><span class="line">07:58:54.830853 ARP, Request who-has 192.168.1.128 tell 192.168.1.16, length 28</span><br><span class="line">07:58:55.831918 ARP, Request who-has 192.168.1.128 tell 192.168.1.16, length 28</span><br><span class="line">07:58:56.832754 ARP, Request who-has 192.168.1.128 tell 192.168.1.16, length 28</span><br><span class="line">07:58:57.833841 ARP, Request who-has 192.168.1.128 tell 192.168.1.16, length 28</span><br></pre></td></tr></table></figure>
+
+<h3 id="IP在局域网外"><a href="#IP在局域网外" class="headerlink" title="IP在局域网外"></a>IP在局域网外</h3><p>如果IP不属于当前子网，那么能发出第一次SYN，从网关出去，但是会一直失败，直到放弃</p>
+<figure class="highlight text"><figcaption><span>sudo tcpdump host 100.108.149.128</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">tcpdump: data link type PKTAP</span><br><span class="line">tcpdump: verbose output suppressed, use -v[v]... for full protocol decode</span><br><span class="line">listening on pktap, link-type PKTAP (Apple DLT_PKTAP), snapshot length 524288 bytes</span><br><span class="line">08:13:28.660606 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 2553345619 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:13:29.660444 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 2553346619 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:13:30.660923 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 2553347620 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:13:31.660896 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 2553348620 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:13:32.661747 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 2553349621 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:13:33.662785 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 2553350622 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:13:35.664588 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 2553352623 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:13:39.665025 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 2553356624 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:13:47.666382 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 2553364625 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:14:03.666994 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 2553380626 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:14:35.666851 IP 192.168.1.16.53461 &gt; 100.108.149.128.yo-main: Flags [S], seq 2297239020, win 65535, options [mss 1460,sackOK,eol], length 0</span><br></pre></td></tr></table></figure>
+
+<h3 id="端口不存在"><a href="#端口不存在" class="headerlink" title="端口不存在"></a>端口不存在</h3><p>如果端口不存在，对方收到连接数据包会返回RST，强制关闭连接，提示Connection refused</p>
+<figure class="highlight text"><figcaption><span>tcpdump host 192.168.1.12</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tcpdump: data link type PKTAP</span><br><span class="line">tcpdump: verbose output suppressed, use -v[v]... for full protocol decode</span><br><span class="line">listening on pktap, link-type PKTAP (Apple DLT_PKTAP), snapshot length 524288 bytes</span><br><span class="line">08:35:59.693090 IP 192.168.1.16.53843 &gt; 192.168.1.12.http-alt: Flags [S], seq 1159496581, win 65535, options [mss 1460,nop,wscale 6,nop,nop,TS val 925681565 ecr 0,sackOK,eol], length 0</span><br><span class="line">08:35:59.739797 IP 192.168.1.12.http-alt &gt; 192.168.1.16.53843: Flags [R.], seq 0, ack 1159496582, win 0, length 0</span><br></pre></td></tr></table></figure>
+
+<p>不一定总会收到RST回应，对于线上生产环境的服务器，一般都会设置防火墙，只开放指定的端口，如果访问未开放的端口，消息会直接被拒绝，根本到不了目标机器的协议栈，也就会回复RST了</p>
+<p><img src="/img/20231225/20231225.3.png"> </p>
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+
+
+
   <article id="post-20231223" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -449,58 +513,6 @@
         
           <div class="alignleft">
             <a href="/2023/12/10/20231210/#more" class="more-link">more</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-
-
-
-  <article id="post-20230321" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2023-03-20T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2023/03/21/20230321/" style="color: #736f6f;">2023-03-21</a></time>
-      
-      
-
-  
-  
-    <h1 class="title">
-       <a href="/2023/03/21/20230321/">wireshark分析TCP吞吐瓶颈</a>
-    </h1>
-    
-  
-  
-
-
-<script async src="/js/busuanzi.js"></script>
-
-
-    </header>
-      
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>理解下吞吐量低的原因，以及如何通过wireshark来确认</p>
-      
-    </div>
-	
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2023/03/21/20230321/#more" class="more-link">more</a>
           </div>
         
         
@@ -681,7 +693,7 @@
   
   
   
-    <li style="white-space: nowrap"><a href="/categories/网络基础/">网络基础</a><small style="margin-left: 5px">3</small></li>
+    <li style="white-space: nowrap"><a href="/categories/网络基础/">网络基础</a><small style="margin-left: 5px">4</small></li>
   
   
   
@@ -1210,7 +1222,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/aop/" style="font-size: 11.67px;">aop</a> <a href="/tags/aqs/" style="font-size: 11.67px;">aqs</a> <a href="/tags/aspectJ/" style="font-size: 10px;">aspectJ</a> <a href="/tags/cas/" style="font-size: 11.67px;">cas</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 15px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/excel/" style="font-size: 13.33px;">excel</a> <a href="/tags/feign/" style="font-size: 11.67px;">feign</a> <a href="/tags/final/" style="font-size: 11.67px;">final</a> <a href="/tags/future/" style="font-size: 15px;">future</a> <a href="/tags/gc/" style="font-size: 11.67px;">gc</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 11.67px;">http</a> <a href="/tags/icmp/" style="font-size: 10px;">icmp</a> <a href="/tags/intern/" style="font-size: 11.67px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/io/" style="font-size: 20px;">io</a> <a href="/tags/ioc/" style="font-size: 13.33px;">ioc</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/iptables/" style="font-size: 10px;">iptables</a> <a href="/tags/jdbc/" style="font-size: 13.33px;">jdbc</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/kafka/" style="font-size: 18.33px;">kafka</a> <a href="/tags/list/" style="font-size: 10px;">list</a> <a href="/tags/lock/" style="font-size: 11.67px;">lock</a> <a href="/tags/map/" style="font-size: 10px;">map</a> <a href="/tags/nat/" style="font-size: 10px;">nat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/netty/" style="font-size: 16.67px;">netty</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/ping/" style="font-size: 10px;">ping</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 11.67px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/string/" style="font-size: 10px;">string</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/tcp/" style="font-size: 13.33px;">tcp</a> <a href="/tags/tcpdump/" style="font-size: 10px;">tcpdump</a> <a href="/tags/thread/" style="font-size: 16.67px;">thread</a> <a href="/tags/tomcat/" style="font-size: 11.67px;">tomcat</a> <a href="/tags/transactional/" style="font-size: 10px;">transactional</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 11.67px;">volatile</a>
+    <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/aop/" style="font-size: 11.67px;">aop</a> <a href="/tags/aqs/" style="font-size: 11.67px;">aqs</a> <a href="/tags/aspectJ/" style="font-size: 10px;">aspectJ</a> <a href="/tags/cas/" style="font-size: 11.67px;">cas</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 15px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/excel/" style="font-size: 13.33px;">excel</a> <a href="/tags/feign/" style="font-size: 11.67px;">feign</a> <a href="/tags/final/" style="font-size: 11.67px;">final</a> <a href="/tags/future/" style="font-size: 15px;">future</a> <a href="/tags/gc/" style="font-size: 11.67px;">gc</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 11.67px;">http</a> <a href="/tags/icmp/" style="font-size: 10px;">icmp</a> <a href="/tags/intern/" style="font-size: 11.67px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/io/" style="font-size: 20px;">io</a> <a href="/tags/ioc/" style="font-size: 13.33px;">ioc</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/iptables/" style="font-size: 10px;">iptables</a> <a href="/tags/jdbc/" style="font-size: 13.33px;">jdbc</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/kafka/" style="font-size: 18.33px;">kafka</a> <a href="/tags/list/" style="font-size: 10px;">list</a> <a href="/tags/lock/" style="font-size: 11.67px;">lock</a> <a href="/tags/map/" style="font-size: 10px;">map</a> <a href="/tags/nat/" style="font-size: 10px;">nat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/netty/" style="font-size: 16.67px;">netty</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/ping/" style="font-size: 10px;">ping</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 11.67px;">schedule</a> <a href="/tags/servlet/" style="font-size: 10px;">servlet</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/string/" style="font-size: 10px;">string</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/tcp/" style="font-size: 15px;">tcp</a> <a href="/tags/tcpdump/" style="font-size: 10px;">tcpdump</a> <a href="/tags/thread/" style="font-size: 16.67px;">thread</a> <a href="/tags/tomcat/" style="font-size: 11.67px;">tomcat</a> <a href="/tags/transactional/" style="font-size: 10px;">transactional</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 11.67px;">volatile</a>
   </div>
 </div>
 
