@@ -48,7 +48,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  130 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  131 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -65,6 +65,58 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-20180701" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2018-06-30T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2018/07/01/20180701/" style="color: #736f6f;">2018-07-01</a></time>
+      
+      
+
+  
+  
+    <h1 class="title">
+       <a href="/2018/07/01/20180701/">UML 关系图</a>
+    </h1>
+    
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>在面向对象的设计中，类的关系涉及依赖、关联、聚合、组合和泛化这五种关系，耦合程度依次递增。</p>
+      
+    </div>
+	
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2018/07/01/20180701/#more" class="more-link">more</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+
+
+
   <article id="post-20180412" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -345,62 +397,6 @@
 
 
 
-  <article id="post-20180405" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2018-04-04T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2018/04/05/20180405/" style="color: #736f6f;">2018-04-05</a></time>
-      
-      
-
-  
-  
-    <h1 class="title">
-       <a href="/2018/04/05/20180405/">JUC FutureTask</a>
-    </h1>
-    
-  
-  
-
-
-<script async src="/js/busuanzi.js"></script>
-
-
-    </header>
-      
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>前面整理线程池时说过<code>Executor</code>是执行任务的抽象，而<code>Runnable</code>是任务的抽象。不过，线程池在实际提交任务时，会先将任务包装成一个<code>FutureTask</code>，以实现<code>Future</code>的语义，即<font color="#E51508">异步获取任务结果的能力</font>。<code>FutureTask</code>内部实际依赖的是一个<code>Callable</code>，并将任务的执行过程和结果获取委托给它，如果提交的是<code>Runnable</code>，那么也可以通过适配器<code>RunnableAdapter&lt;V&gt;</code>将其适配成一个<code>Callable</code></p>
-<figure class="highlight java"><figcaption><span>java.util.concurrent.Executors</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; Callable&lt;T&gt; <span class="title function_">callable</span><span class="params">(Runnable task, T result)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (task == <span class="literal">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RunnableAdapter</span>&lt;T&gt;(task, result);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">RunnableAdapter</span>&lt;T&gt; <span class="keyword">implements</span> <span class="title class_">Callable</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">final</span> Runnable task;</span><br><span class="line">    <span class="keyword">final</span> T result;</span><br><span class="line">    RunnableAdapter(Runnable task, T result) &#123;</span><br><span class="line">        <span class="built_in">this</span>.task = task;</span><br><span class="line">        <span class="built_in">this</span>.result = result;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> T <span class="title function_">call</span><span class="params">()</span> &#123;</span><br><span class="line">        task.run();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>相关类图可以如下所示：</p>
-<p><img src="/img/20180405/20180405.1.jpg"> </p>
-      
-    </div>
-	
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2018/04/05/20180405/#more" class="more-link">more</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-
-
-
 
 <nav id="pagination">
   
@@ -431,7 +427,38 @@
   
   
   
-    <li style="white-space: nowrap"><a href="/categories/Java笔记/">Java笔记</a><small style="margin-left: 5px">23</small></li>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <li style="white-space: nowrap"><a href="/categories/后端基础/">后端基础</a><small style="margin-left: 5px">23</small></li>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
   
   
   
@@ -458,6 +485,11 @@
   
   
   
+  
+  
+  
+  
+    <li style="white-space: nowrap"><a href="/categories/网络基础/">网络基础</a><small style="margin-left: 5px">6</small></li>
   
   
   
@@ -530,42 +562,6 @@
   
   
   
-  
-  
-  
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <li style="white-space: nowrap"><a href="/categories/网络基础/">网络基础</a><small style="margin-left: 5px">5</small></li>
   
   
   
@@ -864,8 +860,6 @@
       
       
       
-      
-      
       <li style="white-space: nowrap"><a href="/categories/《Java并发编程实战》/">《Java并发编程实战》</a><small style="margin-left: 5px">11</small></li>
       
       
@@ -895,9 +889,9 @@
       
       
       
+      
+      
 
-      
-      
       
       
       
@@ -931,9 +925,9 @@
       
       
       
+      
+      
 
-      
-      
       
       
       
@@ -967,9 +961,9 @@
       
       
       
+      
+      
 
-      
-      
       
       
       
@@ -1003,6 +997,8 @@
       
       
       
+      
+      
 
       
       
@@ -1010,9 +1006,9 @@
       
       
       
-      
-      
       <li style="white-space: nowrap"><a href="/categories/《UNIX环境高级编程》/">《UNIX环境高级编程》</a><small style="margin-left: 5px">1</small></li>
+      
+      
       
       
       
