@@ -1,0 +1,386 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Http协议 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="Http（HyperText Transfer Protocol）超文本传输协议是一种用于在网络中传输网页、图像、音视频等超媒体数据的客户端-服务器通信协议，构成了万维网数据交换的基础。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Http协议"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  132 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20221018" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2022-10-17T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2022/10/18/20221018/" style="color: #736f6f;">2022-10-18</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Http协议
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 811  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 3min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/网络基础/">网络基础</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/http/">http</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Http（HyperText Transfer Protocol）超文本传输协议是一种用于在网络中传输网页、图像、音视频等超媒体数据的客户端-服务器通信协议，构成了万维网数据交换的基础。</p>
+<span id="more"></span>
+
+<h3 id="报文格式"><a href="#报文格式" class="headerlink" title="报文格式"></a>报文格式</h3><p><img src="/img/20240114/20240114.1.png"> </p>
+<p>Http协议的报文格式比较简单，具体的请求方法、请求头和响应状态码，可以参考链接：<a target="_blank" rel="noopener" href="https://http.dev/">https://http.dev</a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 客户端拼接一个Http请求报文</span></span><br><span class="line"><span class="keyword">try</span>(<span class="type">Socket</span> <span class="variable">socket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Socket</span>(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">8080</span>);</span><br><span class="line">        <span class="type">PrintWriter</span> <span class="variable">writer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PrintWriter</span>(socket.getOutputStream(), <span class="literal">true</span>);<span class="comment">// autoFlush = true</span></span><br><span class="line">        <span class="type">BufferedReader</span> <span class="variable">reader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(socket.getInputStream())))&#123; </span><br><span class="line">    writer.println(<span class="string">&quot;GET /hello?name=shanhm HTTP/1.1&quot;</span>);</span><br><span class="line">    writer.println(<span class="string">&quot;Host: 127.0.0.1:8080&quot;</span>);</span><br><span class="line">    writer.println(<span class="string">&quot;Connection: keep-alive&quot;</span>);</span><br><span class="line">    writer.println();</span><br><span class="line"></span><br><span class="line">    <span class="type">String</span> <span class="variable">line</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">while</span>((line = reader.readLine()) != <span class="literal">null</span>)&#123;</span><br><span class="line">        System.out.println(line);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 服务端拼接一个Http响应报文</span></span><br><span class="line">HTTP/<span class="number">1.1</span> <span class="number">200</span> </span><br><span class="line">Content-Type: text/plain;charset=UTF-<span class="number">8</span></span><br><span class="line">Content-Length: <span class="number">12</span></span><br><span class="line">Date: Wed, 09 Jun <span class="number">2021</span> 08:09:<span class="number">49</span> GMT</span><br><span class="line"></span><br><span class="line">hello shanhm</span><br></pre></td></tr></table></figure>
+
+<h3 id="Http版本"><a href="#Http版本" class="headerlink" title="Http版本"></a>Http版本</h3><h4 id="HTTP-1-0（1996）"><a href="#HTTP-1-0（1996）" class="headerlink" title="HTTP&#x2F;1.0（1996）"></a>HTTP&#x2F;1.0（1996）</h4><ul>
+<li>默认短连接：服务器处理完成后立即断开TCP连接（发送Fin）；    </li>
+<li>无状态：服务器不跟踪每个客户端也不记录过去的请求；</li>
+</ul>
+<h4 id="HTTP-1-1（1997）"><a href="#HTTP-1-1（1997）" class="headerlink" title="HTTP&#x2F;1.1（1997）"></a>HTTP&#x2F;1.1（1997）</h4><ul>
+<li>支持Keep-Alive选项，默认长连接，避免建立和释放的开销；</li>
+<li>通过Content-Length来判断当前请求数据是否已经全部接受；</li>
+</ul>
+<p>与HTTP&#x2F;1.0的主要区别：</p>
+<ol>
+<li>长连接：减少了建立和关闭连接的消耗和延迟。</li>
+<li>缓存处理：1.1添加更多的缓存控制策略（如：Entity tag，If-Match）；</li>
+<li>网络连接的优化：1.1支持断点续传；</li>
+<li>错误状态码的增多：1.1新增了24个错误状态响应码，丰富的错误码更加明确各个状态；</li>
+<li>Host头处理：支持Host头域，不在以IP为请求方标志，Host的引入使得虚拟主机托管成为可能，一台服务器可以承载多个域名网站；</li>
+</ol>
+<h4 id="HTTP-2-0（2015）"><a href="#HTTP-2-0（2015）" class="headerlink" title="HTTP&#x2F;2.0（2015）"></a>HTTP&#x2F;2.0（2015）</h4><p>引入二进制数据帧和流的概念，其中帧对数据进行顺序标识；因为有了序列，服务器可以并行的传输数据。</p>
+<p>与HTTP&#x2F;1.1的主要区别： </p>
+<ol>
+<li>新的传输格式：2.0使用二进制格式，1.0依然使用基于文本格式；</li>
+<li>多路复用：连接共享，不同的request可以使用同一个连接传输（最后根据每个request上的id号组合成正常的请求）；</li>
+<li>header压缩：由于1.X中header带有大量的信息，并且得重复传输，2.0使用encoder来减少需要传输的hearder大小；</li>
+<li>服务端推送：同google的SPDUY（1.0的一种升级）一样；</li>
+</ol>
+<h4 id="HTTP-3-0（2022）"><a href="#HTTP-3-0（2022）" class="headerlink" title="HTTP&#x2F;3.0（2022）"></a>HTTP&#x2F;3.0（2022）</h4><ul>
+<li>基于QUIC（Quick UDP Internet Connections）协议，默认使用TLS 1.3加密；</li>
+<li>解决了HTTP&#x2F;2.0在TCP层面的队头阻塞问题（丢包时不再阻塞所有流）；</li>
+<li>连接迁移：在网络切换（如Wi-Fi切4G）时连接无需重新建立；</li>
+</ul>
+<h3 id="redirect-forward"><a href="#redirect-forward" class="headerlink" title="redirect &amp; forward"></a>redirect &amp; forward</h3><ul>
+<li><p>redirect 重定向是两次请求，不能使用request对象来共享数据转发，地址栏会发生变化，可以访问其他站点（服务器）的资源；</p>
+</li>
+<li><p>forward 转发是一次请求，可以使用request对象共享数据，地址栏路径不变，只能访问当前服务器下的资源；</p>
+</li>
+</ul>
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2023/03/21/20230321/">
+		    wireshark分析TCP吞吐瓶颈
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2022/05/30/20220530/">
+		    tcpdump 网络抓包
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/网络基础/">网络基础</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/http/">http</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%A5%E6%96%87%E6%A0%BC%E5%BC%8F"><span class="toc-text">报文格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Http%E7%89%88%E6%9C%AC"><span class="toc-text">Http版本</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-1-0%EF%BC%881996%EF%BC%89"><span class="toc-text">HTTP&#x2F;1.0（1996）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-1-1%EF%BC%881997%EF%BC%89"><span class="toc-text">HTTP&#x2F;1.1（1997）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-2-0%EF%BC%882015%EF%BC%89"><span class="toc-text">HTTP&#x2F;2.0（2015）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-3-0%EF%BC%882022%EF%BC%89"><span class="toc-text">HTTP&#x2F;3.0（2022）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redirect-forward"><span class="toc-text">redirect &amp; forward</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
