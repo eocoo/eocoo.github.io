@@ -1,0 +1,378 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Https协议 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="Https协议就是在TCP协议与Http协议之间加了一层TLS&amp;#x2F;SSL协议，TLS是SSL的后续版本，目前主流使用1.2版本。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Https协议"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  133 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20221027" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2022-10-26T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2022/10/27/20221027/" style="color: #736f6f;">2022-10-27</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Https协议
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 2.3k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 9min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/网络协议/">网络协议</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/http/">http</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Https协议就是在TCP协议与Http协议之间加了一层TLS&#x2F;SSL协议，TLS是SSL的后续版本，目前主流使用1.2版本。</p>
+<span id="more"></span>
+
+<h3 id="HTTPS握手过程"><a href="#HTTPS握手过程" class="headerlink" title="HTTPS握手过程"></a>HTTPS握手过程</h3><h4 id="TLS-1-2-RSA"><a href="#TLS-1-2-RSA" class="headerlink" title="TLS 1.2 RSA"></a>TLS 1.2 RSA</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">欧拉定理：如果 e 与 n 互质（最大公约数为1），则e^(φ(n)) ≡ 1 (mod n)，φ(n)是欧拉函数，表示小于等于n，且与n互质的正整数的个数；</span><br><span class="line"></span><br><span class="line">于是可以找两个大的质数p和q，计算 n = p × q，那么就有 φ(n) = (p-1) × (q-1)；</span><br><span class="line"></span><br><span class="line">然后选一个公钥指数e（通常为65537），再计算私钥指数d，使他们满足e × d ≡ 1 (mod φ(n))；</span><br><span class="line">也就是要满足 e × d = φ(n) × k + 1，这里k为常数，d有且仅有唯一解，在φ(n)和e已知的情况下，可以通过辗转相除法得到d</span><br><span class="line"></span><br><span class="line">那么将(n, e)作为公钥匙，(n, d)作为私钥，这样：</span><br><span class="line">明文^e mod n = 密文</span><br><span class="line">密文^d mod n = (明文^e mod n)^d mod n = 明文^(e×d) mod n = 明文^(φ(n) × k + 1) mod n = [(明文^(φ(n)))^k × 明文] mod n = 明文</span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/20221027/20221027.1.png"> </p>
+<ul>
+<li>1、Client Hello：客户端给服务端发一个随机数Client_Random，告诉服务端它支持的加密协议版本，比如TLS 1.2，以及使用什么加密套件，比如RSA；</li>
+<li>2、Server Hello：服务端给客户端发一个随机数Server_Random，和服务器证书，以及使用的加密协议版本；</li>
+<li>3.1、Client Key Exchange：客户端再生成一个随机数pre_master，然后从服务器证书中取出公钥进行加密得到pre_master_key，发给服务端；</li>
+<li>3.2、Change Cipher Spec：客户端使用Client_Random、Server_Random、pre_master计算得到会话密钥；</li>
+<li>3.3、Encrypted Handshake Message：客户端使用会话密钥对之前所有握手消息进行摘要加密，发给服务端进行校验，确认对方身份；</li>
+<li>4.1、Change Cipher Spec：服务端收到pre_master_key后使用私钥进行解密，然后以同样的方式使用三个随机数计算得到会话密钥；</li>
+<li>4.2、Encrypted Handshake Message：服务端同样使用会话密钥对之前所有握手消息进行摘要加密，发给客户端进行校验，确认对方身份；</li>
+</ul>
+<br>
+
+<p>整个过程中，第三个随机数pre_master是关键，只有通信双方能知道这个值是什么，所以各自使用这个信息来计算，得到一个相同的会话密钥。加上前面两个随机数一起计算，只是为了增加会话密钥的随机程度，保证每次HTTPS通信使用的会话密钥都是不同的；</p>
+<p>RSA的思路是一方生成一个随机数，然后用对方的公钥加密发给对方，对方再用自己的私钥解密得到这个随机数。但如果对方的私钥遭到泄露，那么双方过去和未来的所有通信内容都可能被窃取，因为这个交换的随机数的加密不再有效，所以RSA无前向安全性。</p>
+<h4 id="TLS-1-2-DHE"><a href="#TLS-1-2-DHE" class="headerlink" title="TLS 1.2 DHE"></a>TLS 1.2 DHE</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">模幂运算：g^a mod p = A 和 g^c mod p = C</span><br><span class="line">g取2或5，p取一个2048位的大质数，a和c取一个1到p-2之间的随机数作为私钥，然后计算得出公钥A和C;</span><br><span class="line"></span><br><span class="line">这里g和p是公开的，如果知道a，很容易根据计算得到A，但是知道A，则几乎不可能计算得出a；</span><br><span class="line">所以，客户端私钥 = a，客户端公钥 = A，服务端私钥 = c，服务端公钥 = C；</span><br><span class="line"></span><br><span class="line">模幂运算的交换律：</span><br><span class="line">客户端密钥 = C^a mod p = (g^c mod p)^a mod p = g^(c·a) mod p</span><br><span class="line">服务端密钥 = A^c mod p = (g^a mod p)^c mod p = g^(a·c) mod p</span><br><span class="line"></span><br><span class="line">所以互相交换公钥后，双方能计算得出一个相同的密钥</span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/20221027/20221027.3.png"> </p>
+<p>DHE与RSA流程类似，但同信过程中没有直接传递随机数pre_master，而是交换公钥后计算出来的，并且每次通信客户端使用的都是临时公钥私钥对，也就解决了前向安全性问题；</p>
+<h4 id="TLS-1-3-ECDHE"><a href="#TLS-1-3-ECDHE" class="headerlink" title="TLS 1.3 ECDHE"></a>TLS 1.3 ECDHE</h4><p>ECDHE利用的椭圆曲线离散对数特性，能达到与DHE一样的效果，但是计算效率更高，公钥体积更小，所以TLS 1.3固定使用ECDHE；</p>
+<p>另外，TLS 1.3简化了握手流程，将四次握手合并成了三次握手，在第一步中，客户端直接传递公钥，然后第二步中，服务端直接可以finished；</p>
+<p><img src="/img/20221027/20221027.4.png"> </p>
+<h3 id="签名证书"><a href="#签名证书" class="headerlink" title="签名证书"></a>签名证书</h3><p>服务器证书中的内容包括服务器公钥、服务器身份信息、和<strong>CA的数字签名</strong>（公钥+身份信息进行哈希后，用权威数字证书机构CA私钥进行加密的值）；</p>
+<p><img src="/img/20221027/20221027.2.png"> </p>
+<p>然后客户端可以通过CA公钥（任何人都可以得到）对签名进行验证，确保服务器公钥是可信的，这个过程就是<strong>数字签名验证</strong>；进行数字签名是必要的，否则如果服务端直接传递公钥给客户端很可能被<strong>中间人攻击</strong>，中间人可以在第二步换一个自己的公钥发给客户端，这样就能截取本应该被加密的pre_master，凑齐了三个随机数它可以计算出会话密钥，后续所谓的加密通信对中间人就完全透明了。</p>
+<h3 id="Chrom抓包Https"><a href="#Chrom抓包Https" class="headerlink" title="Chrom抓包Https"></a>Chrom抓包Https</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">打开wireshark抓包：http.host==&quot;www.baidu.com&quot;</span><br><span class="line"></span><br><span class="line">打开终端，执行：export SSLKEYLOGFILE=ssl.key</span><br><span class="line"></span><br><span class="line">然后在同一个终端下执行curl &#x27;https://www.baidu.com&#x27;</span><br><span class="line"></span><br><span class="line">wireshark的protocl中找到TLS，导入ssl.key，然后就能抓到对应的报文，查看对应的tcp stream，就能看到握手通信过程</span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/20221027/20221027.5.png"> </p>
+<h3 id="附录：shell自动化脚本"><a href="#附录：shell自动化脚本" class="headerlink" title="附录：shell自动化脚本"></a>附录：shell自动化脚本</h3><figure class="highlight shell"><figcaption><span>make_https_crt.sh</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line"></span><br><span class="line">set -e</span><br><span class="line"></span><br><span class="line">echo&quot;使用方法:  $0 [域名]&quot;</span><br><span class="line">echo&quot;1. 制作证书分为两个阶段,先创建CA证书, 再创建域名证书&quot;</span><br><span class="line">echo&quot;2. 默认会在脚本所在的目录创建证书相关文件夹&quot;</span><br><span class="line">echo&quot;3. 默认创建的证书有效期为 100 年&quot;</span><br><span class="line">cd&quot;$(dirname $0)&quot;</span><br><span class="line"></span><br><span class="line">DOMAIN=$1</span><br><span class="line">if [ -z &quot;$DOMAIN&quot; ];then</span><br><span class="line">    read  -p &quot;请输入需要制作证书的域名: &quot; DOMAIN</span><br><span class="line">fi</span><br><span class="line">echo&quot;输入的域名是: $DOMAIN, 默认会签发 *.$DOMAIN 的证书(含 $DOMAIN 自身)&quot;</span><br><span class="line"></span><br><span class="line">if [ ! -x &quot;$(command -v openssl)&quot; ];then</span><br><span class="line">    echo&quot;未检测到openssl命令, 请安装 openssl&quot;</span><br><span class="line">    exit 1</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">make_ca() &#123;</span><br><span class="line">    # 添加一个空行</span><br><span class="line">    echo</span><br><span class="line">    echo&quot;#阶段一: 创建/检查 CA 证书&quot;</span><br><span class="line">    if [ -f ca/ca.crt ];then</span><br><span class="line">        echo&quot;  CA证书已存在, 不需要重新创建。跳过&quot;</span><br><span class="line">        echo</span><br><span class="line">        return</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line">    echo&quot;  在默认的 ./ca 目录中未发现证书, 创建新CA证书。共3步&quot;</span><br><span class="line">    mkdir ca</span><br><span class="line"></span><br><span class="line">    echo&quot;  (1/3)创建CA的私钥&quot;</span><br><span class="line">    openssl genrsa -out ca/ca.key 2048</span><br><span class="line"></span><br><span class="line">    echo&quot;  (2/3)创建CA的证书请求文件，ca.csr包含公钥和身份信息&quot;</span><br><span class="line">    ## • C=CN：国家代码（China）</span><br><span class="line">    ## • ST=ZJ：州/省（ZheJiang）</span><br><span class="line">    ## • L=HZ：城市（HangZhou）</span><br><span class="line">    ## • O=testca.com：组织名称</span><br><span class="line">    ## • OU=testca：组织单位</span><br><span class="line">    ## • CN=testca.com：通用名称（对于CA证书，这通常是CA的名称）</span><br><span class="line">    ## • emailAddress=admin@testca.com：管理员邮箱</span><br><span class="line">    openssl req -new -key ca/ca.key \</span><br><span class="line">                -subj &quot;/C=CN/ST=ZJ/L=HZ/O=testca.com/OU=testca/CN=testca.com/emailAddress=admin@testca.com&quot; \</span><br><span class="line">                -out ca/ca.csr</span><br><span class="line"></span><br><span class="line">    echo&quot;  (3/3)CA自签证书，预先导入到目标客户端&quot;</span><br><span class="line">    openssl x509 -req -in ca/ca.csr -signkey ca/ca.key -out ca/ca.crt -days 36500</span><br><span class="line"></span><br><span class="line">    echo&quot;  CA证书创建完毕, 相关证书文件路径为: &quot;</span><br><span class="line">    echo&quot;  CA私钥: `pwd`/ca/ca.key&quot;</span><br><span class="line">    echo&quot;  CA证书请求文件: `pwd`/ca/ca.csr&quot;</span><br><span class="line">    echo&quot;  CA证书: `pwd`/ca/ca.crt&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">make_crt()&#123;</span><br><span class="line">    echo</span><br><span class="line">    echo&quot;#阶段二: 创建/检查域名证书&quot;</span><br><span class="line"></span><br><span class="line">    if [ -d &quot;$DOMAIN&quot; ];then</span><br><span class="line">        echo&quot;  证书目录已存在, 请勿重复创建。若需重新创建, 请mv备份或删除该目录&quot;</span><br><span class="line">        return</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    echo&quot;在默认域名同名的 ./$&#123;DOMAIN&#125; 目录创建域名证书，共3步&quot;</span><br><span class="line">    mkdir $DOMAIN</span><br><span class="line"></span><br><span class="line">    echo&quot;  (1/3)创建用户的私钥, 并从RSA私钥文件中提取公钥&quot;</span><br><span class="line">    openssl genrsa -out $&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.key 2048</span><br><span class="line">    openssl rsa -in$&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.key -pubout -out $&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.pem</span><br><span class="line"></span><br><span class="line">    echo&quot;  (2/3)创建域名证书请求文件&quot;</span><br><span class="line">    openssl req -new -key $&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.key \</span><br><span class="line">        -subj &quot;/C=CN/ST=ZJ/L=HZ/O=test.com/OU=test/CN=*.$&#123;DOMAIN&#125;/emailAddress=pritest@test.com&quot; \</span><br><span class="line">        -addext &quot;subjectAltName = DNS:*.$&#123;DOMAIN&#125;, DNS:$&#123;DOMAIN&#125;&quot; \</span><br><span class="line">        -out $&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.csr</span><br><span class="line"></span><br><span class="line">    echo&quot;  (3/3)使用CA证书给域名的请求文件添加数字签名制作用户证书&quot;</span><br><span class="line">    openssl x509 -req -CA ca/ca.crt  -CAkey ca/ca.key  -CAcreateserial -in$&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.csr -out $&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.crt -days 36500</span><br><span class="line"></span><br><span class="line">    echo&quot;  域名私钥: `pwd`/$&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.key&quot;</span><br><span class="line">    echo&quot;  域名公钥: `pwd`/$&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.pem&quot;</span><br><span class="line">    echo&quot;  域名证书请求文件: `pwd`/$&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.csr&quot;</span><br><span class="line">    echo&quot;  域名证书: `pwd`/$&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.crt&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">show_crt()&#123;</span><br><span class="line">    echo</span><br><span class="line">    echo&quot;域名证书详情&quot;</span><br><span class="line">    openssl x509 -in$&#123;DOMAIN&#125;/$&#123;DOMAIN&#125;.crt -noout -text</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main()&#123;</span><br><span class="line">    make_ca</span><br><span class="line">    make_crt</span><br><span class="line">    show_crt</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main</span><br></pre></td></tr></table></figure>
+
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2023/03/21/20230321/">
+		    wireshark分析TCP吞吐瓶颈
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2022/10/18/20221018/">
+		    Http协议
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/网络协议/">网络协议</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/http/">http</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTPS%E6%8F%A1%E6%89%8B%E8%BF%87%E7%A8%8B"><span class="toc-text">HTTPS握手过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#TLS-1-2-RSA"><span class="toc-text">TLS 1.2 RSA</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TLS-1-2-DHE"><span class="toc-text">TLS 1.2 DHE</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TLS-1-3-ECDHE"><span class="toc-text">TLS 1.3 ECDHE</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6"><span class="toc-text">签名证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Chrom%E6%8A%93%E5%8C%85Https"><span class="toc-text">Chrom抓包Https</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%84%E5%BD%95%EF%BC%9Ashell%E8%87%AA%E5%8A%A8%E5%8C%96%E8%84%9A%E6%9C%AC"><span class="toc-text">附录：shell自动化脚本</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
