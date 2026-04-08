@@ -48,7 +48,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  133 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  134 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -65,6 +65,58 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article id="post-20180709" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2018-07-08T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2018/07/09/20180709/" style="color: #736f6f;">2018-07-09</a></time>
+      
+      
+
+  
+  
+    <h1 class="title">
+       <a href="/2018/07/09/20180709/">设计模式 工厂模式</a>
+    </h1>
+    
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>工厂模式负责将大量拥有共同接口的类实例化，它可以动态决定将哪一个类实例化</p>
+      
+    </div>
+	
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2018/07/09/20180709/#more" class="more-link">more</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+
+
+
   <article id="post-20180707" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   <div class="post-content">
@@ -346,61 +398,6 @@
 
 
 
-  <article id="post-20180410" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time class="dt-published" datetime="2018-04-09T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2018/04/10/20180410/" style="color: #736f6f;">2018-04-10</a></time>
-      
-      
-
-  
-  
-    <h1 class="title">
-       <a href="/2018/04/10/20180410/">NIO Channel &amp; Selector</a>
-    </h1>
-    
-  
-  
-
-
-<script async src="/js/busuanzi.js"></script>
-
-
-    </header>
-      
-    <div class="e-content entry" itemprop="articleBody">
-      
-        <p>Channel 与 Stream 是一个级别，只不过 Stream 是单向的，比如<code>InputStream</code>或<code>OutputStream</code>，而 Channel 可以是单向的，也可以是双向的，既可以同时支持读和写操作，具体由其实现的接口所决定</p>
-<figure class="highlight java"><figcaption><span>java.nio.channels</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ReadableByteChannel</span> <span class="keyword">extends</span> <span class="title class_">Channel</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">read</span><span class="params">(ByteBuffer dst)</span> <span class="keyword">throws</span> IOException;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">WritableByteChannel</span> <span class="keyword">extends</span> <span class="title class_">Channel</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">write</span><span class="params">(ByteBuffer src)</span> <span class="keyword">throws</span> IOException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以看到 read 和 write 方法接受的都是一个 ByteBuffer 参数，其中<font color="#E51508">Channel.read是向ByteBuffer中put数据</font>，然后应用从ByteBuffer中获取，而<font color="#E51508">Channel.write是从ByteBuffer中get数据</font>，然后发送给其他远程主机。两者均返回字节数，然后缓冲区的position位置也会前移对应的字节数，如果只进行了部分传输，缓冲区可以被重新提交给通道并从上次中断的地方继续传输，该过程可以重复进行直到缓冲区的<code>hasRemaining()</code>方法返回false </p>
-      
-    </div>
-	
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2018/04/10/20180410/#more" class="more-link">more</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-
-
-
-
 
 <nav id="pagination">
   
@@ -441,7 +438,7 @@
   
   
   
-    <li style="white-space: nowrap"><a href="/categories/后端基础/">后端基础</a><small style="margin-left: 5px">23</small></li>
+    <li style="white-space: nowrap"><a href="/categories/后端基础/">后端基础</a><small style="margin-left: 5px">24</small></li>
   
   
   
@@ -573,7 +570,7 @@
 
   
   
-    <li style="white-space: nowrap"><a href="/categories/Devops/">Devops</a><small style="margin-left: 5px">18</small></li>
+    <li style="white-space: nowrap"><a href="/categories/Devops/">Devops</a><small style="margin-left: 5px">19</small></li>
   
   
   
@@ -633,9 +630,9 @@
   
   
   
-    <li style="white-space: nowrap"><a href="/categories/架构设计/">架构设计</a><small style="margin-left: 5px">4</small></li>
   
   
+    <li style="white-space: nowrap"><a href="/categories/系统设计/">系统设计</a><small style="margin-left: 5px">4</small></li>
   
   
   
@@ -811,9 +808,9 @@
       
       
       
-      
-      
       <li style="white-space: nowrap"><a href="/categories/消息队列/">消息队列</a><small style="margin-left: 5px">4</small></li>
+      
+      
       
       
       
@@ -980,7 +977,7 @@
       
       
       
-      <li style="white-space: nowrap"><a href="/categories/《计算机组成原理》/">《计算机组成原理》</a><small style="margin-left: 5px">5</small></li>
+      <li style="white-space: nowrap"><a href="/categories/《计算机组成原理》/">《计算机组成原理》</a><small style="margin-left: 5px">4</small></li>
       
       
       
@@ -1094,7 +1091,7 @@ $(document).ready(function(){
 <div class="widget tagcloud">
   <h3 class="title">Tags</h3>
   <div class="entry">
-    <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/aop/" style="font-size: 11.67px;">aop</a> <a href="/tags/aqs/" style="font-size: 11.67px;">aqs</a> <a href="/tags/aspectJ/" style="font-size: 10px;">aspectJ</a> <a href="/tags/cas/" style="font-size: 11.67px;">cas</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 15px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/excel/" style="font-size: 13.33px;">excel</a> <a href="/tags/feign/" style="font-size: 11.67px;">feign</a> <a href="/tags/final/" style="font-size: 11.67px;">final</a> <a href="/tags/future/" style="font-size: 15px;">future</a> <a href="/tags/gc/" style="font-size: 11.67px;">gc</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 16.67px;">http</a> <a href="/tags/intern/" style="font-size: 11.67px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/io/" style="font-size: 20px;">io</a> <a href="/tags/ioc/" style="font-size: 13.33px;">ioc</a> <a href="/tags/iostat/" style="font-size: 10px;">iostat</a> <a href="/tags/iptables/" style="font-size: 10px;">iptables</a> <a href="/tags/jdbc/" style="font-size: 13.33px;">jdbc</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/kafka/" style="font-size: 18.33px;">kafka</a> <a href="/tags/list/" style="font-size: 10px;">list</a> <a href="/tags/lock/" style="font-size: 11.67px;">lock</a> <a href="/tags/map/" style="font-size: 10px;">map</a> <a href="/tags/nat/" style="font-size: 10px;">nat</a> <a href="/tags/netstat/" style="font-size: 10px;">netstat</a> <a href="/tags/netty/" style="font-size: 16.67px;">netty</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 11.67px;">schedule</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/string/" style="font-size: 10px;">string</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/tcp/" style="font-size: 15px;">tcp</a> <a href="/tags/thread/" style="font-size: 16.67px;">thread</a> <a href="/tags/tomcat/" style="font-size: 11.67px;">tomcat</a> <a href="/tags/transactional/" style="font-size: 10px;">transactional</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/vmstat/" style="font-size: 10px;">vmstat</a> <a href="/tags/volatile/" style="font-size: 11.67px;">volatile</a>
+    <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/Lambda/" style="font-size: 10px;">Lambda</a> <a href="/tags/Liquibase/" style="font-size: 10px;">Liquibase</a> <a href="/tags/PriorityQueue/" style="font-size: 10px;">PriorityQueue</a> <a href="/tags/UML/" style="font-size: 10px;">UML</a> <a href="/tags/Validation/" style="font-size: 10px;">Validation</a> <a href="/tags/aop/" style="font-size: 11.67px;">aop</a> <a href="/tags/aqs/" style="font-size: 11.67px;">aqs</a> <a href="/tags/aspectJ/" style="font-size: 10px;">aspectJ</a> <a href="/tags/cas/" style="font-size: 11.67px;">cas</a> <a href="/tags/cglib/" style="font-size: 10px;">cglib</a> <a href="/tags/chrony/" style="font-size: 10px;">chrony</a> <a href="/tags/class/" style="font-size: 15px;">class</a> <a href="/tags/cron/" style="font-size: 10px;">cron</a> <a href="/tags/excel/" style="font-size: 13.33px;">excel</a> <a href="/tags/feign/" style="font-size: 11.67px;">feign</a> <a href="/tags/final/" style="font-size: 11.67px;">final</a> <a href="/tags/future/" style="font-size: 15px;">future</a> <a href="/tags/gc/" style="font-size: 11.67px;">gc</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/http/" style="font-size: 16.67px;">http</a> <a href="/tags/intern/" style="font-size: 11.67px;">intern</a> <a href="/tags/invokedynamic/" style="font-size: 10px;">invokedynamic</a> <a href="/tags/io/" style="font-size: 20px;">io</a> <a href="/tags/ioc/" style="font-size: 13.33px;">ioc</a> <a href="/tags/iptables/" style="font-size: 10px;">iptables</a> <a href="/tags/jdbc/" style="font-size: 13.33px;">jdbc</a> <a href="/tags/k8s/" style="font-size: 10px;">k8s</a> <a href="/tags/kafka/" style="font-size: 18.33px;">kafka</a> <a href="/tags/list/" style="font-size: 10px;">list</a> <a href="/tags/lock/" style="font-size: 11.67px;">lock</a> <a href="/tags/map/" style="font-size: 10px;">map</a> <a href="/tags/nat/" style="font-size: 10px;">nat</a> <a href="/tags/netty/" style="font-size: 16.67px;">netty</a> <a href="/tags/ntp/" style="font-size: 10px;">ntp</a> <a href="/tags/proxy/" style="font-size: 10px;">proxy</a> <a href="/tags/schedule/" style="font-size: 11.67px;">schedule</a> <a href="/tags/smart-doc/" style="font-size: 10px;">smart-doc</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/string/" style="font-size: 10px;">string</a> <a href="/tags/swap/" style="font-size: 10px;">swap</a> <a href="/tags/synchronized/" style="font-size: 10px;">synchronized</a> <a href="/tags/tcp/" style="font-size: 15px;">tcp</a> <a href="/tags/thread/" style="font-size: 16.67px;">thread</a> <a href="/tags/tomcat/" style="font-size: 11.67px;">tomcat</a> <a href="/tags/transactional/" style="font-size: 10px;">transactional</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a> <a href="/tags/volatile/" style="font-size: 11.67px;">volatile</a>
   </div>
 </div>
 

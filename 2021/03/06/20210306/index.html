@@ -50,7 +50,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  133 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  134 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -93,7 +93,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 3.1k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 11min</font>
+   <font style="color: #999;"> words: 1.7k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 5min</font>
    
    
   
@@ -104,11 +104,6 @@
 
    
    
-  
-  <div class="tags">
-    <a href="/tags/vmstat/">vmstat</a>
-  </div>
-
 
    
    <hr style="background-color: #ddd; height:1px; border:none;" /><br>
@@ -157,29 +152,6 @@
 <p>另外，由于页表本身存储在主存中，因而即使逻辑页已经在主存中，CPU也至少要访问两次主存才能获取一次数据，为了避免主存访问次数的增多，可以对页表本身实行二级缓存，把页表中活跃的部分放在高速缓存中，这个专门用于页表缓存的高速缓存通常称为转换后援缓冲器（TLB），也称为快表，而保存在主存中的完成页表则称为慢表，其目的是加快地址变换。</p>
 <h3 id="Linux内存管理"><a href="#Linux内存管理" class="headerlink" title="Linux内存管理"></a>Linux内存管理</h3><p>在Linux内存管理中，主要是通过调页Paging和交换Swapping来完成内存调度。调页算法是将内存中最近不常使用的页面换到磁盘上，把活动页面保留在内存中供进程使用。分页(Page)写入磁盘的过程被称作Page-Out，分页(Page)从磁盘重新回到内存的过程被称作Page-In。</p>
 <p>当系统内核发现可运行内存变少时，就会通过Page-Out来释放一部分物理内存。如果Page-out频繁不断的发生，系统效能会急剧下降。这时的系统已经运行非常慢或进入暂停状态，这种状态也被称为thrashing(颠簸)。</p>
-<ul>
-<li>命令：vmstat</li>
-</ul>
-<p>vmstat是虚拟内存统计（Virtual Meomory Statistics）的缩写，可对操作系统的虚拟内存、进程、CPU活动进行监控。它提供了一种低开销的系统性能观察方式，即使在高负荷的服务器上也能查看并监控系统的健康情况，但它是对系统的整体情况进行统计，无法对某个进程进行深入分析。</p>
-<p>格式：</p>
-<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vmstat [-a] [-n] [-S unit] [delay [ count]]</span><br><span class="line">vmstat [-s] [-n] [-S unit]</span><br><span class="line">vmstat [-m] [-n] [delay [ count]]</span><br><span class="line">vmstat [-d] [-n] [delay [ count]]</span><br><span class="line">vmstat [-p disk partition] [-n] [delay [ count]]</span><br><span class="line">vmstat [-f]</span><br><span class="line">vmstat [-V]</span><br></pre></td></tr></table></figure>
-
-<p>参数：</p>
-<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">-a：  显示活跃和非活跃内存</span><br><span class="line">-f：  显示从系统启动至今的fork数量 。</span><br><span class="line">-m：  显示slabinfo</span><br><span class="line">-n：  只在开始时显示一次各字段名称。</span><br><span class="line">-s：  显示内存相关统计信息及多种系统活动数量。</span><br><span class="line">delay：刷新时间间隔。如果不指定，只显示一条结果。</span><br><span class="line">count：刷新次数。如果不指定刷新次数，但指定了刷新时间间隔，这时刷新次数为无穷。</span><br><span class="line">-d：  显示磁盘相关统计信息。</span><br><span class="line">-p：  显示指定磁盘分区统计信息</span><br><span class="line">-S：  使用指定单位显示。参数有 k 、K 、m 、M ，分别代表1000、1024、1000000、1048576字节（byte）。默认单位为K</span><br><span class="line">-V：  显示vmstat版本信息。</span><br></pre></td></tr></table></figure>
-
-<p>输出：</p>
-<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">r:  运行队列中进程数量（如果长期大于1的话，可能需要增加CPU）   </span><br><span class="line">b:  等待IO的进程数量</span><br><span class="line"></span><br><span class="line">swpd:  使用虚拟内存大小（如果swpd不为0，但是si，so长期为0的话，这种情况不会影响系统性能）</span><br><span class="line">free:  空闲物理内存大小</span><br><span class="line">buff:  缓存文件元数据（inode 等）和来自原始块设备的数据</span><br><span class="line">cache: 缓存文件数据块和内存映射信息（即调用mmap()映射的文件）</span><br><span class="line"></span><br><span class="line">如果cache的值大，说明cache的文件数多，如果频繁访问的文件都能被cache处，那么磁盘的读IO bi会非常小。</span><br><span class="line"></span><br><span class="line">si:  每秒从交换区写到内存的大小，由磁盘调入内存</span><br><span class="line">so:  每秒写入交换区的内存大小，由内存调入磁盘</span><br><span class="line"></span><br><span class="line">如果这si和so长期大于0，系统性能会受到影响，磁盘IO和CPU都会被消耗。有时看空闲内存(free)很少的或接近于0时，就认为内存不够用了。</span><br><span class="line">其实不能光看这一点，还要结合si和so，如果free很少，但是si和so也很少，那么不用担心，系统性能这时不会受到影响</span><br><span class="line"></span><br><span class="line">bi:  每秒读取的块数</span><br><span class="line">bo:  每秒写入的块数</span><br><span class="line"></span><br><span class="line">随机磁盘读写的时候，bi和bo越大，CPU花在IO等待上的值也会越大</span><br><span class="line"></span><br><span class="line">in:  每秒中断数，包括时钟中断</span><br><span class="line">cs:  每秒上下文切换数</span><br><span class="line"></span><br><span class="line">us:  用户进程执行时间(user time)</span><br><span class="line">sy:  系统进程执行时间(system time)</span><br><span class="line">id:  空闲时间(包括IO等待时间),中央处理器的空闲时间 。以百分比表示。</span><br><span class="line">wa:  等待IO时间</span><br></pre></td></tr></table></figure>
-
-<p><font style="color:#E51508;">识别CPU瓶颈</font>：当<code>us</code> ＋ <code>sy</code>接近于100时，表示CPU正接近于满负荷工作，但CPU满负荷工作并不能说明什么，Linux总会试图让CPU尽可能的繁忙，以便任务的吞吐量最大化，最能确定CPU瓶颈的还是<code>r</code>，即队列中等待运行的进程数。</p>
-<p>如果<code>r</code>长期大于CPU个数（可以通过<code>cat /proc/cpuinfo|grep processor|wc -l</code>查看CPU数），且<code>id</code>很低，则说明cpu的负荷很重，一般出现这种情况，应用程序的问题会比较大一些，比如一些sql语句不合理的情况。</p>
-<p><font style="color:#E51508;">识别RAM内存瓶颈</font>：通过虚拟内存机制，可以将RAM移到SWAP磁盘上，这样会出现虚拟内存的页导出和页导入现象，页导出并不能说明RAM瓶颈，虚拟内存系统经常会进行页导出，但经常出现页导入操作就表明服务器需要更多的内存了，页导入需要从SWAP复制回RAM，导致服务器速度变慢。即如果si和so长期非零的话，则可能存在内存瓶颈。</p>
-<p><code>wa</code>表示CPU用于等待IO的时间，如果内存够大，可以修改文件<code>/proc/sys/vm/swappiness</code>中的值，它表示实际内存区和交换区进行数据交换的倾向性大小，默认60，设置小一点以降低数据交换次数。但如果交换区Swap本身就使用很少，那么修改也没有意义，可能进程本身就是偏IO类型的任务。</p>
-<p>示例：</p>
-<figure class="highlight txt"><figcaption><span>vmstat 1 5</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----</span><br><span class="line"> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st</span><br><span class="line"> 1  0      0 3476280   2116 229340    0    0     1     0   16   15  0  0 100  0  0</span><br><span class="line"> 0  0      0 3476288   2116 229340    0    0     0     0   77   58  0  0 100  0  0</span><br><span class="line"> 0  0      0 3476304   2116 229340    0    0     0     0   59   56  0  0 100  0  0</span><br><span class="line"> 0  0      0 3476296   2116 229340    0    0     0     0   61   53  0  0 100  0  0</span><br><span class="line"> 0  0      0 3476296   2116 229340    0    0     0     0   55   50  0  0 100  0  0</span><br></pre></td></tr></table></figure>
-
-<p>查看内存使用情况：</p>
-<figure class="highlight txt"><figcaption><span>vmstat -s</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">   3863576 K total memory</span><br><span class="line">    155384 K used memory</span><br><span class="line">    104780 K active memory</span><br><span class="line">    100092 K inactive memory</span><br><span class="line">   3476916 K free memory</span><br><span class="line">      2116 K buffer memory</span><br><span class="line">    229160 K swap cache</span><br><span class="line">   4193624 K total swap</span><br><span class="line">         0 K used swap</span><br><span class="line">   4193624 K free swap</span><br><span class="line">      2594 non-nice user cpu ticks</span><br><span class="line">        15 nice user cpu ticks</span><br><span class="line">     10945 system cpu ticks</span><br><span class="line">  19097245 idle cpu ticks</span><br><span class="line">       423 IO-wait cpu ticks</span><br><span class="line">         0 IRQ cpu ticks</span><br><span class="line">       596 softirq cpu ticks</span><br><span class="line">         0 stolen cpu ticks</span><br><span class="line">    169858 pages paged in</span><br><span class="line">     57641 pages paged out</span><br><span class="line">         0 pages swapped in</span><br><span class="line">         0 pages swapped out</span><br><span class="line">   3044881 interrupts</span><br><span class="line">   2914117 CPU context switches</span><br><span class="line">1647746249 boot time</span><br><span class="line">     51300 forks</span><br></pre></td></tr></table></figure>
-
 <p><br><strong>参考：</strong></p>
 <ol>
 <li><a target="_blank" rel="noopener" href="https://access.redhat.com/solutions/1160343">https://access.redhat.com/solutions/1160343</a></li>
@@ -216,11 +188,6 @@
 
 
         
-  
-  <div class="tags">
-    <a href="/tags/vmstat/">vmstat</a>
-  </div>
-
 
          		        
       

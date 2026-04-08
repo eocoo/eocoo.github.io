@@ -50,7 +50,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  133 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  134 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -93,7 +93,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 4.9k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 20min</font>
+   <font style="color: #999;"> words: 5k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 21min</font>
    
    
   
@@ -218,7 +218,10 @@
 <h3 id="网络性能测试-iperf"><a href="#网络性能测试-iperf" class="headerlink" title="网络性能测试 iperf"></a>网络性能测试 iperf</h3><p>详细命令参数：<a target="_blank" rel="noopener" href="https://iperf.fr/iperf-doc.php">https://iperf.fr/iperf-doc.php</a></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">服务端启动端口监听</span></span><br><span class="line">iperf3 -s -p 5001 -i 1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">客户端启动打流，使用10路并发流，每路限制10Mbps，统计打印间隔每秒一次，持续10000秒。</span></span><br><span class="line">iperf3 -c 20.20.20.20 -p 5001 -t 10000s -i 1s -b 10M -P 10</span><br></pre></td></tr></table></figure>
 
-<h3 id="网络设备管理-ip"><a href="#网络设备管理-ip" class="headerlink" title="网络设备管理 ip"></a>网络设备管理 ip</h3><h4 id="设备管理-ip-link"><a href="#设备管理-ip-link" class="headerlink" title="设备管理 ip link"></a>设备管理 ip link</h4><ul>
+<h3 id="网络设备管理-ip"><a href="#网络设备管理-ip" class="headerlink" title="网络设备管理 ip"></a>网络设备管理 ip</h3><p>查看ip可以直接通过ifconfig或ip addr等命令，脚本中获取需要进行提取</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">host_ip=$(ip a | grep -Eo &#x27;([0-9]&#123;1,3&#125;\.)&#123;3&#125;[0-9]&#123;1,3&#125;&#x27; | grep -v &quot;255.*.*.*&quot; | grep -v 127.0.0.1 | grep -v 0.0.0.0 | awk &#x27;NR==1&#123;print $1&#125;&#x27;)</span><br></pre></td></tr></table></figure>
+
+<h4 id="设备管理-ip-link"><a href="#设备管理-ip-link" class="headerlink" title="设备管理 ip link"></a>设备管理 ip link</h4><ul>
 <li>常用命令</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="built_in">link</span> show            <span class="comment"># 查看所有网络接口 ifconfig -a</span></span><br><span class="line">ip <span class="built_in">link</span> show dev eth0   <span class="comment"># 查看指定接口 ifconfig eth0</span></span><br><span class="line"></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 up     <span class="comment"># 启用接口 ifconfig eth0 up</span></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 down   <span class="comment"># 启用接口 ifconfig eth0 down</span></span><br><span class="line"></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 address 00:11:22:33:44:55 <span class="comment"># 修改MAC地址 ifconfig eth0 hw ether 00:11:22:33:44:55</span></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 mtu 1500                  <span class="comment"># 修改MTU值 ifconfig eth0 mtu 1500</span></span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> eth0 name wan0                 <span class="comment"># 重命名接口</span></span><br></pre></td></tr></table></figure>
@@ -281,8 +284,8 @@
 	  
 	  
 	  
-		  <a class="alignright next" href="/2025/05/27/20250527/">
-		    Kafka Producer（上）
+		  <a class="alignright next" href="/2025/09/10/20250910/">
+		    Linux常用监控命令
 		  </a>
 	  
 	  <div class="clearfix"></div>

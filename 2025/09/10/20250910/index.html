@@ -1,0 +1,464 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Linux常用监控命令 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="常用的Linux状态查询命令整理">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Linux常用监控命令"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  134 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20250910" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2025-09-09T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2025/09/10/20250910/" style="color: #736f6f;">2025-09-10</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Linux常用监控命令
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 4.3k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 18min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+   
+   
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>常用的Linux状态查询命令整理</p>
+<span id="more"></span>
+
+<h3 id="uptime"><a href="#uptime" class="headerlink" title="uptime"></a>uptime</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># uptime</span></span></span><br><span class="line"> 9:25  up 3 days,  8:36, 3 users, load averages: 1.92 1.81 1.69</span><br></pre></td></tr></table></figure>
+
+<p>输出信息：系统现在的时间，开机运行时间，当前登录用户个数，系统在一分钟内、5分钟内、15分钟内的平均负载</p>
+<p>如果load average值长期大于系统CPU个数，则说明CPU很繁忙，负载很高，可能会影响系统性能</p>
+<h3 id="top-实时状态"><a href="#top-实时状态" class="headerlink" title="top 实时状态"></a>top 实时状态</h3><ul>
+<li>定位java进程CPU飙高原因</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">top结果默认按CPU使用率排序，找到进程pid；</span><br><span class="line"></span><br><span class="line">top -H -p &lt;pid&gt; 找到线程 tid</span><br><span class="line"></span><br><span class="line">将线程id转换成16进制</span><br><span class="line"></span><br><span class="line">jstack pid | grep &lt;tid&gt; -A 20 查看线程堆栈</span><br></pre></td></tr></table></figure>
+
+<h3 id="ps-进程状态"><a href="#ps-进程状态" class="headerlink" title="ps 进程状态"></a>ps 进程状态</h3><p>ps是进程查看命令，可以确定有哪些进程正在运行和运行的状态、进程是否结束、有没有僵死、哪些进程占用了过多的资源等；</p>
+<ul>
+<li>参数：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">-A 显示所有进程（等价于-e）(utility)</span><br><span class="line">-a 显示一个终端的所有进程，除了会话引线</span><br><span class="line">-N 忽略选择</span><br><span class="line">-d 显示所有进程，但省略所有的会话引线(utility)</span><br><span class="line">-x 显示没有控制终端的进程，同时显示各个命令的具体路径。dx不可合用。（utility）</span><br><span class="line">-p pid 进程使用cpu的时间</span><br><span class="line">-u uid or username 选择有效的用户id或者是用户名</span><br><span class="line">-g gid or groupname 显示组的所有进程</span><br><span class="line">U username 显示该用户下的所有进程，且显示各个命令的详细路径。如:ps U zhang;(utility)</span><br><span class="line">-f 全部列出，通常和其他选项联用。如：ps -fa or ps -fx and so on</span><br><span class="line">-l 长格式（有F,wchan,C 等字段）</span><br><span class="line">-j 作业格式</span><br><span class="line">-o 用户自定义格式</span><br><span class="line">v 以虚拟存储器格式显示</span><br><span class="line">s 以信号格式显示</span><br><span class="line">-m 显示所有的线程</span><br><span class="line">-H 显示进程的层次(和其它的命令合用，如：ps -Ha)（utility）</span><br><span class="line">e 命令之后显示环境（如：ps -d e; ps -a e）(utility)</span><br><span class="line">h 不显示第一行</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>常见用法：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看进程资源占用</span></span></span><br><span class="line">ps -aux --sort=-%cpu | head -11</span><br><span class="line"></span><br><span class="line">ps -aux --sort=-%mem | head -11</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看进程指定资源</span></span></span><br><span class="line">ps -eo pid,%cpu,%mem,vsz,rss,etime,cmd --sort=-%cpu | grep -E &#x27;进程标识&#x27;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看完整命令行(-w -ww 可以加宽输出，不截断)</span></span></span><br><span class="line">ps -ef -ww | grep nginx</span><br></pre></td></tr></table></figure>
+
+<h3 id="lsof-打开文件"><a href="#lsof-打开文件" class="headerlink" title="lsof 打开文件"></a>lsof 打开文件</h3><ul>
+<li>列出打开指定文件的进程</li>
+</ul>
+<p>直接使用文件名作为参数，可以列出打开此文件的进程</p>
+<figure class="highlight shell"><figcaption><span>lsof /var/log/syslog</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">COMMAND  PID   USER   FD   TYPE DEVICE SIZE/OFF   NODE NAME</span><br><span class="line">rsyslogd 488 syslog    1w   REG    8,1     1151 268940 /var/log/syslog</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>列出进程所打开的文件</li>
+</ul>
+<p>使用 -p 选项，可以列出特定进程打开的所有文件</p>
+<figure class="highlight shell"><figcaption><span>lsof -p 1753</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">COMMAND  PID       USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME</span><br><span class="line">bash    1753 lakshmanan  cwd    DIR    8,1     4096  393571 /home/lakshmanan/test.txt</span><br><span class="line">bash    1753 lakshmanan  rtd    DIR    8,1     4096       2 /</span><br><span class="line">bash    1753 lakshmanan  255u   CHR  136,0      0t0       3 /dev/pts/0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>列出进程使用的网络文件</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsof -i -a -p 234</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<p>输出说明</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">FD 表示文件描述符</span><br><span class="line">• cwd - 当前工作目录</span><br><span class="line">• txt - 文本文件</span><br><span class="line">• mem – 内存映射文件</span><br><span class="line">• mmap – 内存映射设备</span><br><span class="line">• NUMBER – 表示实际的文件描述符。数字后面的字符，即&#x27;1u&#x27;，代表文件打开的模式，r读，w写，u读和写</span><br><span class="line"></span><br><span class="line">TYPE 文件类型</span><br><span class="line">• REG – 常规文件</span><br><span class="line">• DIR——目录</span><br><span class="line">• FIFO——先进先出</span><br><span class="line">• CHR——字符特殊文件</span><br></pre></td></tr></table></figure>
+
+<h3 id="netstat-网络统计"><a href="#netstat-网络统计" class="headerlink" title="netstat 网络统计"></a>netstat 网络统计</h3><p>netstat是在内核中访问网络及相关信息的程序，它能提供IP、TCP、UDP和ICMP协议相关的统计数据，一般用于检验本机各端口的网络连接情况。通过此命令可以知道一个进程占用了哪些端口，或者一个端口被哪个进程占用了。</p>
+<ul>
+<li>格式：</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat [-acCeFghilMnNoprstuvVwx][-A&lt;网络类型&gt;][--ip]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>参数：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">-a或–all 显示所有连线中的Socket</span><br><span class="line">-A&lt;网络类型&gt;或–&lt;网络类型&gt; 列出该网络类型连线中的相关地址</span><br><span class="line">-c或–continuous 持续列出网络状态</span><br><span class="line">-C或–cache 显示路由器配置的快取信息</span><br><span class="line">-e或–extend 显示网络其他相关信息</span><br><span class="line">-F或–fib 显示FIB</span><br><span class="line">-g或–groups 显示多重广播功能群组组员名单</span><br><span class="line">-h或–help 在线帮助</span><br><span class="line">-i或–interfaces 显示网络界面信息表单</span><br><span class="line">-l或–listening 显示监控中的服务器的Socket</span><br><span class="line">-M或–masquerade 显示伪装的网络连线</span><br><span class="line">-n或–numeric 直接使用IP地址，而不通过域名服务器</span><br><span class="line">-N或–netlink或–symbolic 显示网络硬件外围设备的符号连接名称</span><br><span class="line">-o或–timers 显示计时器</span><br><span class="line">-p或–programs 显示正在使用Socket的程序识别码和程序名称</span><br><span class="line">-r或–route 显示Routing Table</span><br><span class="line">-s或–statistice 显示网络工作信息统计表</span><br><span class="line">-t或–tcp 显示TCP传输协议的连线状况</span><br><span class="line">-u或–udp 显示UDP传输协议的连线状况</span><br><span class="line">-v或–verbose 显示指令执行过程</span><br><span class="line">-V或–version 显示版本信息</span><br><span class="line">-w或–raw 显示RAW传输协议的连线状况</span><br><span class="line">-x或–unix 此参数的效果和指定”-A unix”参数相同</span><br><span class="line">–ip或–inet 此参数的效果和指定”-A inet”参数相同</span><br></pre></td></tr></table></figure>
+
+<p>-输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Recv-Q 接收队列</span><br><span class="line">Send-Q 发送队列</span><br><span class="line">State  连接状态</span><br><span class="line"></span><br><span class="line">状态说明：</span><br><span class="line">SYN-SENT     客户端已发送SYN，等待ACK（出现大量这样的状态，可能被当成肉鸡用来攻击了）</span><br><span class="line">SYN-RECEIVED 服务端已收到SYN，并且已发送SYN+ACK，等待ACK；（出现大量这样的状态，可能被flood攻击了）</span><br><span class="line">ESTABLISHED  连接已建立，数据传输状态；</span><br><span class="line"></span><br><span class="line">FIN-WAIT-1   主动方发送FIN，等待ACK</span><br><span class="line">CLOSE-WAIT   被动方收到FIN，已返回ACK，等待应用层关闭；</span><br><span class="line">FIN-WAIT-2   主动方收到ACK，等待被动方的FIN</span><br><span class="line">LAST-ACK     被动方应用层完成关闭，发送FIN，等待主动方的ACK（出现大量这样的状态，也可能被攻击了）</span><br><span class="line">TIME-WAIT    主动方收到FIN，并返回了ACK，等待2MSL后关闭；</span><br><span class="line">CLOSED       已关闭的连接</span><br><span class="line"></span><br><span class="line">LISTEN       服务端监听</span><br><span class="line">CLOSING      双方都发送FIN，在等待对方的ACK（网络拥塞或双方同时关闭时出现）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>示例：</li>
+</ul>
+<figure class="highlight java"><figcaption><span>netstat -ntp</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Active Internet <span class="title function_">connections</span> <span class="params">(w/o servers)</span></span><br><span class="line">Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">192.168</span><span class="number">.141</span><span class="number">.21</span>:<span class="number">22</span>       <span class="number">192.168</span><span class="number">.141</span><span class="number">.17</span>:<span class="number">51749</span>    ESTABLISHED <span class="number">55063</span>/sshd: root<span class="meta">@pt</span> </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">192.168</span><span class="number">.141</span><span class="number">.21</span>:<span class="number">22</span>       <span class="number">192.168</span><span class="number">.141</span><span class="number">.17</span>:<span class="number">52641</span>    ESTABLISHED <span class="number">70231</span>/sshd: root<span class="meta">@pt</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看接口统计</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Iface         网络设备的接口名称</span><br><span class="line">MTU           表示最大传输单元，单位为字节</span><br><span class="line">RX-OK/TX-OK   表示已经准确无误地接收/发送了多少数据包</span><br><span class="line">RX-ERR/TX-ERR 表示接收/发送数据包时候产生了多少错误</span><br><span class="line">RX-DRP/TX-DRP 表示接收/发送数据包时候丢弃了多少数据包</span><br><span class="line">RX-OVR/TX-OVR 表示由于误差而丢失了多少数据包</span><br><span class="line"></span><br><span class="line">Flg标记：</span><br><span class="line">B 已经设置了一个广播地址</span><br><span class="line">L 该接口是一个回送设备</span><br><span class="line">M 接收所有数据包（混乱模式）</span><br><span class="line">N 避免跟踪</span><br><span class="line">O 在该接口上，禁用ARP</span><br><span class="line">P 这是一个点到点链接</span><br><span class="line">R 接口正在运行</span><br><span class="line">U 接口处于活动状态</span><br></pre></td></tr></table></figure>
+
+<h3 id="iostat-磁盘IO"><a href="#iostat-磁盘IO" class="headerlink" title="iostat 磁盘IO"></a>iostat 磁盘IO</h3><p>Linux上可以通过命令iostat来系统设备的IO负载情况，其首次运行时显示自系统启动开始的各项统计信息，之后的运行将显示自上次运行该命令以后的统计信息。一般用来查看磁盘的活动统计情况，但是它只能对系统的整体情况进行分析，如果项对某个进程分析，可以通过命令iotop。</p>
+<ul>
+<li>格式：</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iostat [参数] [时间] [次数]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>参数：</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-c 显示CPU使用情况</span><br><span class="line">-d 显示磁盘使用情况</span><br><span class="line">-k 以 KB 为单位显示</span><br><span class="line">-m 以 M 为单位显示</span><br><span class="line">-N 显示磁盘阵列(LVM) 信息</span><br><span class="line">-n 显示NFS 使用情况</span><br><span class="line">-p [磁盘] 显示磁盘和分区的情况</span><br><span class="line">-t 显示终端和CPU的信息</span><br><span class="line">-x 显示详细信息</span><br><span class="line">-V 显示版本信息</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>输出：</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">avg-cpu:</span><br><span class="line">%user：  CPU处在用户模式下的时间百分比     </span><br><span class="line">%nice：  CPU处在带NICE值的用户模式下的时间百分比     </span><br><span class="line">%system：CPU处在系统模式下的时间百分比     </span><br><span class="line">%iowait：CPU等待输入输出完成时间的百分比     </span><br><span class="line">%steal： 管理程序维护另一个虚拟处理器时，虚拟CPU的无意识等待时间百分比     </span><br><span class="line">%idle：  CPU空闲时间百分比   </span><br><span class="line"></span><br><span class="line">Device：  监测设备名称   </span><br><span class="line">rrqm/s：  每秒进行的读操作次数    </span><br><span class="line">wrqm/s：  每秒进行的写操作次数</span><br><span class="line">r/s：     每秒完成的读I/O设备次数     </span><br><span class="line">w/s：     每秒完成的写I/O设备次数 </span><br><span class="line">rkB/s：   每秒读取的字节数  </span><br><span class="line">wkB/s：   每秒写入的字节数  </span><br><span class="line">avgrq-sz：平均每次设备I/O操作的数据大小   </span><br><span class="line">avgqu-sz：平均I/O等待队列长度     </span><br><span class="line">await：   平均每次设备I/O操作的等待时间 (毫秒)     </span><br><span class="line">svctm：   平均每次设备I/O操作的服务时间 (毫秒)     </span><br><span class="line">%util：   被I/O需求消耗的CPU百分比  </span><br></pre></td></tr></table></figure>
+
+<p>如果%iowait过高，表示磁盘存在I&#x2F;O瓶颈；</p>
+<p>如果%idle值高，表示CPU较空闲；</p>
+<p>如果%idle值高但系统响应慢，则有可能是CPU等待分配内存，此时应加大内存容量；</p>
+<p>如果%idle值持续低于10，那么可能系统的CPU处理能力相对较低，表明系统中最需要解决的资源是CPU；</p>
+<p>如果%util接近100，说明I&#x2F;O请求太多，I&#x2F;O系统已经满负荷，该磁盘可能存在瓶颈；</p>
+<p>如果svctm&#96;接近await，说明I&#x2F;O几乎没有等待时间；如果await远大于svctm，说明I&#x2F;O队列太长，响应太慢，需要进行必要优化；</p>
+<ul>
+<li>示例：</li>
+</ul>
+<figure class="highlight txt"><figcaption><span>iostat -x -p 1 3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">Linux 3.10.0-862.el7.x86_64 (bogon)     03/20/22    _x86_64_    (4 CPU)</span><br><span class="line"></span><br><span class="line">avg-cpu:  %user   %nice %system %iowait  %steal   %idle</span><br><span class="line">           0.01    0.00    0.06    0.00    0.00   99.92</span><br><span class="line"></span><br><span class="line">Device:  rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util</span><br><span class="line">sda        0.00     0.02    0.13    0.12     3.93     1.29    43.04     0.00    1.94    0.53    3.48   0.85   0.02</span><br><span class="line">sda1       0.00     0.00    0.02    0.00     0.60     0.05    79.35     0.00    0.34    0.32    1.60   0.27   0.00</span><br><span class="line">sda2       0.00     0.02    0.11    0.12     3.30     1.24    40.29     0.00    2.06    0.56    3.48   0.90   0.02</span><br><span class="line">dm-0       0.00     0.00    0.11    0.13     3.18     1.24    37.40     0.00    2.25    0.59    3.59   0.85   0.02</span><br><span class="line">dm-1       0.00     0.00    0.00    0.00     0.08     0.00    48.41     0.00    0.25    0.25    0.00   0.18   0.00</span><br><span class="line"></span><br><span class="line">avg-cpu:  %user   %nice %system %iowait  %steal   %idle</span><br><span class="line">           0.25    0.00    0.25    0.00    0.00   99.51</span><br><span class="line"></span><br><span class="line">Device:  rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util</span><br><span class="line">sda        0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br><span class="line">sda1       0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br><span class="line">sda2       0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br><span class="line">dm-0       0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br><span class="line">dm-1       0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br><span class="line"></span><br><span class="line">avg-cpu:  %user   %nice %system %iowait  %steal   %idle</span><br><span class="line">           0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line"></span><br><span class="line">Device:  rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util</span><br><span class="line">sda        0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br><span class="line">sda1       0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br><span class="line">sda2       0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br><span class="line">dm-0       0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br><span class="line">dm-1       0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br></pre></td></tr></table></figure>
+
+<h3 id="vmstat-虚拟内存"><a href="#vmstat-虚拟内存" class="headerlink" title="vmstat 虚拟内存"></a>vmstat 虚拟内存</h3><p>vmstat是虚拟内存统计（Virtual Meomory Statistics）的缩写，可对操作系统的虚拟内存、进程、CPU活动进行监控。它提供了一种低开销的系统性能观察方式，即使在高负荷的服务器上也能查看并监控系统的健康情况，但它是对系统的整体情况进行统计，无法对某个进程进行深入分析。</p>
+<ul>
+<li>格式：</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vmstat [-a] [-n] [-S unit] [delay [ count]]</span><br><span class="line">vmstat [-s] [-n] [-S unit]</span><br><span class="line">vmstat [-m] [-n] [delay [ count]]</span><br><span class="line">vmstat [-d] [-n] [delay [ count]]</span><br><span class="line">vmstat [-p disk partition] [-n] [delay [ count]]</span><br><span class="line">vmstat [-f]</span><br><span class="line">vmstat [-V]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>参数：</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">-a：  显示活跃和非活跃内存</span><br><span class="line">-f：  显示从系统启动至今的fork数量 。</span><br><span class="line">-m：  显示slabinfo</span><br><span class="line">-n：  只在开始时显示一次各字段名称。</span><br><span class="line">-s：  显示内存相关统计信息及多种系统活动数量。</span><br><span class="line">delay：刷新时间间隔。如果不指定，只显示一条结果。</span><br><span class="line">count：刷新次数。如果不指定刷新次数，但指定了刷新时间间隔，这时刷新次数为无穷。</span><br><span class="line">-d：  显示磁盘相关统计信息。</span><br><span class="line">-p：  显示指定磁盘分区统计信息</span><br><span class="line">-S：  使用指定单位显示。参数有 k 、K 、m 、M ，分别代表1000、1024、1000000、1048576字节（byte）。默认单位为K</span><br><span class="line">-V：  显示vmstat版本信息。</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>输出：</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">r:  运行队列中进程数量（如果长期大于1的话，可能需要增加CPU）   </span><br><span class="line">b:  等待IO的进程数量</span><br><span class="line"></span><br><span class="line">swpd:  使用虚拟内存大小（如果swpd不为0，但是si，so长期为0的话，这种情况不会影响系统性能）</span><br><span class="line">free:  空闲物理内存大小</span><br><span class="line">buff:  缓存文件元数据（inode 等）和来自原始块设备的数据</span><br><span class="line">cache: 缓存文件数据块和内存映射信息（即调用mmap()映射的文件）</span><br><span class="line"></span><br><span class="line">如果cache的值大，说明cache的文件数多，如果频繁访问的文件都能被cache处，那么磁盘的读IO bi会非常小。</span><br><span class="line"></span><br><span class="line">si:  每秒从交换区写到内存的大小，由磁盘调入内存</span><br><span class="line">so:  每秒写入交换区的内存大小，由内存调入磁盘</span><br><span class="line"></span><br><span class="line">如果这si和so长期大于0，系统性能会受到影响，磁盘IO和CPU都会被消耗。有时看空闲内存(free)很少的或接近于0时，就认为内存不够用了。</span><br><span class="line">其实不能光看这一点，还要结合si和so，如果free很少，但是si和so也很少，那么不用担心，系统性能这时不会受到影响</span><br><span class="line"></span><br><span class="line">bi:  每秒读取的块数</span><br><span class="line">bo:  每秒写入的块数</span><br><span class="line"></span><br><span class="line">随机磁盘读写的时候，bi和bo越大，CPU花在IO等待上的值也会越大</span><br><span class="line"></span><br><span class="line">in:  每秒中断数，包括时钟中断</span><br><span class="line">cs:  每秒上下文切换数</span><br><span class="line"></span><br><span class="line">us:  用户进程执行时间(user time)</span><br><span class="line">sy:  系统进程执行时间(system time)</span><br><span class="line">id:  空闲时间(包括IO等待时间)，中央处理器的空闲时间，以百分比表示</span><br><span class="line">wa:  等待IO时间</span><br></pre></td></tr></table></figure>
+
+<p><font style="color:#E51508;">识别CPU瓶颈</font>：当<code>us</code> ＋ <code>sy</code>接近于100时，表示CPU正接近于满负荷工作，但CPU满负荷工作并不能说明什么，Linux总会试图让CPU尽可能的繁忙，以便任务的吞吐量最大化，最能确定CPU瓶颈的还是<code>r</code>，即队列中等待运行的进程数。</p>
+<p>如果<code>r</code>长期大于CPU个数（可以通过<code>cat /proc/cpuinfo|grep processor|wc -l</code>查看CPU数），且<code>id</code>很低，则说明cpu的负荷很重，一般出现这种情况，应用程序的问题会比较大一些，比如一些sql语句不合理的情况。</p>
+<p><font style="color:#E51508;">识别RAM内存瓶颈</font>：通过虚拟内存机制，可以将RAM移到SWAP磁盘上，这样会出现虚拟内存的页导出和页导入现象，页导出并不能说明RAM瓶颈，虚拟内存系统经常会进行页导出，但经常出现页导入操作就表明服务器需要更多的内存了，页导入需要从SWAP复制回RAM，导致服务器速度变慢。即如果si和so长期非零的话，则可能存在内存瓶颈。</p>
+<p><code>wa</code>表示CPU用于等待IO的时间，如果内存够大，可以修改文件<code>/proc/sys/vm/swappiness</code>中的值，它表示实际内存区和交换区进行数据交换的倾向性大小，默认60，设置小一点以降低数据交换次数。但如果交换区Swap本身就使用很少，那么修改也没有意义，可能进程本身就是偏IO类型的任务。</p>
+<ul>
+<li>示例：</li>
+</ul>
+<figure class="highlight txt"><figcaption><span>vmstat 1 5</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----</span><br><span class="line"> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st</span><br><span class="line"> 1  0      0 3476280   2116 229340    0    0     1     0   16   15  0  0 100  0  0</span><br><span class="line"> 0  0      0 3476288   2116 229340    0    0     0     0   77   58  0  0 100  0  0</span><br><span class="line"> 0  0      0 3476304   2116 229340    0    0     0     0   59   56  0  0 100  0  0</span><br><span class="line"> 0  0      0 3476296   2116 229340    0    0     0     0   61   53  0  0 100  0  0</span><br><span class="line"> 0  0      0 3476296   2116 229340    0    0     0     0   55   50  0  0 100  0  0</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看内存使用情况：</li>
+</ul>
+<figure class="highlight txt"><figcaption><span>vmstat -s</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">   3863576 K total memory</span><br><span class="line">    155384 K used memory</span><br><span class="line">    104780 K active memory</span><br><span class="line">    100092 K inactive memory</span><br><span class="line">   3476916 K free memory</span><br><span class="line">      2116 K buffer memory</span><br><span class="line">    229160 K swap cache</span><br><span class="line">   4193624 K total swap</span><br><span class="line">         0 K used swap</span><br><span class="line">   4193624 K free swap</span><br><span class="line">      2594 non-nice user cpu ticks</span><br><span class="line">        15 nice user cpu ticks</span><br><span class="line">     10945 system cpu ticks</span><br><span class="line">  19097245 idle cpu ticks</span><br><span class="line">       423 IO-wait cpu ticks</span><br><span class="line">         0 IRQ cpu ticks</span><br><span class="line">       596 softirq cpu ticks</span><br><span class="line">         0 stolen cpu ticks</span><br><span class="line">    169858 pages paged in</span><br><span class="line">     57641 pages paged out</span><br><span class="line">         0 pages swapped in</span><br><span class="line">         0 pages swapped out</span><br><span class="line">   3044881 interrupts</span><br><span class="line">   2914117 CPU context switches</span><br><span class="line">1647746249 boot time</span><br><span class="line">     51300 forks</span><br></pre></td></tr></table></figure>
+
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2025/09/18/20250918/">
+		    Linux常用网络管理命令
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2025/05/27/20250527/">
+		    Kafka Producer（上）
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+        
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#uptime"><span class="toc-text">uptime</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#top-%E5%AE%9E%E6%97%B6%E7%8A%B6%E6%80%81"><span class="toc-text">top 实时状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ps-%E8%BF%9B%E7%A8%8B%E7%8A%B6%E6%80%81"><span class="toc-text">ps 进程状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lsof-%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6"><span class="toc-text">lsof 打开文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#netstat-%E7%BD%91%E7%BB%9C%E7%BB%9F%E8%AE%A1"><span class="toc-text">netstat 网络统计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iostat-%E7%A3%81%E7%9B%98IO"><span class="toc-text">iostat 磁盘IO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#vmstat-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="toc-text">vmstat 虚拟内存</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

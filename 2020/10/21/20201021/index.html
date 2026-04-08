@@ -51,7 +51,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  133 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  134 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -94,7 +94,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 4.1k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 16min</font>
+   <font style="color: #999;"> words: 4.2k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 16min</font>
    
    
   
@@ -263,6 +263,8 @@
 <p>这里记一个github push 遇到的问题：Connection was reset, errno 10054，可以如下解决</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.sslVerify &quot;false&quot;</span><br><span class="line">git config --global --unset http.proxy</span><br></pre></td></tr></table></figure>
 
+<h3 id="gitignore-忽略文件"><a href="#gitignore-忽略文件" class="headerlink" title=".gitignore 忽略文件"></a>.gitignore 忽略文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 忽略根目录下的text.txt文件</span></span></span><br><span class="line">/text.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 忽略test目录下的text.txt文件</span></span></span><br><span class="line">/test/text.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 忽略test目录</span></span></span><br><span class="line">test/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 忽略任何text目录或文件</span></span></span><br><span class="line">text</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 忽略所有.md文件，除了README.md</span></span></span><br><span class="line">.md</span><br><span class="line">!README.md</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 忽略test目录中所有文件，除了其中的example.md</span></span></span><br><span class="line">test/</span><br><span class="line">!test/example.md</span><br></pre></td></tr></table></figure>
+
 <h3 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h3><ul>
 <li>branch&#x2F;tag日常命令</li>
 </ul>
@@ -389,7 +391,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E7%89%B9%E7%82%B9"><span class="toc-text">Git 特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E9%85%8D%E7%BD%AE"><span class="toc-text">Git 配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E6%8F%90%E4%BA%A4-%E6%92%A4%E9%94%80"><span class="toc-text">Git 提交&#x2F;撤销</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E5%88%86%E6%94%AF"><span class="toc-text">Git 分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E6%A0%87%E7%AD%BE"><span class="toc-text">Git 标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E8%BF%9C%E7%A8%8B"><span class="toc-text">Git 远程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FAQ"><span class="toc-text">FAQ</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E7%89%B9%E7%82%B9"><span class="toc-text">Git 特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E9%85%8D%E7%BD%AE"><span class="toc-text">Git 配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E6%8F%90%E4%BA%A4-%E6%92%A4%E9%94%80"><span class="toc-text">Git 提交&#x2F;撤销</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E5%88%86%E6%94%AF"><span class="toc-text">Git 分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E6%A0%87%E7%AD%BE"><span class="toc-text">Git 标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git-%E8%BF%9C%E7%A8%8B"><span class="toc-text">Git 远程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gitignore-%E5%BF%BD%E7%95%A5%E6%96%87%E4%BB%B6"><span class="toc-text">.gitignore 忽略文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FAQ"><span class="toc-text">FAQ</span></a></li></ol>
 </div>
 
 
