@@ -1,0 +1,409 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Mysql执行计划 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="执行计划是数据库根据SQL语句和相关表的统计信息作出的一个查询方案，这个方案是由查询优化器自动分析产生的，比如一条SQL语句如果用来从一个 10万条记录的表中查1条记录，那优化器会选择索引查找方式，如果该表只有5000条记录，那优化器就会改变方案，采用全表扫描方式。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Mysql执行计划"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  135 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20201115_副本" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-11-14T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/11/15/20201115_副本/" style="color: #736f6f;">2020-11-15</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Mysql执行计划
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 2.2k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 8min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/存储服务/">存储服务</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/mysql/">mysql</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>执行计划是数据库<strong>根据SQL语句和相关表的统计信息</strong>作出的一个查询方案，这个方案是由查询优化器自动分析产生的，比如一条SQL语句如果用来从一个 10万条记录的表中查1条记录，那优化器会选择索引查找方式，如果该表只有5000条记录，那优化器就会改变方案，采用全表扫描方式。</p>
+<span id="more"></span>
+
+<p>因此，要产生一个正确的执行计划有两点很重要：</p>
+<ol>
+<li>SQL语句是否清晰地告诉查询优化器它想干什么？</li>
+<li>查询优化器得到的数据库统计信息是否是最新的、正确的？</li>
+</ol>
+<h3 id="Mysql执行计划"><a href="#Mysql执行计划" class="headerlink" title="Mysql执行计划"></a>Mysql执行计划</h3><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from servers;</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------+</span><br><span class="line">| id | select_type | table   | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra |</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------+</span><br><span class="line">|  1 | SIMPLE      | servers | NULL       | ALL  | NULL          | NULL | NULL    | NULL |    1 | NULL     | NULL  |</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------+</span><br><span class="line">1 row in set (0.03 sec)</span><br></pre></td></tr></table></figure>
+
+<p>重点关注6个参数：</p>
+<ol>
+<li>possible_keys：可能用到的索引</li>
+</ol>
+<p>MySQL优化器认为这条SQL可能会用到的索引，但只是可能，不一定会用；</p>
+<p>比如，表建了两个索引：idx_price、idx_name，而SQL的WHERE条件是price，那么possible_keys就会显示idx_price；</p>
+<ol start="2">
+<li>key：实际使用的索引</li>
+</ol>
+<p>MySQL执行时实际用到的索引，这里有几个情况：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">key和possible_keys一致：  说明优化器选对了索引，正常执行；    </span><br><span class="line">key为NULL：              说明没有用到任何索引，直接走全表扫描（效率极低，优先优化）；    </span><br><span class="line">key和possible_keys不一致：说明优化器选错了索引，可能需要干预；</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>key_len：索引的长度</li>
+</ol>
+<p>MySQL实际使用的索引长度（字节），这个参数能判断索引有没有被充分利用；</p>
+<p>比如有联合索引idx_price_name（price, name），但key_len只显示了price的长度，说明只用到了联合索引的前半部分price，name部分没用到，可能需要调整索引或SQL；</p>
+<p>另外，key_len越短，说明索引使用越高效（前提是能满足查询需求），因为索引越短，索引体积就越小，数据库处理索引的流程(读、存、比)就越高效；</p>
+<ol start="4">
+<li>rows：预估扫描的行数</li>
+</ol>
+<p>优化器预估的，执行目标SQL需要扫描的数据行数，行数越少，执行效率越高；</p>
+<ol start="5">
+<li>type：数据扫描类型</li>
+</ol>
+<p>MySQL查询数据时使用的扫描方式，它<font color="red">直接决定了SQL的执行效率</font>，也是我们优化时的首要关注对象，按执行效率从低到高，说明下最常见的6种类型</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">ALL：全表扫描（最坏情况，必须避免）</span><br><span class="line">MySQL会扫描整张表的所有数据，找到符合条件的记录；</span><br><span class="line">比如没有索引的表，执行 SELECT * FROM user WHERE age = 20，就会走ALL；</span><br><span class="line">特点：效率极低，数据量越大，执行越慢。只要type是ALL，优先检查是否能加索引、是否走对了索引；</span><br><span class="line"></span><br><span class="line">index：全索引扫描（和ALL差不多，尽量避免）</span><br><span class="line">扫描整个索引表，好处是不需要对数据进行排序（因为索引本身是有序的），但本质还是全量扫描，效率依然很低；</span><br><span class="line">比如索引idx_name，执行 SELECT name FROM user，MySQL会扫描整个idx_name索引（不用回表查数据），这时type就是index；</span><br><span class="line"></span><br><span class="line">range：索引范围扫描（及格线，尽量争取）</span><br><span class="line">优化的及格线，从这一级别开始，索引的作用会越来越明显，效率会大幅提升；</span><br><span class="line">特点：只扫描索引的某个范围，不用全量扫描，效率中等，日常开发中最常见、也最容易实现的优化目标；</span><br><span class="line"></span><br><span class="line">ref：非唯一索引扫描（推荐，争取达到）</span><br><span class="line">使用了非唯一索引，或者唯一索引的非唯一性前缀，返回的数据可能是多条（索引列的值不唯一）；</span><br><span class="line">不需要扫描全索引（因为索引有序），即使有重复值，也只在小范围内扫描，效率比range高；</span><br><span class="line">比如非唯一索引idx_age，执行 SELECT * FROM user WHERE age = 20，这时type就是ref（因为age可能有多个值）；</span><br><span class="line"></span><br><span class="line">eq_ref：唯一性索引扫描（优秀，尽量争取）</span><br><span class="line">使用了主键，或唯一索引时产生的扫描方式，通常出现在多表联查中；</span><br><span class="line">每次查询只会返回一条匹配的数据（由于主键/唯一索引的值唯一），效率很高；</span><br><span class="line">比如主键id，执行 SELECT * FROM user u JOIN order o ON u.id = o.user_id，这时u.id是主键，type就是eq_ref；</span><br><span class="line"></span><br><span class="line">const：常量级扫描（最优，理想状态）</span><br><span class="line">效率最高的扫描方式，适用于结果只有一条的主键/唯一索引查询，且查询条件是常量值比较；</span><br><span class="line">和eq_ref对比，const是和常量值比较，比如 SELECT * FROM user WHERE id = 1，而eq_ref通常用于多表联查；</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>Extra：额外执行信息（辅助判断效率）</li>
+</ol>
+<p>Extra信息方便进行性能分析，它反映了MySQL在<font color="red">执行过程中的细节</font>，说明下最常见的几种取值</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Using filesort：严重低效，必须避免</span><br><span class="line">MySQL无法利用索引完成排序，只能在内存（Sort Buffer）甚至磁盘中进行手动排序；</span><br><span class="line">常见场景如：ORDER BY 或 GROUP BY 的字段没有索引，或者联合索引顺序不匹配；</span><br><span class="line">优化方法：让GROUP BY、ORDER BY的字段和索引字段一致，确保排序字段满足最左匹配原则，利用B+树天然的有序性；</span><br><span class="line"></span><br><span class="line">Using temporary：严重低效，必须避免</span><br><span class="line">MySQL发现由于数据过于复杂，不得不建立一张临时表来中转数据（通常是为了去重或分组）；临时表会占用内存/磁盘资源，数据量越大，效率越低；</span><br><span class="line">常见场景如：在非索引列上进行DISTINCT、GROUP BY，或者关联查询时 ORDER BY驱动表以外的列；</span><br><span class="line">优化方法：给GROUP BY、ORDER BY的字段加索引，避免创建临时表，或者优化 SQL 逻辑减少中间结果集；</span><br><span class="line"></span><br><span class="line">Using index：高效，推荐</span><br><span class="line">查询所需的所有数据，都能在索引中找到，不需要回表查询原表数据，也就是常说的覆盖索引；避免了回表操作（回表是低效操作），执行效率很高；</span><br><span class="line">比如索引idx_price_name(price, name)，执行SELECT name FROM user WHERE price = 20时不需要回表，索引中能直接获取name；</span><br><span class="line"></span><br><span class="line">Using index condition：进阶优化（补漏必备）</span><br><span class="line">索引下推(ICP)是MySQL 5.6+的黑科技，就是在索引内部提前过滤掉不符合条件的记录，从而减少回表次数；</span><br><span class="line">虽然不如Using index快，但它代表你的联合索引正在被高效利用，是一个性能良好的信号；</span><br><span class="line"></span><br><span class="line">Using where：最常见的状态</span><br><span class="line">MySQL服务器（Server层）在存储引擎检索行后，还需要进行一次筛选；就是存储引擎给的数据并不完全符合条件，Server层得再做一次筛选；</span><br><span class="line"></span><br><span class="line">Using index for group-by：分组优化巅峰</span><br><span class="line">类似于Using index，MySQL发现只需利用索引树，就能完成GROUP BY或 DISTINCT，连排序都不用了，极度高效；</span><br><span class="line">意味着MySQL连索引树的所有叶子节点都不用扫，直接通过索引的索引（松散索引扫描）就能拿到结果。</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li><p>id：执行select子句或者操作表的顺序，id的值越大，代表优先级越高，越先执行，如果id相同，表示为一组；</p>
+</li>
+<li><p>select_type：查询的类型，用于区分各种复杂的查询，比如：普通查询、联合查询、子查询等；</p>
+</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">SIMPLE：表示最简单的select查询语句，也就是在查询中不包含子查询或者union交并差集等操作；</span><br><span class="line"></span><br><span class="line">PRIMARY：当查询语句中包含任何复杂的子部分，最外层查询则被标记为PRIMARY；</span><br><span class="line"></span><br><span class="line">SUBQUERY：当select或where列表中包含了子查询，该子查询被标记为SUBQUERY；</span><br><span class="line"></span><br><span class="line">DERIVED：表示包含在from子句中的子查询的select，在from列表中包含的子查询会被标记为derived；</span><br><span class="line"></span><br><span class="line">UNION：如果union后边又出现的select语句，则会被标记为union；若union包含在from子句的子查询中，外层select将被标记为derived；</span><br><span class="line"></span><br><span class="line">UNION RESULT：表示从union的临时表中读取数据，table列&lt;union1,4&gt;则表示取第一个和第四个select的结果进行union操作；</span><br></pre></td></tr></table></figure>
+
+<ol start="9">
+<li><p>table：查询的表名，并不一定是真实存在的表，有别名显示别名，也可能为临时表；</p>
+</li>
+<li><p>partitions：查询时匹配到的分区信息，对于非分区表值为NULL，当查询的是分区表时，partitions显示分区表命中的分区情况；</p>
+</li>
+<li><p>filtered：存储引擎返回的数据中，经过Server层筛选后，真正满足所有WHERE条件的记录所占的百分比，能反映索引的过滤性好不好；</p>
+</li>
+</ol>
+<br>
+
+<p><strong>参考：</strong>  </p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/explain-output.html#jointype_index_merge">https://dev.mysql.com/doc/refman/5.7/en/explain-output.html#jointype_index_merge</a></li>
+</ol>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2021/03/06/20210306/">
+		    存储系统
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2020/10/21/20201021/">
+		    Git 代码管理
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/存储服务/">存储服务</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/mysql/">mysql</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Mysql%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92"><span class="toc-text">Mysql执行计划</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
