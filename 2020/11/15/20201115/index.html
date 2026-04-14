@@ -93,7 +93,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 2.2k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 8min</font>
+   <font style="color: #999;"> words: 3.3k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 13min</font>
    
    
   
@@ -106,7 +106,7 @@
    
   
   <div class="tags">
-    <a href="/tags/mysql/">mysql</a>
+    <a href="/tags/sql/">sql</a>   <a href="/tags/mysql/">mysql</a>
   </div>
 
 
@@ -127,7 +127,7 @@
 <li>SQL语句是否清晰地告诉查询优化器它想干什么？</li>
 <li>查询优化器得到的数据库统计信息是否是最新的、正确的？</li>
 </ol>
-<h3 id="Mysql执行计划"><a href="#Mysql执行计划" class="headerlink" title="Mysql执行计划"></a>Mysql执行计划</h3><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from servers;</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------+</span><br><span class="line">| id | select_type | table   | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra |</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------+</span><br><span class="line">|  1 | SIMPLE      | servers | NULL       | ALL  | NULL          | NULL | NULL    | NULL |    1 | NULL     | NULL  |</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------+</span><br><span class="line">1 row in set (0.03 sec)</span><br></pre></td></tr></table></figure>
+<h3 id="Mysql执行计划"><a href="#Mysql执行计划" class="headerlink" title="Mysql执行计划"></a>Mysql执行计划</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">mysql&gt; explain select * from servers;</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------+</span><br><span class="line">| id | select_type | table   | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra |</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------+</span><br><span class="line">|  1 | SIMPLE      | servers | NULL       | ALL  | NULL          | NULL | NULL    | NULL |    1 | NULL     | NULL  |</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------+</span><br><span class="line">1 row in set (0.03 sec)</span><br></pre></td></tr></table></figure>
 
 <p>重点关注6个参数：</p>
 <ol>
@@ -179,6 +179,95 @@
 <li><p>filtered：存储引擎返回的数据中，经过Server层筛选后，真正满足所有WHERE条件的记录所占的百分比，能反映索引的过滤性好不好；</p>
 </li>
 </ol>
+<h3 id="sql优化示例"><a href="#sql优化示例" class="headerlink" title="sql优化示例"></a>sql优化示例</h3><ul>
+<li>关联更新、删除</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> operation o</span><br><span class="line"><span class="keyword">SET</span>    status <span class="operator">=</span> <span class="string">&#x27;applying&#x27;</span></span><br><span class="line"><span class="keyword">WHERE</span>  o.id <span class="keyword">IN</span> (<span class="keyword">SELECT</span> id</span><br><span class="line">                <span class="keyword">FROM</span> (<span class="keyword">SELECT</span> o.id, o.status</span><br><span class="line">                      <span class="keyword">FROM</span> operation o</span><br><span class="line">                      <span class="keyword">WHERE</span> o.group <span class="operator">=</span> <span class="number">123</span> <span class="keyword">AND</span> o.status <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="string">&#x27;done&#x27;</span> )</span><br><span class="line">                      <span class="keyword">ORDER</span> <span class="keyword">BY</span> o.parent, o.id LIMIT  <span class="number">1</span>) t);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</span><br><span class="line">| id | select_type        | table | type  | possible_keys | key     | key_len | ref   | rows | Extra                                               |</span><br><span class="line">+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</span><br><span class="line">| 1  | PRIMARY            | o     | index |               | PRIMARY | 8       |       | 24   | Using where; Using temporary                        |</span><br><span class="line">| 2  | DEPENDENT SUBQUERY |       |       |               |         |         |       |      | Impossible WHERE noticed after reading const tables |</span><br><span class="line">| 3  | DERIVED            | o     | ref   | idx_2,idx_5   | idx_5   | 8       | const | 1    | Using where; Using filesort                         |</span><br><span class="line">+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>可以使用JOIN重写，子查询模式从DEPENDENT SUBQUERY变为DERIVED</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> operation o</span><br><span class="line">       <span class="keyword">JOIN</span>  (<span class="keyword">SELECT</span> o.id, o.status</span><br><span class="line">              <span class="keyword">FROM</span> operation o</span><br><span class="line">              <span class="keyword">WHERE</span> o.group <span class="operator">=</span> <span class="number">123</span> <span class="keyword">AND</span> o.status <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="string">&#x27;done&#x27;</span> )</span><br><span class="line">              <span class="keyword">ORDER</span> <span class="keyword">BY</span> o.parent, o.id LIMIT  <span class="number">1</span>) t</span><br><span class="line">         <span class="keyword">ON</span> o.id <span class="operator">=</span> t.id</span><br><span class="line"><span class="keyword">SET</span> status <span class="operator">=</span> <span class="string">&#x27;applying&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">+----+-------------+-------+------+---------------+-------+---------+-------+------+-----------------------------------------------------+</span><br><span class="line">| id | select_type | table | type | possible_keys | key   | key_len | ref   | rows | Extra                                               |</span><br><span class="line">+----+-------------+-------+------+---------------+-------+---------+-------+------+-----------------------------------------------------+</span><br><span class="line">| 1  | PRIMARY     |       |      |               |       |         |       |      | Impossible WHERE noticed after reading const tables |</span><br><span class="line">| 2  | DERIVED     | o     | ref  | idx_2,idx_5   | idx_5 | 8       | const | 1    | Using where; Using filesort                         |</span><br><span class="line">+----+-------------+-------+------+---------------+-------+---------+-------+------+-----------------------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>混合排序</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> my_order o</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> my_appraise a <span class="keyword">ON</span> a.orderid <span class="operator">=</span> o.id</span><br><span class="line"><span class="keyword">ORDER</span>  <span class="keyword">BY</span> a.is_reply <span class="keyword">ASC</span>, a.appraise_time <span class="keyword">DESC</span></span><br><span class="line">LIMIT  <span class="number">0</span>, <span class="number">20</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">+----+-------------+-------+--------+---------------+---------+---------+------------+---------+----------------+</span><br><span class="line">| id | select_type | table | type   | possible_keys | key     | key_len | ref        | rows    | Extra          |</span><br><span class="line">+----+-------------+-------+--------+---------------+---------+---------+------------+---------+----------------+</span><br><span class="line">|  1 | SIMPLE      | a     | ALL    | idx_orderid   | NULL    | NULL    | NULL       | 1967647 | Using filesort |</span><br><span class="line">|  1 | SIMPLE      | o     | eq_ref | PRIMARY       | PRIMARY | 122     | a.orderid  |       1 | NULL           |</span><br><span class="line">+----+-------------+-------+--------+---------------+---------+---------+------------+---------+----------------+</span><br></pre></td></tr></table></figure>
+
+<p>如果is_reply只有0和1两种状态，可以使用下面的方法重写</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> (</span><br><span class="line">    (<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> my_order o</span><br><span class="line">     <span class="keyword">INNER</span> <span class="keyword">JOIN</span> my_appraise a <span class="keyword">ON</span> a.orderid <span class="operator">=</span> o.id <span class="keyword">AND</span> is_reply <span class="operator">=</span> <span class="number">0</span></span><br><span class="line">     <span class="keyword">ORDER</span>  <span class="keyword">BY</span> appraise_time <span class="keyword">DESC</span> LIMIT <span class="number">0</span>, <span class="number">20</span>)</span><br><span class="line">    <span class="keyword">UNION</span> <span class="keyword">ALL</span></span><br><span class="line">    (<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> my_order o</span><br><span class="line">     <span class="keyword">INNER</span> <span class="keyword">JOIN</span> my_appraise a <span class="keyword">ON</span> a.orderid <span class="operator">=</span> o.id <span class="keyword">AND</span> is_reply <span class="operator">=</span> <span class="number">1</span></span><br><span class="line">     <span class="keyword">ORDER</span>  <span class="keyword">BY</span> appraise_time <span class="keyword">DESC</span> LIMIT <span class="number">0</span>, <span class="number">20</span>)) t</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> is_reply <span class="keyword">ASC</span>, appraisetime <span class="keyword">DESC</span> LIMIT <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>EXISTS语句</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> my_neighbor n</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_neighbor_apply sra <span class="keyword">ON</span> n.id <span class="operator">=</span> sra.neighbor_id <span class="keyword">AND</span> sra.user_id <span class="operator">=</span> <span class="string">&#x27;xxx&#x27;</span></span><br><span class="line"><span class="keyword">WHERE</span> n.topic_status <span class="operator">&lt;</span> <span class="number">4</span></span><br><span class="line">  <span class="keyword">AND</span> <span class="keyword">EXISTS</span>(<span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> message_info m <span class="keyword">WHERE</span>  n.id <span class="operator">=</span> m.neighbor_id <span class="keyword">AND</span> m.inuser <span class="operator">=</span> <span class="string">&#x27;xxx&#x27;</span>)</span><br><span class="line">  <span class="keyword">AND</span> n.topic_type <span class="operator">&lt;&gt;</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">+----+--------------------+-------+------+---------------+------------------+---------+-------+---------+------------------------------------+</span><br><span class="line">| id | select_type        | table | type | possible_keys | key              | key_len | ref   | rows    | Extra                              |</span><br><span class="line">+----+--------------------+-------+------+---------------+------------------+---------+-------+---------+------------------------------------+</span><br><span class="line">|  1 | PRIMARY            | n     | ALL  |               | NULL             | NULL    | NULL  | 1086041 | Using where                        |</span><br><span class="line">|  1 | PRIMARY            | sra   | ref  |               | idx_user_id      | 123     | const |       1 | Using where                        |</span><br><span class="line">|  2 | DEPENDENT SUBQUERY | m     | ref  |               | idx_message_info | 122     | const |       1 | Using index condition; Using where |</span><br><span class="line">+----+--------------------+-------+------+---------------+------------------+---------+-------+---------+------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>将exists改为join，能够避免嵌套子查询</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span>   my_neighbor n</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> message_info m <span class="keyword">ON</span> n.id <span class="operator">=</span> m.neighbor_id <span class="keyword">AND</span> m.inuser <span class="operator">=</span> <span class="string">&#x27;xxx&#x27;</span></span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_neighbor_apply sra <span class="keyword">ON</span> n.id <span class="operator">=</span> sra.neighbor_id <span class="keyword">AND</span> sra.user_id <span class="operator">=</span> <span class="string">&#x27;xxx&#x27;</span></span><br><span class="line"><span class="keyword">WHERE</span> n.topic_status <span class="operator">&lt;</span> <span class="number">4</span> <span class="keyword">AND</span> n.topic_type <span class="operator">&lt;&gt;</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">+----+-------------+-------+--------+---------------+------------------+---------+-----------+------+-----------------------+</span><br><span class="line">| id | select_type | table | type   | possible_keys | key              | key_len | ref       | rows | Extra                 |</span><br><span class="line">+----+-------------+-------+--------+---------------+------------------+---------+-----------+------+-----------------------+</span><br><span class="line">|  1 | SIMPLE      | m     | ref    |               | idx_message_info | 122     | const     |    1 | Using index condition |</span><br><span class="line">|  1 | SIMPLE      | n     | eq_ref |               | PRIMARY          | 122     | ighbor_id |    1 | Using where           |</span><br><span class="line">|  1 | SIMPLE      | sra   | ref    |               | idx_user_id      | 123     | const     |    1 | Using where           |</span><br><span class="line">+----+-------------+-------+--------+---------------+------------------+---------+-----------+------+-----------------------+</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>提前过滤</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> my_order o</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_userinfo u <span class="keyword">ON</span> o.uid <span class="operator">=</span> u.uid</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_productinfo p <span class="keyword">ON</span> o.pid <span class="operator">=</span> p.pid</span><br><span class="line"><span class="keyword">WHERE</span> ( o.display <span class="operator">=</span> <span class="number">0</span> ) <span class="keyword">AND</span> ( o.ostaus <span class="operator">=</span> <span class="number">1</span> )</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> o.selltime <span class="keyword">DESC</span> LIMIT <span class="number">0</span>, <span class="number">15</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">+----+-------------+-------+--------+---------------+---------+---------+-----------------+--------+----------------------------------------------------+</span><br><span class="line">| id | select_type | table | type   | possible_keys | key     | key_len | ref             | rows   | Extra                                              |</span><br><span class="line">+----+-------------+-------+--------+---------------+---------+---------+-----------------+--------+----------------------------------------------------+</span><br><span class="line">|  1 | SIMPLE      | o     | ALL    | NULL          | NULL    | NULL    | NULL            | 909119 | Using where; Using temporary; Using filesort       |</span><br><span class="line">|  1 | SIMPLE      | u     | eq_ref | PRIMARY       | PRIMARY | 4       | o.uid           |      1 | NULL                                               |</span><br><span class="line">|  1 | SIMPLE      | p     | ALL    | PRIMARY       | NULL    | NULL    | NULL            |      6 | Using where; Using join buffer (Block Nested Loop) |</span><br><span class="line">+----+-------------+-------+--------+---------------+---------+---------+-----------------+--------+----------------------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>先做一系列的左连接，然后排序取前15条记录，从执行计划也可以看出，参与排序的记录数为90万</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> my_order o</span><br><span class="line">    <span class="keyword">WHERE</span> o.display <span class="operator">=</span> <span class="number">0</span> <span class="keyword">AND</span> o.ostaus <span class="operator">=</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">ORDER</span> <span class="keyword">BY</span> o.selltime <span class="keyword">DESC</span> LIMIT <span class="number">0</span>, <span class="number">15</span></span><br><span class="line">) o</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_userinfo u <span class="keyword">ON</span> o.uid <span class="operator">=</span> u.uid</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_productinfo p <span class="keyword">ON</span> o.pid <span class="operator">=</span> p.pid</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> o.selltime <span class="keyword">DESC</span> limit <span class="number">0</span>, <span class="number">15</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">+----+-------------+------------+--------+---------------+---------+---------+-------+--------+----------------------------------------------------+</span><br><span class="line">| id | select_type | table      | type   | possible_keys | key     | key_len | ref   | rows   | Extra                                              |</span><br><span class="line">+----+-------------+------------+--------+---------------+---------+---------+-------+--------+----------------------------------------------------+</span><br><span class="line">|  1 | PRIMARY     | &lt;derived2&gt; | ALL    | NULL          | NULL    | NULL    | NULL  |     15 | Using temporary; Using filesort                    |</span><br><span class="line">|  1 | PRIMARY     | u          | eq_ref | PRIMARY       | PRIMARY | 4       | o.uid |      1 | NULL                                               |</span><br><span class="line">|  1 | PRIMARY     | p          | ALL    | PRIMARY       | NULL    | NULL    | NULL  |      6 | Using where; Using join buffer (Block Nested Loop) |</span><br><span class="line">|  2 | DERIVED     | o          | index  | NULL          | idx_1   | 5       | NULL  | 909112 | Using where                                        |</span><br><span class="line">+----+-------------+------------+--------+---------------+---------+---------+-------+--------+----------------------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>虽然估算的行扫描仍然为90万，但是利用了索引以及LIMIT子句后，实际执行时间会降低很多</p>
+<h3 id="sql技巧"><a href="#sql技巧" class="headerlink" title="sql技巧"></a>sql技巧</h3><ul>
+<li>case when 统计</li>
+</ul>
+<p><img src="/img/20201115/20201115.1.png"> </p>
+<p>根据左边各个市的人口统计每个省的人口</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">CASE</span> pref_name</span><br><span class="line">      <span class="keyword">WHEN</span> <span class="string">&#x27;长沙&#x27;</span> <span class="keyword">THEN</span> <span class="string">&#x27;湖南&#x27;</span> </span><br><span class="line">      <span class="keyword">WHEN</span> <span class="string">&#x27;衡阳&#x27;</span> <span class="keyword">THEN</span> <span class="string">&#x27;湖南&#x27;</span></span><br><span class="line">      <span class="keyword">WHEN</span> <span class="string">&#x27;海口&#x27;</span> <span class="keyword">THEN</span> <span class="string">&#x27;海南&#x27;</span> </span><br><span class="line">      <span class="keyword">WHEN</span> <span class="string">&#x27;三亚&#x27;</span> <span class="keyword">THEN</span> <span class="string">&#x27;海南&#x27;</span></span><br><span class="line">    <span class="keyword">ELSE</span> <span class="string">&#x27;其他&#x27;</span> <span class="keyword">END</span> <span class="keyword">AS</span> district,</span><br><span class="line">    <span class="built_in">SUM</span>(population) </span><br><span class="line"><span class="keyword">FROM</span> PopTbl <span class="keyword">GROUP</span> <span class="keyword">BY</span> district;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>case when 更新</li>
+</ul>
+<p><img src="/img/20201115/20201115.2.png"> </p>
+<p>工资1万以上的员工，降薪10%，工资低于1万的员工，加薪20%</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> Salaries</span><br><span class="line"><span class="keyword">SET</span> salary <span class="operator">=</span> <span class="keyword">CASE</span> <span class="keyword">WHEN</span> salary <span class="operator">&gt;=</span> <span class="number">10000</span> <span class="keyword">THEN</span> salary <span class="operator">*</span> <span class="number">0.9</span></span><br><span class="line"><span class="keyword">WHEN</span> salary <span class="operator">&lt;</span> <span class="number">10000</span> <span class="keyword">THEN</span> salary <span class="operator">*</span> <span class="number">1.2</span></span><br><span class="line"><span class="keyword">ELSE</span> salary <span class="keyword">END</span>;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>自连接 删除重复行</li>
+</ul>
+<p><img src="/img/20201115/20201115.3.png"> </p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> Products P1</span><br><span class="line"> <span class="keyword">WHERE</span> id <span class="operator">&lt;</span> ( <span class="keyword">SELECT</span> <span class="built_in">MAX</span>(P2.id) </span><br><span class="line">                   <span class="keyword">FROM</span> Products P2 </span><br><span class="line">                  <span class="keyword">WHERE</span> P1.name <span class="operator">=</span> P2.name </span><br><span class="line">                    <span class="keyword">AND</span> P1.price <span class="operator">=</span> P2.price ); </span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>EXISTS 代替 DISTINCT</li>
+</ul>
+<p><img src="/img/20201115/20201115.4.png"> </p>
+<p>如何找出有销售记录的商品，使用DISTINCT可以如下</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> I.item_no</span><br><span class="line"><span class="keyword">FROM</span> Items I <span class="keyword">INNER</span> <span class="keyword">JOIN</span> SalesHistory SH</span><br><span class="line"><span class="keyword">ON</span> I. item_no <span class="operator">=</span> SH. item_no;</span><br></pre></td></tr></table></figure>
+
+<p>为了排除重复数据，DISTINCT会对结果进行排序，用EXISTS代替可以避免排序</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> item_no <span class="keyword">FROM</span> Items I</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> </span><br><span class="line">        (<span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line">           <span class="keyword">FROM</span> SalesHistory SH</span><br><span class="line">          <span class="keyword">WHERE</span> I.item_no <span class="operator">=</span> SH.item_no);</span><br></pre></td></tr></table></figure>
+
 <br>
 
 <p><strong>参考：</strong>  </p>
@@ -219,7 +308,7 @@
         
   
   <div class="tags">
-    <a href="/tags/mysql/">mysql</a>
+    <a href="/tags/sql/">sql</a>   <a href="/tags/mysql/">mysql</a>
   </div>
 
 
@@ -273,7 +362,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Mysql%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92"><span class="toc-text">Mysql执行计划</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Mysql%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92"><span class="toc-text">Mysql执行计划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sql%E4%BC%98%E5%8C%96%E7%A4%BA%E4%BE%8B"><span class="toc-text">sql优化示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sql%E6%8A%80%E5%B7%A7"><span class="toc-text">sql技巧</span></a></li></ol>
 </div>
 
 
