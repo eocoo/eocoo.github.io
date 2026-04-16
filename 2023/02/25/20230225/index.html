@@ -1,0 +1,382 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Mysql 备份/还原 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="mysql备份常用操作">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Mysql 备份/还原"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  137 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20230225" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2023-02-24T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2023/02/25/20230225/" style="color: #736f6f;">2023-02-25</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Mysql 备份/还原
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 756  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 3min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/mysql/">mysql</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>mysql备份常用操作</p>
+<span id="more"></span>
+
+<h4 id="备份指定数据库"><a href="#备份指定数据库" class="headerlink" title="备份指定数据库"></a>备份指定数据库</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 格式：</span></span></span><br><span class="line">mysqldump -h主机名 -P端口 -u用户名 -p&quot;密码&quot; --database 数据库名1  数据库名2 &gt; 文件名.sql</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 示例：</span></span></span><br><span class="line">mysqldump -h10.64.32.69 -P3306 -uroot -proot \</span><br><span class="line">          --single-transaction --master-data=2 --set-gtid-purged=OFF \</span><br><span class="line">          --database -B db_1 db_2 &gt; db_dump_`date +%Y%m%d-%H%M`.sql</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>-B 参数备份出来的内容自带create database库名和use 库名，数据还原时不用先创建和指定库；</li>
+<li>–single-transaction 基于事务快照，看到的是备份开始时的数据，期间其他事务的DML操作不会参与备份；</li>
+<li>–master-data&#x3D;2 记录备份时binlog的坐标（文件名和位置），主要用于搭建主从复制或基于时间点的增量恢复；</li>
+</ul>
+<h4 id="备份指定表"><a href="#备份指定表" class="headerlink" title="备份指定表"></a>备份指定表</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 格式：</span></span></span><br><span class="line">mysqldump -h主机名 -P端口 -u用户名 -p&quot;密码&quot; 数据库名 表名1 表名2 &gt; 文件名.sql</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 示例：</span></span></span><br><span class="line">mysqldump -h10.64.32.69 -P3306 -uroot -proot \</span><br><span class="line">          --single-transaction --master-data=2 --set-gtid-purged=OFF \</span><br><span class="line">          db_1 tb_1 tb_2 &gt; tb_dump_`date +%Y%m%d-%H%M`.sql</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>–no-data 仅备份数据库结构，不包含数据</li>
+</ul>
+<h4 id="还原数据"><a href="#还原数据" class="headerlink" title="还原数据"></a>还原数据</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 示例：还原db_1库中的tb_1表的备份</span></span></span><br><span class="line">mysql -uroot -proot -e &quot;CREATE DATABASE IF NOT EXISTS db_1&quot;</span><br><span class="line">mysql -uroot -proot db_1 &lt; tb_dump.sql</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 示例：还原数据库</span></span></span><br><span class="line">mysql -uroot -proot &lt; db_dump.sql</span><br></pre></td></tr></table></figure>
+
+<h4 id="线上清洗数据"><a href="#线上清洗数据" class="headerlink" title="线上清洗数据"></a>线上清洗数据</h4><p>场景：数据脏了，但表数据量大，现在需要只保留表中部分有用的数据，以便快速恢复关键业务。</p>
+<p>问题：千万级数据，直接清理大量数据会产生海量log，超过限制，导致SQL执行失败。并且长事务持有锁，会阻塞其他DML操作，可能引发死锁或连接超时，影响业务可用性。</p>
+<p>思路1：使用create table as将数据抽出来，将原表数据truncate后，再放进去；</p>
+<p><img src="/img/20230225/20230225.2.png"></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 将正常数据复制到临时表</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> TEMP_TABLE <span class="keyword">AS</span> <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> MY_TABLE <span class="keyword">WHERE</span> <span class="keyword">group</span> <span class="operator">&lt;&gt;</span> <span class="string">&#x27;bad_group&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 清空原表数据，但不删除表</span></span><br><span class="line"><span class="keyword">TRUNCATE</span> <span class="keyword">TABLE</span> MY_TABLE;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 将临时表数据插入到原表</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> MY_TABLE <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> TEMP_TABLE;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<p>思路2：使用like命令快速复制一个表（结构一模一样），再将需要的数据放到新表里面，最后表名改回去；</p>
+<p><img src="/img/20230225/20230225.1.png"></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 创建和原表结构一样的临时表</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> TEMP_TABLE <span class="keyword">LIKE</span> MY_TABLE;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 将正常数据复制到临时表</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> TEMP_TABLE <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> MY_TABLE <span class="keyword">WHERE</span> <span class="keyword">group</span> <span class="operator">&lt;&gt;</span> <span class="string">&#x27;bad_group&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 删除原表（最好用重命名备份）</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> MY_TABLE;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 将临时表重命名为原表</span></span><br><span class="line">RENAME <span class="keyword">TABLE</span> TEMP_TABLE <span class="keyword">TO</span> MY_TABLE;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="定期备份"><a href="#定期备份" class="headerlink" title="定期备份"></a>定期备份</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 备份文件存放路径</span></span></span><br><span class="line">backupdir=/data/mysqlbak	</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 备份文件时间</span></span>	</span><br><span class="line">time=`date +%Y%m%d-%H%M`		</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 备份所有数据库并打包</span></span></span><br><span class="line">mysqldump -h10.*.*.9 -P3306 -uroot -p&quot;密码&quot; --all-databases --single-transaction --default-character-set=utf8 | gzip &gt; $backupdir/mysql$time.sql.gz		</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 删除7天之前的备份文件</span></span></span><br><span class="line">find $backupdir -name &quot;mysql*.sql.gz&quot; -type f -mtime +7 -exec rm &#123;&#125; \; &gt; /dev/null 2&gt;&amp;1			</span><br></pre></td></tr></table></figure>
+
+<p>crontab -e添加计划任务：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">0 0 3 * * * /data/mysqlbak/bakmysql.sh</span><br></pre></td></tr></table></figure>
+
+<p>恢复数据示例</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">gzip &lt; mysql22020703.sql.gz | mysql -uroot -proot</span><br></pre></td></tr></table></figure>
+
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2023/03/21/20230321/">
+		    wireshark分析TCP吞吐瓶颈
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2022/10/27/20221027/">
+		    Https协议
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/mysql/">mysql</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%87%E4%BB%BD%E6%8C%87%E5%AE%9A%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-text">备份指定数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%87%E4%BB%BD%E6%8C%87%E5%AE%9A%E8%A1%A8"><span class="toc-text">备份指定表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%98%E5%8E%9F%E6%95%B0%E6%8D%AE"><span class="toc-text">还原数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E4%B8%8A%E6%B8%85%E6%B4%97%E6%95%B0%E6%8D%AE"><span class="toc-text">线上清洗数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E6%9C%9F%E5%A4%87%E4%BB%BD"><span class="toc-text">定期备份</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
