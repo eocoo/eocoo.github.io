@@ -1,0 +1,431 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Mysql基本原理 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="数据库可以理解成就是一个管理数据文件的基础软件，它介于应用和数据之间。Mysql使用ibd文件来存放表数据，它将数据拆成一个个数据页，每页默认16KB，这样在读写部分表数据时，只需读取磁盘中对应的几个数据页，而不用读写整个ibd文件。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Mysql基本原理"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  136 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20201121" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-11-20T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/11/21/20201121/" style="color: #736f6f;">2020-11-21</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Mysql基本原理
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 2.7k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 9min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/存储服务/">存储服务</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/mysql/">mysql</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p><img src="/img/20201121/20201121.0.png"> </p>
+<p>数据库可以理解成就是一个管理数据文件的基础软件，它介于应用和数据之间。Mysql使用ibd文件来存放表数据，它将数据拆成一个个数据页，每页默认16KB，这样在读写部分表数据时，只需读取磁盘中对应的几个数据页，而不用读写整个ibd文件。</p>
+<span id="more"></span>
+
+<h3 id="数据页"><a href="#数据页" class="headerlink" title="数据页"></a>数据页</h3><p>为了更好的查询数据页，会为每个数据页添加页号，再为每行数据加个序号（主键），然后按主键大小排序，将每个数据页里最小的主键序号和所在页的页号提出来，使用B+树进行层级组织（InnoDB主键采用聚簇索引，叶子节点直接存在行数据，使用其它索引查询数据时，需要先转化成主键再获取数据，称为回表）</p>
+<p>根据聚簇索引的特点，如果单行数据体积越大，叶子节点所能存储的数据行就越少，然后就需要分裂更多的数据页，从而导致B+树的层级越高，查询需要更多的IO，最终影响查询性能。所以一般在设计表结构时，可以考虑将大体积字段和不常用的字段进行分表设计。</p>
+<p><img src="/img/20201121/20201121.1.png"> </p>
+<h3 id="Buffer-Pool"><a href="#Buffer-Pool" class="headerlink" title="Buffer Pool"></a>Buffer Pool</h3><p>磁盘IO是数据库性能的瓶颈，所以Buffer Pool的目的就是通过内存缓存减少磁盘IO，提升读写性能。读取数据时，直接从内存读取，如果没有再去磁盘读取，以数据页为单位载入内存。修改数据时，也是先操作Buffer Pool中的缓存页，修改后标记为脏页，然后由后台线程择机进行批量刷盘。</p>
+<p>所以<font color="red">缓存命中率</font>是Buffer Pool的核心指标，命中率越高，磁盘IO越少，性能越好。</p>
+<ul>
+<li>预读失效问题</li>
+</ul>
+<p>InnoDB会利用空间局部性，加载数据页时提前加载相邻页（预读），减少磁盘IO，但如果预读的页没被访问，就是预读失效。所以思路是在LRU基础上进行优化，分成young区和old区（后37%，innodb_old_blocks_pct参数，默认37）。</p>
+<p>加载时预读页先放入old区头部，只有预读页被真正访问时才转移到young区头部，然后未被访问的预读页会从old区尾部淘汰，不影响young区热点数据。</p>
+<p>另外，young区前1&#x2F;4的页被访问时，不会移动到头部，避免频繁移动带来的开销。</p>
+<p><img src="/img/20201121/20201121.2.png"> </p>
+<ul>
+<li>Buffer Pool污染问题</li>
+</ul>
+<p>当执行全表扫描（比如索引失效）时，即使结果集很小，也会把大量磁盘页加载到Buffer Pool，淘汰掉原本的热点数据，导致后续访问频繁命中磁盘——这就是Buffer Pool污染，解决办法是增加时间判断（由innodb_old_blocks_time参数控制，默认1000ms）：</p>
+<p>old区的页第一次被访问时，会记录访问时间，只有后续访问时间与第一次访问时间间隔超过1秒，才把页转移到young区头部。这样全表扫描时加载的页，短期内频繁访问但间隔小于1秒，不会进入young区，避免淘汰热点数据。</p>
+<ul>
+<li>脏页的刷盘时机</li>
+</ul>
+<p>脏页刷盘不能太频繁（影响性能），也不能太滞后（怕数据丢失），InnoDB会在以下4个时机批量刷盘：</p>
+<ol>
+<li>redo log日志满了（必须刷盘，否则无法继续写日志，刷盘的不是redo log，而是脏页，为了腾出空间）；</li>
+<li>Buffer Pool空间不足（淘汰页时，若淘汰的是脏页，需先刷盘）；</li>
+<li>MySQL空闲时（后台线程定期刷盘，不影响业务）；</li>
+<li>MySQL正常关闭时（确保所有脏页都刷盘，避免数据丢失）；</li>
+</ol>
+<p>如果慢SQL监控中偶尔出现耗时稍长的SQL，可能是脏页刷盘带来的性能开销。若频繁出现，可以考虑调大Buffer Pool或redo log大小。</p>
+<h3 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h3><h4 id="undo-Log-MVCC"><a href="#undo-Log-MVCC" class="headerlink" title="undo Log &amp; MVCC"></a>undo Log &amp; MVCC</h4><p>undo log回滚日志，是InnoDB存储引擎特有的日志，它保证了事务ACID特性中的原子性（Atomicity），记录的是逆向逻辑操作，用于记录数据被修改前的信息。它的主要作用有两个：<font color="red">事务回滚</font>和通过ReadView + undo log<font color="red">实现MVCC</font>（多版本并发控制）</p>
+<ul>
+<li>事务回滚</li>
+</ul>
+<p><img src="/img/20201121/20201121.3.png"> </p>
+<p>一条记录的每次更新都会产生undo log，它有一个roll_pointer指针和一个trx_id事务。通过trx_id可以知道该记录是被哪个事务修改的，通过roll_pointer指针可以将这些undo log串成一个链表，这个链表就被称为版本链。</p>
+<p>事务发生回滚时，会读取undo log里的数据，本质上并不会以执行反SQL的模式还原数据，而是直接将roll_ptr回滚指针指向Undo记录。</p>
+<ul>
+<li>MVCC</li>
+</ul>
+<p>在MVCC出现之前，数据库主要依靠锁机制来解决并发冲突，但锁是以牺牲性能为代价的。而MVCC的思路是为每一行数据维护多个版本，通过某个时间点的快照（Snapshot）来读取数据，从而避免加锁带来的性能损耗，以非阻塞的方式实现事务所需的隔离级别。</p>
+<p><img src="/img/20201121/20201121.4.png"> </p>
+<p><strong>READ UNCOMMITTED</strong>：事务可以查看其他事务中还没有提交的修改，这个级别不用加任何锁，但也容易导致很多问题，比如脏读（dirty read），所以在实际应用中很少使用。</p>
+<p><strong>READ COMMITTED</strong>：大多数数据库的默认隔离级别，一个事务可以看到其他事务在它开始之后提交的修改。思路是每次读都取已提交的最新快照，也就是基于MVCC，每次SELECT查询都会生成一个独立的、最新的ReadView。</p>
+<p><strong>REPEATABLE READ</strong>：Mysql默认隔离级别，同一个事务中多次读取相同行数据的结果永远是一样的。也是基于MVCC，但一个事务中只有第一次SELECT查询时会生成ReadView，后续所有读操作都复用这个 ReadView。</p>
+<p>另外，InnoDB在RR级别上也解决了幻读问题，通过Next-Key Lock（临键锁）实现。它结合了记录锁（锁住索引项）和间隙锁（锁住索引项之间的间隙）。当执行范围查询时，InnoDB 会锁住整个范围，防止其他事务在这个范围内插入新数据，从而避免了幻读。</p>
+<p><strong>SERIALIZABLE</strong>：退化为基于锁的并发控制，完全摒弃MVCC。读取的每一行数据上都会加锁，所以可能导致大量的超时和锁争用的问题，实际应用中也很少用。</p>
+<ul>
+<li>Read View</li>
+</ul>
+<p>ReadView是InnoDB用来实现MVCC的核心数据结构，它记录了当前系统中所有活跃事务（已开启但未提交）的ID列表，从而决定当前事务能看到哪些版本的数据。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReadView</span> &#123;</span></span><br><span class="line">private:</span><br><span class="line">    <span class="type">trx_id_t</span> m_low_limit_id;    <span class="comment">// 高水位，大于等于此ID的事务不可见</span></span><br><span class="line">    <span class="type">trx_id_t</span> m_up_limit_id;     <span class="comment">// 低水位：小于此ID的事务可见，小于这个trx_id的事务在本次ReadView生成前已提交</span></span><br><span class="line">    <span class="type">trx_id_t</span> m_creator_trx_id;  <span class="comment">// 创建该ReadView的事务ID</span></span><br><span class="line">    <span class="type">ids_t</span> m_ids;                <span class="comment">// 活跃事务ID列表</span></span><br><span class="line">    <span class="type">trx_id_t</span> m_low_limit_no;    <span class="comment">// 用于Purge的事务号</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>但是它只用于已提交读和可重复读两个隔离级别，这两个隔离级别的不同点就在于什么时候生成Read View。</p>
+<p><img src="/img/20201121/20201121.8.png"> </p>
+<h4 id="redo-log"><a href="#redo-log" class="headerlink" title="redo log"></a>redo log</h4><p>redo log重做日志，也是InnoDB存储引擎特有的日志，记录内容是数据页的物理修改，它是事务持久性的实现基础，用于掉电等故障的数据恢复；</p>
+<p>其思路是WAL（Write-Ahead Logging）写前日志技术，事务在commit时，先将redo log刷盘，而不用等待对应的脏页刷入磁盘。由于内存的脏页数据是随机分散在磁盘上的，而redo log file可以顺序写，其性能是随机写的几十倍，所以能大大加快事务提交流程。</p>
+<ul>
+<li>checkpoint</li>
+</ul>
+<p>redo log默认情况下存储在data目录下 ib_logfile0 和 ib-logfile1 两个文件中（可以通过innodb_log_file_size设置大小，innodb_log_files_in_group设置文件个数），Mysql会通过来回写这两个文件的形式记录日志，形成一个环</p>
+<p><img src="/img/20201121/20201121.5.png"> </p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">check point：表示目前哪些redo log记录已经失效，且可以被擦除（覆盖）</span><br><span class="line">check point ～ write pos 之间的部分（图中蓝色部分），待落盘的脏数据页记录；</span><br><span class="line">write pos：表示当前redo log文件写到了哪个位置</span><br><span class="line">write pos ～ checkpoint 之间的部分（图中的红色部分），可用来记录新的更新操作；</span><br></pre></td></tr></table></figure>
+
+<h4 id="bin-log"><a href="#bin-log" class="headerlink" title="bin log"></a>bin log</h4><p>bin log是Mysql在服务层记录的操作日志，主要用于实现主从复制（集群同步）和数据备份恢复（PITR时间点恢复）。</p>
+<p>bin log是通过追加的方式进行写入的，可以通过max_binlog_size参数设置每个binlog文件的大小，当文件大小达到给定值之后，会生成新的文件来保存日志。文件的命名为mysql-bin.000001、mysql-bin.000002、mysql-bin.00000x….，可以通过show binary logs;命令查看已有的bin-log日志文件。</p>
+<ul>
+<li>主从复制</li>
+</ul>
+<p>Mysql的主从复制是异步串行化的，也就是说主库上执行事务操作的线程，不会等待复制binlog的线程同步完成，示意如下：</p>
+<p><img src="/img/20201121/20201121.6.png"> </p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">写入：主库写bin log 日志，提交事务，并更新本地存储数据；</span><br><span class="line">同步：从库拉取bin log，并写到中继（relay log）日志中；</span><br><span class="line">重做：重做中继日志relay log events，并更新存储引擎中的数据；</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>2PC两阶段提交日志</li>
+</ul>
+<p>由于redo Log在引擎层，bin log在Server层，所以就有个问题，<font color="red">怎么保证两个日志的内容一致？</font></p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">准备阶段：redo log prepare，将事务的redo log刷盘，状态标记为prepare；</span><br><span class="line">写入阶段：bin log write，Server层将对应的bin log写入磁盘，一旦bin log落盘，就意味着操作已经永久生效（后续会同步给从库）；</span><br><span class="line">提交阶段：redo log commit，Server层通知引擎bin log写完了，将redo log的状态改为commit；</span><br></pre></td></tr></table></figure>
+
+<p><strong>如果bin log写入失败</strong>：此时redo log状态为prepare，Mysql恢复时会检查bin log，发现没有对应的事务XID（事务唯一标识），就知道Server层还没确认完成。为了保证主从一致（从库没收到bin log），会用undo log回滚事务；</p>
+<p><strong>如果redo log提交失败</strong>：此时bin log已完成写入，Mysql恢复时检查到bin log有对应的XID，就知道Server层已完成确认完成。就是redo log不是Commit状态，也会直接提交事务（因为bin log可能已经同步到从库，主库必须认账，否则主从数据会不一致）</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>可以用一次修改提交的过程来说明，示意如下：</p>
+<p><img src="/img/20201121/20201121.7.jpg"> </p>
+<p><strong>参考：</strong>  </p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2021/03/06/20210306/">
+		    存储系统
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2020/11/15/20201115/">
+		    Mysql执行计划
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/存储服务/">存储服务</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/mysql/">mysql</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%A1%B5"><span class="toc-text">数据页</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Buffer-Pool"><span class="toc-text">Buffer Pool</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97"><span class="toc-text">日志</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#undo-Log-MVCC"><span class="toc-text">undo Log &amp; MVCC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log"><span class="toc-text">redo log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bin-log"><span class="toc-text">bin log</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
