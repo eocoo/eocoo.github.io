@@ -1,0 +1,418 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Redis缓存常见问题 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="引入缓存是一种非常常见的策略，可以提高上层的查询性能，同时减轻下层存储的压力。但同时也引入了更多的问题，主要围绕命中率和一致性两个方面，如果命中率过低，那么缓存就形同虚设，如果不能保证缓存与真实数据一致，那么就会造成错误，不如不用缓存。下面主要总结下使用redis作为缓存时常见的问题和解决办法">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Redis缓存常见问题"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  138 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20220305" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2022-03-04T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2022/03/05/20220305/" style="color: #736f6f;">2022-03-05</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Redis缓存常见问题
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 2.4k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 9min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/存储服务/">存储服务</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/redis/">redis</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>引入缓存是一种非常常见的策略，可以提高上层的查询性能，同时减轻下层存储的压力。但同时也引入了更多的问题，主要围绕<font color="red">命中率</font>和<font color="red">一致性</font>两个方面，如果命中率过低，那么缓存就形同虚设，如果不能保证缓存与真实数据一致，那么就会造成错误，不如不用缓存。下面主要总结下使用redis作为缓存时常见的问题和解决办法</p>
+<span id="more"></span>
+
+<h3 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h3><blockquote>
+<p>针对数据库中存在，但缓存中没有的数据（一般是热点数据缓存时间到期），如果此时请求并发很高，由于缓存没有读到，会同时去查询数据库，造成数据库压力陡增，影响系统稳定性；</p>
+</blockquote>
+<p>解决办法：</p>
+<ul>
+<li><p>热点数据不设置过期时间，根据一致性要求和业务场景进行评估；</p>
+</li>
+<li><p>添加互斥锁</p>
+</li>
+</ul>
+<p>处理并发请求时，只有第一个请求线程能拿到锁并执行数据库查询操作，其他线程阻塞等着，等到第一个线程将数据写入缓存后，直接走缓存。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> RedissonClient redissonClient;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> List&lt;String&gt; <span class="title function_">getData</span><span class="params">(String key)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">retry</span> <span class="operator">=</span> <span class="number">0</span>; retry &lt; <span class="number">10</span>; retry++) &#123;</span><br><span class="line">        <span class="comment">// 查询缓存</span></span><br><span class="line">        List&lt;String&gt; result = getDataFromCache(key);</span><br><span class="line">        <span class="keyword">if</span> (result != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">RLock</span> <span class="variable">lock</span> <span class="operator">=</span> redissonClient.getLock(<span class="string">&quot;prefix:lock:&quot;</span> + key);</span><br><span class="line">        <span class="comment">// 尝试获取锁，等待0秒，持有10秒</span></span><br><span class="line">        <span class="keyword">if</span> (lock.tryLock(<span class="number">0</span>, <span class="number">10</span>, TimeUnit.SECONDS)) &#123;   </span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 再次查询缓存，可能别的线程已经写入</span></span><br><span class="line">                result = getDataFromCache(key);</span><br><span class="line">                <span class="keyword">if</span> (result == <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="comment">// 查询数据库</span></span><br><span class="line">                    result = getDataFromDB(key);</span><br><span class="line">                    <span class="keyword">if</span> (result == <span class="literal">null</span>) &#123;</span><br><span class="line">                        result = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="comment">// 写入缓存</span></span><br><span class="line">                    setDataToCache(key, result);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取锁失败，稍后重试</span></span><br><span class="line">        Thread.sleep(<span class="number">100</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重试超过限制，直接查询数据库</span></span><br><span class="line">    <span class="keyword">return</span> getDataFromDB(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h3><blockquote>
+<p>可以理解成升级版的缓存击穿，大量热点key同时失效（可能是缓存重启或者大量key设置了相同的过期时间），此时数据库压力暴增，可能会崩溃；</p>
+</blockquote>
+<p>解决办法：</p>
+<ul>
+<li><p>对缓存进行预热；</p>
+</li>
+<li><p>分散key的过期时间，可以给每个key单独设置一个随机的过期时间；</p>
+</li>
+<li><p>使用互斥锁，与上面的解决办法一样；</p>
+</li>
+</ul>
+<h3 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h3><blockquote>
+<p>缓存穿透的危害最大，因为它的目标是根本不存在的数据，此时缓存形同虚设，如果恶意攻击，制造大量非法请求，很容易将数据库压垮；</p>
+</blockquote>
+<p>解决办法：</p>
+<ul>
+<li><p>参数校验，在API入口层进行严格校验，直接屏蔽非法参数的请求，这种办法成本最低，效果明显；</p>
+</li>
+<li><p>布隆过滤器，清求的key可能合法但不存在，可以再用布隆过滤器过滤下</p>
+</li>
+</ul>
+<p>布隆过滤器思路：通过多个hash函数，对存在的key刷一遍，将hash值放到一个bitmap中，这样对于一个请求key，用同样的hash函数对它进行计算，结果放入bitmap进行比较，只要有1位不存在，那么这个key就一定不存在；如果所有位都存在，则可能是误判存在。但它的好处是存储小，且对不存在的判断准确；缺点则是对存在的判断可能不准，而且删除困难；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BloomFilter</span>&lt;T&gt; &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> BitSet bitSet;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> bitSetSize;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> expectedNumberOfItems;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> numberOfHashFunctions;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> HashFunction[] hashFunctions;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">BloomFilter</span><span class="params">(<span class="type">int</span> expectedNumberOfItems, <span class="type">double</span> falsePositiveProbability)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.expectedNumberOfItems = expectedNumberOfItems;</span><br><span class="line">        <span class="comment">// bit位数 m = -n × ln p / (ln 2)²，n是期望个数，p是误判率</span></span><br><span class="line">        <span class="type">double</span> <span class="variable">ln2</span> <span class="operator">=</span> Math.log(<span class="number">2</span>);</span><br><span class="line">        <span class="type">double</span> <span class="variable">ln2Squared</span> <span class="operator">=</span> ln2 * ln2;</span><br><span class="line">        <span class="built_in">this</span>.bitSetSize = (<span class="type">int</span>) Math.ceil(-expectedNumberOfItems * Math.log(falsePositiveProbability) / ln2Squared);</span><br><span class="line">        <span class="built_in">this</span>.bitSet = <span class="keyword">new</span> <span class="title class_">BitSet</span>(bitSetSize);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// hash函数个数 k = (m/n) × ln 2</span></span><br><span class="line">        <span class="built_in">this</span>.numberOfHashFunctions = (<span class="type">int</span>) Math.ceil(ln2 * bitSetSize / expectedNumberOfItems); </span><br><span class="line"></span><br><span class="line">        <span class="comment">// 初始化哈希函数</span></span><br><span class="line">        <span class="built_in">this</span>.hashFunctions = <span class="keyword">new</span> <span class="title class_">HashFunction</span>[numberOfHashFunctions];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; numberOfHashFunctions; i++) &#123;</span><br><span class="line">            hashFunctions[i] = <span class="keyword">new</span> <span class="title class_">SimpleHash</span>(bitSetSize, i + <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">add</span><span class="params">(T element)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (element == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">hash1</span> <span class="operator">=</span> element.hashCode();</span><br><span class="line">        <span class="type">int</span> <span class="variable">hash2</span> <span class="operator">=</span> hash1 &gt;&gt;&gt; <span class="number">16</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; numberOfHashFunctions; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">combinedHash</span> <span class="operator">=</span> hash1 + i * hash2;</span><br><span class="line">            <span class="type">int</span> <span class="variable">position</span> <span class="operator">=</span> Math.abs(combinedHash) % bitSetSize;</span><br><span class="line">            bitSet.set(position);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">contains</span><span class="params">(T element)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (element == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">hash1</span> <span class="operator">=</span> element.hashCode();</span><br><span class="line">        <span class="type">int</span> <span class="variable">hash2</span> <span class="operator">=</span> hash1 &gt;&gt;&gt; <span class="number">16</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; numberOfHashFunctions; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">combinedHash</span> <span class="operator">=</span> hash1 + i * hash2;</span><br><span class="line">            <span class="type">int</span> <span class="variable">position</span> <span class="operator">=</span> Math.abs(combinedHash) % bitSetSize;</span><br><span class="line">            <span class="keyword">if</span> (!bitSet.get(position)) &#123;</span><br><span class="line">                <span class="comment">// 一定不存在</span></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 可能存在</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于分布式环境，可以使用Redis的布隆过滤器模块：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedisBloomFilter</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate&lt;String, Object&gt; redisTemplate;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">BLOOM_FILTER_KEY</span> <span class="operator">=</span> <span class="string">&quot;bloom_filter:user_ids&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">contains</span><span class="params">(Long id)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> (Boolean) redisTemplate.execute(</span><br><span class="line">                (RedisCallback&lt;Boolean&gt;) con -&gt; con.executeCommand(</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">CommandObject</span>&lt;&gt;(RedisCommands.BF_EXISTS, BLOOM_FILTER_KEY, String.valueOf(id))));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="comment">// 过滤器不可用时降级处理</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">add</span><span class="params">(Long id)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            redisTemplate.execute(</span><br><span class="line">                (RedisCallback&lt;Void&gt;) con -&gt; con.executeCommand(</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">CommandObject</span>&lt;&gt;(RedisCommands.BF_ADD, BLOOM_FILTER_KEY, String.valueOf(id))));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="comment">// 记录错误日志</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>缓存空值，如果请求的key通过了校验和过滤，可以考虑缓存空值来拦住请求，具体办法与上面缓存击穿的处理一样；</li>
+</ul>
+<h3 id="缓存一致性问题"><a href="#缓存一致性问题" class="headerlink" title="缓存一致性问题"></a>缓存一致性问题</h3><h4 id="旁路缓存-Cache-Aside"><a href="#旁路缓存-Cache-Aside" class="headerlink" title="旁路缓存 Cache Aside"></a>旁路缓存 Cache Aside</h4><ul>
+<li>读操作：缓存命中则返回，如果未命中则读取数据库，并回填缓存；</li>
+<li>写操作：先更新数据库，然后删除缓存；</li>
+</ul>
+<p>这是最常用和方便的模式，基本可以满足大部分场景。通过<font color="red">惰性加载</font>保证高性能，并通过删除而非更新缓存来避免并发写的不一致，实现最终一致性。</p>
+<p>但是需要防范缓存击穿、雪崩等问题，至于出现数据不一致的概率基本可以忽略。只有在一个线程A读完数据库写入Redis的期间，另一个线程B完成了数据库更新和删除Redis，才会发生。而且，也可以通过<font color="red">延迟双删</font>进一步降低这种概率，就是在删除之后等待一小段时间后再删一次。</p>
+<ul>
+<li>同步更新</li>
+</ul>
+<p>有的业务场景可能容忍不了惰性加载缓存，进行写操作时，需要同时更新数据库和缓存。这里问题就是先写数据库还是先写缓存，推荐是先写数据库（毕竟数据库才是真正的数据持久化，而且写缓存失败还可以回滚前面的数据库操作），但不管是先写哪个，都存在数据不一致的可能，毕竟写库和写缓存是两件独立的操作。或者你可以通过互斥锁来将两个操作变成一个原子操作，但这样明显会影响性能（<font color="red">在强一致性与并发性能之间无法做到既要又要</font>）。</p>
+<h4 id="读-写穿透-Read-Write-Through"><a href="#读-写穿透-Read-Write-Through" class="headerlink" title="读&#x2F;写穿透 Read&#x2F;Write Through"></a>读&#x2F;写穿透 Read&#x2F;Write Through</h4><ul>
+<li>读穿透：应用只找缓存要数据，如果缓存里没有，缓存组件自己去数据库加载数据；</li>
+<li>写穿透：应用只负责将数据写入缓存，然后由缓存组件自己去更新数据库；</li>
+</ul>
+<p>这里应用只需面对缓存进行操作即可，因为缓存组件承担了更多的工作，所以重点就是对缓存组件的操作封装。主要就是<font color="red">载入</font>和<font color="red">刷库</font>操作，具体操作方式可以再分为同步和异步。</p>
+<p>比较稳一点选择是：同步写库，然后异步刷新缓存。这样虽然读操作的即时性稍微会差一点，但可以避免写操作时丢数据（毕竟难以容忍）。</p>
+<h4 id="写回-Write-Behind"><a href="#写回-Write-Behind" class="headerlink" title="写回 Write Behind"></a>写回 Write Behind</h4><ul>
+<li>读操作，读取缓存，如果没有则读取数据库并回填；</li>
+<li>写操作，只更新缓存，然后直接返回，数据库的更新被推迟到缓存数据过期或被逐出时触发；</li>
+</ul>
+<p>这里缓存组件需要做更多的事情，要监听缓存中的key，在其过期时将最新数据刷到数据库。这种方式也很常见，比如mysql对Buffer pool中脏页的处理。但代价是可能丢数据，比如缓存突然宕机，那么所有未刷到数据库的脏数据将全部丢失。（其实这种方式反而不存在数据不一致的问题，因为对应用来说只面对缓存一个存储，但前提是能解决数据丢失问题）</p>
+<p>注意，这里读操作回填缓存，或写操作载入缓存时不能直接SET覆盖，需要使用SETNX(Set if Not Exists)，因为<font color="red">缓存的数据版本永远高于数据库中的版本</font>，可能有别的线程已经更新了缓存数据，如果直接覆盖可能造成修改丢失的问题。</p>
+<h4 id="预刷新-Refresh-Ahead"><a href="#预刷新-Refresh-Ahead" class="headerlink" title="预刷新 Refresh Ahead"></a>预刷新 Refresh Ahead</h4><ul>
+<li>读操作，读取缓存，如果没有则读取数据库并回填；</li>
+<li>写操作，只更新数据库，然后直接返回，后面通过监听数据库Binlog方式异步刷新缓存；</li>
+</ul>
+<p>这里同样面临数据不一致的问题，比如在数据写入数据库之后，Binlog被消费并刷新到缓存之前，读取的缓存数据将是旧版本数据。另外，这种方式中的数据是以数据库为准的，也就是来自Binlog的数据更新一定是可信的，所以读操作在回填缓存是也要使用SETNX。（比如读线程A读取了一个数据旧值，但是在它回填缓存之前，写线程B完成了更新，并将Binlog的变化刷到了缓存，此时线程A拿到的值就不应该再写入缓存了）</p>
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2022/04/01/20220401/">
+		    关于代码评审
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2022/02/22/20220222/">
+		    Linux 常用Shell脚本
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/存储服务/">存储服务</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/redis/">redis</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF"><span class="toc-text">缓存击穿</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9"><span class="toc-text">缓存雪崩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F"><span class="toc-text">缓存穿透</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98"><span class="toc-text">缓存一致性问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%81%E8%B7%AF%E7%BC%93%E5%AD%98-Cache-Aside"><span class="toc-text">旁路缓存 Cache Aside</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%BB-%E5%86%99%E7%A9%BF%E9%80%8F-Read-Write-Through"><span class="toc-text">读&#x2F;写穿透 Read&#x2F;Write Through</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%99%E5%9B%9E-Write-Behind"><span class="toc-text">写回 Write Behind</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%84%E5%88%B7%E6%96%B0-Refresh-Ahead"><span class="toc-text">预刷新 Refresh Ahead</span></a></li></ol></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

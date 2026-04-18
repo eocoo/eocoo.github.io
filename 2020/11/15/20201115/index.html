@@ -50,7 +50,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  137 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  138 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -93,7 +93,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 3.3k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 13min</font>
+   <font style="color: #999;"> words: 3.5k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 14min</font>
    
    
   
@@ -106,7 +106,7 @@
    
   
   <div class="tags">
-    <a href="/tags/sql/">sql</a>   <a href="/tags/mysql/">mysql</a>
+    <a href="/tags/mysql/">mysql</a>   <a href="/tags/sql/">sql</a>
   </div>
 
 
@@ -180,6 +180,20 @@
 </li>
 </ol>
 <h3 id="sql优化示例"><a href="#sql优化示例" class="headerlink" title="sql优化示例"></a>sql优化示例</h3><ul>
+<li>深度分页问题</li>
+</ul>
+<p>offset越大，分页查询越慢，主要是Innodb存储层不解析limit和offset关键字，它只管将数据检索出来交给server层，server层进行数数筛选最后响应给客户端。比如下面这个查询，其实存储层一共查出了6000010条数据，然后server层筛选只留下了最后10条；</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">order</span> <span class="keyword">by</span> id limit <span class="number">6000000</span>, <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+
+<p>如果通过非主键索引进行limit，还会有一个回表过程，虽然user_name建了索引，但优化器认为与其回表6000010次，还不如直接扫描全表</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">order</span> <span class="keyword">by</span> user_name limit <span class="number">6000000</span>, <span class="number">10</span></span><br></pre></td></tr></table></figure>
+
+<p>这个问题没什么好的办法，可以尝试滚动查询，记住上次返回的id最大值，然后下次从这个id继续</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> <span class="keyword">user</span> u1</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> id <span class="keyword">FROM</span> <span class="keyword">user</span> <span class="keyword">WHERE</span> user_name <span class="operator">&gt;=</span> &#123;lastName&#125; <span class="keyword">and</span> id <span class="operator">&gt;</span> &#123;lastId&#125; <span class="keyword">ORDER</span> <span class="keyword">BY</span> user_name, id LIMIT <span class="number">10</span></span><br><span class="line">) u2 <span class="keyword">ON</span> u1.id <span class="operator">=</span> u2.id</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> u1.user_name, u1.id</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
 <li>关联更新、删除</li>
 </ul>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> operation o</span><br><span class="line"><span class="keyword">SET</span>    status <span class="operator">=</span> <span class="string">&#x27;applying&#x27;</span></span><br><span class="line"><span class="keyword">WHERE</span>  o.id <span class="keyword">IN</span> (<span class="keyword">SELECT</span> id</span><br><span class="line">                <span class="keyword">FROM</span> (<span class="keyword">SELECT</span> o.id, o.status</span><br><span class="line">                      <span class="keyword">FROM</span> operation o</span><br><span class="line">                      <span class="keyword">WHERE</span> o.group <span class="operator">=</span> <span class="number">123</span> <span class="keyword">AND</span> o.status <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="string">&#x27;done&#x27;</span> )</span><br><span class="line">                      <span class="keyword">ORDER</span> <span class="keyword">BY</span> o.parent, o.id LIMIT  <span class="number">1</span>) t);</span><br></pre></td></tr></table></figure>
@@ -308,7 +322,7 @@
         
   
   <div class="tags">
-    <a href="/tags/sql/">sql</a>   <a href="/tags/mysql/">mysql</a>
+    <a href="/tags/mysql/">mysql</a>   <a href="/tags/sql/">sql</a>
   </div>
 
 
