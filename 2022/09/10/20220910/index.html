@@ -96,7 +96,7 @@ CP系统也有很多，一般是基于共识算法（比如Paxos、Raft、ZAB）
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 1.8k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 6min</font>
+   <font style="color: #999;"> words: 2k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 7min</font>
    
    
   
@@ -143,9 +143,17 @@ CP系统也有很多，一般是基于共识算法（比如Paxos、Raft、ZAB）
 <p><img src="/img/20220910/20220910.3.png"> </p>
 <p>二阶段：如果一阶段失败，TM会向TC发送回滚请求，RM收到TC发来的回滚命令，通过XID和BranchID找到对应的回滚日志，生成反向的SQL操作并执行，完成回滚；</p>
 <p><img src="/img/20220910/20220910.4.png"> </p>
-<p>AT的好处是事务可以直接提交，不用长时间持有锁造成阻塞。但风险是，如果回滚前由其他事务修改了同一行数据，就会导致脏写，此时无法自动回滚，需要人工介入。</p>
+<p>AT的好处是事务可以直接提交，不用长时间持有锁造成阻塞。但风险是，如果回滚前有其他事务修改了同一行数据，就会导致脏写，此时无法自动回滚，需要人工介入。</p>
 <h3 id="Saga模式"><a href="#Saga模式" class="headerlink" title="Saga模式"></a>Saga模式</h3><p>saga的思路是将长事务拆分为多个短事务，由事务协调器协调，如果每个短事务都成功提交完成，那么全局事务就正常完成，如果某个步骤失败了，则根据相反顺序一次调用补偿操作。具体实践时也可以对失败的操作进行重试，因为也不是所有操作都有补偿操作的，比如调用第三方的接口。</p>
-<p>具体的实现实践参考DTM实现：<a target="_blank" rel="noopener" href="https://dtm.pub/practice/saga.html">https://dtm.pub/practice/saga.html</a></p>
+<p>具体的实践参考DTM实现：<a target="_blank" rel="noopener" href="https://dtm.pub/practice/saga.html">https://dtm.pub/practice/saga.html</a></p>
+<p>关于补偿操作，这里有两个问题解决的比较好：</p>
+<ul>
+<li><p>空补偿： Cancel执行时，Try还未执行。事务分支在执行Cancel操作前，应该确认Try已执行，否则应该直接返回；</p>
+</li>
+<li><p>悬挂： Try执行时，Cancel已执行完成。事务分支在执行Try操作前，应该确认Cancel未执行，否则应该直接返回；</p>
+</li>
+</ul>
+<p>思路也是通过幂等进行控制，每个事务参与方执行操作前会insert ignore一条数据，判断依据是事务gid。对于Try操作，如果insert失败，应该直接返回；对于Cancel操作，如果insert成功，则应该直接返回；</p>
 <h3 id="最终一致性"><a href="#最终一致性" class="headerlink" title="最终一致性"></a>最终一致性</h3><h4 id="本地消息表"><a href="#本地消息表" class="headerlink" title="本地消息表"></a>本地消息表</h4><p>本地第一阶段，执行业务操作时，将相关消息存储到本地消息表；</p>
 <p>本地第二阶段，定时扫描消息（待投递，投递失败，执行失败的状态），然后投递给下游服务，可以重试直至达到最大重试次数，标记为待人工处理；</p>
 <p>对端第一阶段，将收到的消息存储到自己的消息表中，并给发送方回复ACK；</p>
