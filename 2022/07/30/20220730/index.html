@@ -1,0 +1,430 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Redis高可用问题 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="涉及到分布式数据存储相关服务的高可用问题，解决起来思路基本都差不多，都是通过备份来解决高可用问题，然后通过数据分片来解决高吞吐量问题，比如Kafka、ElasticSearch、以及数据库的分库分表，Redis的部署模式也是照着这个思路进行演变的">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Redis高可用问题"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  141 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20220730" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2022-07-29T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2022/07/30/20220730/" style="color: #736f6f;">2022-07-30</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Redis高可用问题
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 2.7k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 9min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/存储服务/">存储服务</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/redis/">redis</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>涉及到分布式数据存储相关服务的高可用问题，解决起来思路基本都差不多，都是通过备份来解决高可用问题，然后通过数据分片来解决高吞吐量问题，比如Kafka、ElasticSearch、以及数据库的分库分表，Redis的部署模式也是照着这个思路进行演变的</p>
+<span id="more"></span>
+
+<h3 id="主从模式"><a href="#主从模式" class="headerlink" title="主从模式"></a>主从模式</h3><p>所有的高可用问题都是从解决单点故障问题开始的，Redis也是一样，虽然有RDB或者AOF持久化机制，能够将数据持久化到硬盘上。但数据只存储在一台服务器上，如果硬盘故障就会导致数据不可用，而且读写都在同一台机器上，请求量大时会出现I&#x2F;O瓶颈。</p>
+<p>为了实现读写分离和避免单点故障问题，Redis提供了主从模式，将节点分为一个master，和多个salve，当主库崩溃时：</p>
+<ul>
+<li>选择一个从库，使用 slave no one 命令将其提升成主库继续服务；</li>
+<li>如果之前崩溃的主库恢复了，再用 slave of 命令将其设置成新主库的从库，即可同步数据；</li>
+</ul>
+<p>主从虽然能解决问题，但出现问题时还是需要人工介入，不具备自动化故障恢复的能力，可用性依然较低。</p>
+<h3 id="哨兵模式"><a href="#哨兵模式" class="headerlink" title="哨兵模式"></a>哨兵模式</h3><p>Redis的2.6版本开始提供哨兵模式，其核心还是主从复制，只是在此基础上加了一个竞选机制：从所有的slave节点竞选出新的master节点。</p>
+<p>但是这个竞选需要依赖额外的哨兵进程sentinel，而考虑到哨兵进程本身的单点故障问题，一般都会使用多个哨兵，不仅是监控主库和从库，哨兵之间也会相互监控，每个哨兵都是作为一个独立的进程运行。</p>
+<p><img src="/img/20220730/20220730.1.png"> </p>
+<p>哨兵进程在启动时，会读取配置文件内容，找出需要监控的主库：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># master-name ip port 分表是主库名称、地址和端口号</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># quorum 表示在执行故障切换操作前，需要多少哨兵节点同意</span></span></span><br><span class="line">sentinel monitor master-name ip port quorum</span><br></pre></td></tr></table></figure>
+
+<p>哨兵只需要连接主节点，通过主节点的info命令，可以获取从节点信息，以及新增从节点的信息，然后和从节点也建立连接。</p>
+<br>
+
+<ul>
+<li>哨兵实现</li>
+</ul>
+<p>哨兵进程启动后，会与主数据库建立两条连接：</p>
+<ol>
+<li>订阅主库_sentinel_:hello频道，获取同样监控该库的哨兵节点信息；</li>
+<li>定期向主库发送info命令，获取主库本身的信息；</li>
+</ol>
+<p>与主库建立连接后主要有三个定时操作：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">每隔10s向 master 和 slave 发送info命令；</span><br><span class="line">目的是获取当前数据库信息，如果发现新增从节点，会建立连接并加入到监控列表中，当主从数据库的角色发生变化进行信息更新；</span><br><span class="line"></span><br><span class="line">每隔2s向主库和从库的_sentinel_:hello频道发送自己的信息；</span><br><span class="line">将自己的监控数据和其它哨兵分享，每个哨兵都会订阅这个频道，收到消息后会判断该哨兵是不是新的哨兵，如果是则将其加入哨兵列表，并建立连接；</span><br><span class="line"></span><br><span class="line">每隔1s向所有主从节点，和所有哨兵节点发送ping命令；</span><br><span class="line">目的是监控节点是否存活；</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>主观下线与客观下线</li>
+</ul>
+<p>哨兵节点发送ping命令，当超过一定时间(down-after-millisecond)后，如果节点未回复，则哨兵认为主观下线；</p>
+<p>主观下线表示当前哨兵认为该节点已经下线，如果这个节点为主库，哨兵会进一步判断是否需要对其进行故障切换，这时候会发送命令(SENTINEL is-master-down-by-addr)询问其他哨兵节点，是否也认为该主节点下线，当达到指定数量(quorum)时，哨兵就会认为是客观下线；</p>
+<p>当主节点客观下线时就需要进行主从切换，切换的具体步骤为（主库下线后，在哨兵投票选举结束前，Redis会开启保护机制，禁止写操作）：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">选出领头哨兵；</span><br><span class="line"></span><br><span class="line">领头哨兵从所有的slave中选出优先级最高的从库（通过slave-priority选项设置）；</span><br><span class="line"></span><br><span class="line">如果优先级相同，则根据复制的命令偏移量比较，同步的数据越新越优先；</span><br><span class="line"></span><br><span class="line">如果以上条件都一样，则选择run ID较小的从库；</span><br><span class="line"></span><br><span class="line">选出一个从库后，哨兵会发送 slave no one 命令将其升级为主库，并发送 slave of 命令给其它节点，将它设为新的主库；</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>脑裂问题</li>
+</ul>
+<p>网络分区引起的集群脑裂问题是无法避免，只能想办法降低概率和减轻其影响，对此Redis给了两个相关参数可供调节</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">min-slaves-to-write  用于设置主库在执行写命令时，最少需要有多少个健康的从库存活</span><br><span class="line"></span><br><span class="line">min-slaves-max-lag   用于配置从库和主库进行数据复制时，ACK消息延迟的最大时间（ACK表示从库确认已经接收并应用了主库发送的数据复制消息）</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<p>哨兵模式的主要问题是无法应对大数据量的场景，所有节点都保存的全量数据，浪费内存空间，没有真正实现分布式存储。而且它是一种中心化的集群实现方案，始终只有一个Redis主机来接收和处理写请求，写操作受单机瓶颈影响。</p>
+<h3 id="Cluster模式"><a href="#Cluster模式" class="headerlink" title="Cluster模式"></a>Cluster模式</h3><p>Redis在2015年发布的3.0版加入了集群功能，但各大厂商等不了，为了解决存储瓶颈，纷纷推出了各自的Redis集群方案，核心思路就是把数据分片(sharding)存储在多个Redis实例中，每一片就是一个独立的Redis实例。</p>
+<h4 id="客户端分片"><a href="#客户端分片" class="headerlink" title="客户端分片"></a>客户端分片</h4><p>客户端分片是把分片的逻辑放在Redis客户端实现（比如：jedis已支持Redis Sharding功能，即ShardedJedis），通过Redis客户端预先定义好的路由规则(使用一致性哈希)，把对Key的访问转发到不同的Redis实例中，查询数据时把返回结果汇集，可以示意如下：</p>
+<p><img src="/img/20220730/20220730.2.png"> </p>
+<p>但是客户端分片有一个最大的问题，如果服务端Redis集群拓扑结构有变化，那么每个客户端都需要更新调整。而且对于不同的客户端程序（比如java、python、go），需要维护相同的路由分片逻辑，成本巨大。</p>
+<br>
+
+<ul>
+<li>一致性哈希</li>
+</ul>
+<p>普通哈希取模<code>hash(key) % N</code>的问题是，当N发生变化时，所有的计算结果都会被影响。如果基于这个办法进行分片，那么当节点发生增减时，就需要对所有的数据进行重新分片了。为了降低对N变化的敏感性，减轻节点变动时的数据迁移工作量，可以通过对哈希环卡点来代替取余操作。</p>
+<p>具体思路是将整个哈希取值空间(0 ~ 2^32-1)想象成一个环，并将每个Redis节点也放到环上（对节点地址计算hash），然后<font color="red">针对每个key的哈希值，在环上顺时针找到最近的Redis节点</font>，就是它所属的节点，这样当插入或删除节点时，就只有这个节点附近的key才需要迁移。</p>
+<p>但是hash结果不一定能保证均匀性，为了避免数据倾斜严重，可以进一步使用虚拟节点来将哈希环分的更细一点。比如有ABC三个节点，给每个节点创建虚拟节点，分别是A0 ~ A4，B0 ~ B4，C0 ~ C2，根据它们的hash结果分布到环上，这样尽量让每个节点负责的数据量相差不至于不大。</p>
+<p><img src="/img/20220730/20220730.3.png"> </p>
+<h4 id="代理分片"><a href="#代理分片" class="headerlink" title="代理分片"></a>代理分片</h4><p>如果能把客户端分片模块单独拎出来，形成一个单独的中间件，就可以解决每个客户端各自处理分片的问题了。</p>
+<ul>
+<li>Twemproxy</li>
+</ul>
+<p>Twemproxy对多个Redis实例统一管理，使得客户端只需要在Twemproxy上进行操作，而不用要关心后面有多少个Redis实例。客户端将请求发送到Twemproxy，然后Twemproxy根据路由规则发送到正确的Redis实例，最后Twemproxy把结果汇集返回给客户端。</p>
+<p><img src="/img/20220730/20220730.4.png"> </p>
+<p>Twemproxy作为最被广泛使用、最久经考验、稳定性最高的Redis代理，在业界被广泛使用。但它的问题是运维工作量大，无法平滑地扩容&#x2F;缩容，而且客户端的每个请求都要经过Twemproxy代理才能到达Redis服务，过程中存在性能损失。</p>
+<ul>
+<li>Codis</li>
+</ul>
+<p>Codis是一个支持平滑增加Redis实例的代理中间件，基于Go和C语言开发，由豌豆荚自主研发并于2014年11月在GitHub上开源。Codis引入了Redis Server Group，然后在Group中通过一主多从实现集群的高可用。</p>
+<p><img src="/img/20220730/20220730.5.png"> </p>
+<p>Codis中采用的是预分片形式，启动时创建1024个slot，并将编号固定为1~1024。至于Key存放到哪个箱子，通过计算 <code>crc32(key)%1024</code> 来确定。Codis最大的优势就在于支持平滑增加&#x2F;减少Redis实例，并能够安全、透明地迁移数据，原因在于它可以管理Group与slot的映射关系。</p>
+<p>比如，系统有两个Group，与slot的映射关系如下：</p>
+<p><img src="/img/20220730/20220730.6.png"> </p>
+<p>如果增加一个Group，可以通过Codis管理工具重新分配slot，就是手动指定每个Group负责的slot范围，比如：</p>
+<p><img src="/img/20220730/20220730.7.png"> </p>
+<p>如果不想手动指定，Codis也支持rebalance功能，能自动根据每个Group的内存对slot进行迁移，以实现数据的均衡。</p>
+<h4 id="服务端分片"><a href="#服务端分片" class="headerlink" title="服务端分片"></a>服务端分片</h4><p>Redis在3.0之后也支持了Cluster集群模式，也就是一种直接在服务端进行分片的实现。采用多主多从的方式，每一个分区都是一主多从，分区和分区之间是相互平行的，是完全去中心化的P2P模式。集群中所有的redis节点彼此互联(PING-PONG机制)，内部使用二进制协议优化传输速度和带宽。</p>
+<p>官方推荐最好使用3主3从六个节点进行部署，至少需要3台以上的master节点：</p>
+<p><img src="/img/20220730/20220730.8.png"> </p>
+<p>Redis Cluster也是采用虚拟哈希槽预分配的方式，具体slot的长度为16384，所有的key根据哈希函数映射到这些槽内，然后每个分区的master节点负责维护一部分槽以及槽所映射的键值数据。</p>
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2022/09/10/20220910/">
+		    分布式事务｜一致性问题
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2022/06/05/20220605/">
+		    分布式锁的实现 | Redis
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/存储服务/">存储服务</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/redis/">redis</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F"><span class="toc-text">主从模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F"><span class="toc-text">哨兵模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cluster%E6%A8%A1%E5%BC%8F"><span class="toc-text">Cluster模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%88%86%E7%89%87"><span class="toc-text">客户端分片</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E5%88%86%E7%89%87"><span class="toc-text">代理分片</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%88%86%E7%89%87"><span class="toc-text">服务端分片</span></a></li></ol></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
