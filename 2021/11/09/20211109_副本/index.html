@@ -1,0 +1,509 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Stream Api的基础：Lambda表达式 &amp; Function接口 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="通过使用Stream API可以简化代码，同时提高代码可读性">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Stream Api的基础：Lambda表达式 &amp; Function接口"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  143 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20211109_副本" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2021-11-08T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2021/11/09/20211109_副本/" style="color: #736f6f;">2021-11-09</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Stream Api的基础：Lambda表达式 &amp; Function接口
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 2.1k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 9min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/后端基础/">后端基础</a>
+  </div>
+
+
+   
+   
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>通过使用Stream API可以简化代码，同时提高代码可读性</p>
+<span id="more"></span>
+
+<h3 id="Lambda表达式"><a href="#Lambda表达式" class="headerlink" title="Lambda表达式"></a>Lambda表达式</h3><p>在java 8之前，如果想使用匿名函数，需要new一个类的匿名实现，比如：提交一个匿名任务</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">executorService.submit(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                log.info(<span class="string">&quot;new runnable&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>如果使用Lambda表达式重写，则可以非常简洁，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">executorService.submit(() -&gt; log.info(<span class="string">&quot;new runnable&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<p>匿名类在编译时会生成单独的.class文件，而Lambda在编译时是生成一个invokedynamic指令，然后在运行时由JVM通过InnerClassLambdaMetafactory动态生成一个实现类，并将Lambda函数挂到上面，并不会生成独立的.class文件，而是在内存中由JVM控制更加灵活。</p>
+<h3 id="Function接口"><a href="#Function接口" class="headerlink" title="Function接口"></a>Function接口</h3><p>但并不是所有的匿名类都可以用Lambda表达式重写，只有函数式接口可以，它的特点是其中<font color="red">只有一个需要子类实现的abstract方法</font>，如果abstract方法前面带有default关键字，则不做计算（这个也很好理解，如果有多个方法需要实现，改成lambda表达式之后，编译器就无法确定要实现哪个方法）</p>
+<p>@FunctionalInterface注解并不是必须的，不使用注解也可以定义一个函数式接口，但是使用注解可以在违背Functional Interface定义时报警。在项目中，通过注解可以清楚的让其他人了解这个类的作用，是代码更易于维护。</p>
+<br>
+
+<p>java.util.function中默认提供了一些接口，主要如下：</p>
+<ul>
+<li>Function&lt;T, R&gt;</li>
+</ul>
+<p>接收参数T，返回参数R，一般用于类型转换或数据映射</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">R <span class="title function_">apply</span><span class="params">(T t)</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>BiFunction&lt;T, U, R&gt;</li>
+</ul>
+<p>接收参数T和U，返回参数R，</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">R <span class="title function_">apply</span><span class="params">(T t, U u)</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Supplier&lt;T&gt;</li>
+</ul>
+<p>不需要参数，返回T，一般用于工厂或生成数据</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">T <span class="title function_">get</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Consumer&lt;T&gt;</li>
+</ul>
+<p>接收参数T，没有返回值，用于消费处理数据，比如遍历输出</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">accept</span><span class="params">(T t)</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Predicate&lt;T&gt;</li>
+</ul>
+<p>接收参数T，返回一个布尔值，一般用于校验，做条件过滤</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">boolean</span> <span class="title function_">test</span><span class="params">(T t)</span>;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<p>Lambda表达式与Function接口的实践建议：</p>
+<ul>
+<li>优先使用Lambda表达式来实例化Function接口；</li>
+<li>优先使用标准Functional接口，比如上面java.util.function包中定义的Function接口；</li>
+<li>Lambda表达式尽可能简洁，如果逻辑比较多，可以封装成一个方法，然后在lambda表达式中调用该方法；</li>
+<li>避免重写Function接口作为参数的方法，最好通过方法名区分；</li>
+</ul>
+<p>比如下面定义的两个方法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProcessorImpl</span> <span class="keyword">implements</span> <span class="title class_">Processor</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">process</span><span class="params">(Callable&lt;String&gt; c)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">// implementation details</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">process</span><span class="params">(Supplier&lt;String&gt; s)</span> &#123;</span><br><span class="line">        <span class="comment">// implementation details</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在调用的时候，就会由于无法确定是调用哪个方法而报错</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> processor.process(() -&gt; <span class="string">&quot;test&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="Stream流"><a href="#Stream流" class="headerlink" title="Stream流"></a>Stream流</h3><p>stream流是基于Lambda表达式和Function接口实现的一套代码框架，目的是能够像SQL语句操作数据库一样来操作Java中的集合或其它数据源，比如筛选，排序，聚合等，并让代码变得更加简洁高效。相关的接口继承关系如下：</p>
+<p><img src="/img/20211109/20211109.1.png"> </p>
+<p>一个stream由三部分组成：数据源，零个或一个或多个中间操作，一个或零个终止操作。中间操作是lazy操作，并不会立马启动，它只是对数据的加工，返回的还是Stream，因此可以级联调用。终止操作才是stream的启动操作，因此只有加上终止操作，stream才会真正的开始执行，但是被终止操作消费后，Stream就会关闭，不能够再被使用。</p>
+<br>
+
+<ul>
+<li>Stream数据源</li>
+</ul>
+<p>1、通过集合的stream方法生成流，最常用的一种</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line">Stream&lt;Integer&gt; stream = list.stream();</span><br></pre></td></tr></table></figure>
+
+<p>2、通过数组Arrays.stream生成流</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span>[] intArr = <span class="keyword">new</span> <span class="title class_">int</span>[]&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;;</span><br><span class="line"><span class="type">IntStream</span> <span class="variable">stream</span> <span class="operator">=</span> Arrays.stream(intArr);</span><br></pre></td></tr></table></figure>
+
+<p>3、通过值生成</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Stream&lt;Integer&gt; stream = Stream.of(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<p>4、通过文件Files.line创建流</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Stream&lt;String&gt; lines = Files.lines(Paths.get(<span class="string">&quot;data.txt&quot;</span>), Charset.defaultCharset());</span><br></pre></td></tr></table></figure>
+
+<p>5、使用iterate或generate静态方法，通过函数创建</p>
+<p>iterate接受两个参数，第一个为初始化值，第二个进行函数操作。iterator生成的是无限流，可以通过limit进行截断，比如下面生成5个偶数：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Stream&lt;Integer&gt; stream = Stream.iterate(<span class="number">0</span>, n -&gt; n + <span class="number">2</span>).limit(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<p>generate接受一个Supplier类型参数，由它为流提供值。generate生成的也是无限流，需要通过limit对流进行截断；</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Stream&lt;Double&gt; stream = Stream.generate(Math::random).limit(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>中间操作</li>
+</ul>
+<p>1、filter筛选</p>
+<p>通过filter进行条件筛选，参数为一个条件</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; integerList = Arrays.asList(<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>); </span><br><span class="line">Stream&lt;Integer&gt; stream = integerList.stream().filter(i -&gt; i &gt; <span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+
+<p>2、distinct去重</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; integerList = Arrays.asList(<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line">Stream&lt;Integer&gt; stream = integerList.stream().distinct();</span><br></pre></td></tr></table></figure>
+
+<p>3、limit限制返回个数</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>); </span><br><span class="line">Stream&lt;Integer&gt; stream = list.stream().limit(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+
+<p>4、skip跳过元素</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; integerList = Arrays.asList(<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>); </span><br><span class="line">Stream&lt;Integer&gt; stream = integerList.stream().skip(<span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+
+<p>5、map映射</p>
+<p>通过map将接受的元素映射成另外一个元素</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;String&gt; stringList = Arrays.asList(<span class="string">&quot;Java 8&quot;</span>, <span class="string">&quot;Lambdas&quot;</span>,  <span class="string">&quot;In&quot;</span>, <span class="string">&quot;Action&quot;</span>);</span><br><span class="line">Stream&lt;Integer&gt; stream = stringList.stream().map(String::length);</span><br></pre></td></tr></table></figure>
+
+<p>6、flatMap转换</p>
+<p>flatMap可以将集合元素展开，然后将展开后的每个元素映射成另外一个元素</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;List&lt;Integer&gt;&gt; list = Arrays.asList(</span><br><span class="line">    Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>),</span><br><span class="line">    Arrays.asList(<span class="number">4</span>, <span class="number">5</span>),</span><br><span class="line">    Arrays.asList(<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">List&lt;Integer&gt; result = list.stream()</span><br><span class="line">    .flatMap(Collection::stream)  <span class="comment">// 展开转换成Stream&lt;Integer&gt;</span></span><br><span class="line">    .distinct()                  </span><br><span class="line">    .collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<p>7、Match匹配</p>
+<p>allMatch匹配所有</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; integerList = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line"><span class="keyword">if</span> (integerList.stream().allMatch(i -&gt; i &gt; <span class="number">3</span>)) &#123;    </span><br><span class="line">    System.out.println(<span class="string">&quot;所有值都大于3&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>anyMatch匹配任意一个</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; integerList = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line"><span class="keyword">if</span> (integerList.stream().anyMatch(i -&gt; i &gt; <span class="number">3</span>)) &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;存在大于3的值&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>noneMatch没有匹配</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; integerList = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line"><span class="keyword">if</span> (integerList.stream().noneMatch(i -&gt; i &gt; <span class="number">3</span>)) &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;没有大于3的值&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>终止操作</li>
+</ul>
+<p>1、计数</p>
+<p>通过count</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; integerList = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line"><span class="type">Long</span> <span class="variable">result</span> <span class="operator">=</span> integerList.stream().count();</span><br></pre></td></tr></table></figure>
+
+<p>通过counting，可以与collect联合使用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; integerList = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line"><span class="type">Long</span> <span class="variable">result</span> <span class="operator">=</span> integerList.stream().collect(counting());</span><br></pre></td></tr></table></figure>
+
+<p>2、查找</p>
+<p>findFirst找第一个</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line">Optional&lt;Integer&gt; result = list.stream().filter(i -&gt; i &gt; <span class="number">3</span>).findFirst();</span><br></pre></td></tr></table></figure>
+
+<p>findAny随机找一个，与findFirst一样找到第一个就返回，区别是可以更好的利用并行流</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line">Optional&lt;Integer&gt; result = list.stream().filter(i -&gt; i &gt; <span class="number">3</span>).findAny();</span><br></pre></td></tr></table></figure>
+
+<p>3、遍历</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line">list.stream().forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+
+<p>4、归纳操作</p>
+<p>reduce将一组数据通过重复运算，归约成为一个结果</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>);</span><br><span class="line"><span class="type">Integer</span> <span class="variable">result</span> <span class="operator">=</span> list.stream().reduce(<span class="number">1</span>, (a, b) -&gt; a * b); <span class="comment">// 求1*1*2*3*4	</span></span><br></pre></td></tr></table></figure>
+
+<p>5、求最大最小值</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 通过mapToInt将对象流转换为数值流，可以避免装箱和拆箱操作</span></span><br><span class="line"><span class="type">OptionalInt</span> <span class="variable">min</span> <span class="operator">=</span> menu.stream().mapToInt(Dish::getCalories).min();</span><br><span class="line"><span class="type">OptionalInt</span> <span class="variable">max</span> <span class="operator">=</span> menu.stream().mapToInt(Dish::getCalories).max();</span><br><span class="line"></span><br><span class="line">Optional&lt;Integer&gt; min = menu.stream().map(Dish::getCalories).min(Integer::compareTo);</span><br><span class="line">Optional&lt;Integer&gt; max = menu.stream().map(Dish::getCalories).max(Integer::compareTo);</span><br><span class="line"></span><br><span class="line">Optional&lt;Integer&gt; min = menu.stream().map(Dish::getCalories).collect(minBy(Integer::compareTo));</span><br><span class="line">Optional&lt;Integer&gt; max = menu.stream().map(Dish::getCalories).collect(maxBy(Integer::compareTo));</span><br></pre></td></tr></table></figure>
+
+<p>6、求和</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> menu.stream().mapToInt(Dish::getCalories).sum();</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> menu.stream().collect(summingInt(Dish::getCalories));</span><br></pre></td></tr></table></figure>
+
+<p>7、求平均</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">double</span> <span class="variable">average</span> <span class="operator">=</span> menu.stream().collect(averagingInt(Dish::getCalories));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过summarizingInt可以同时求和、求平均、以及最大最小值</span></span><br><span class="line"><span class="type">IntSummaryStatistics</span> <span class="variable">intSummaryStatistics</span> <span class="operator">=</span> menu.stream().collect(summarizingInt(Dish::getCalories));</span><br><span class="line"><span class="type">int</span> <span class="variable">min</span> <span class="operator">=</span> intSummaryStatistics.getMin();  <span class="comment">//最小值</span></span><br><span class="line"><span class="type">int</span> <span class="variable">max</span> <span class="operator">=</span> intSummaryStatistics.getMax();  <span class="comment">//最大值</span></span><br><span class="line"><span class="type">long</span> <span class="variable">sum</span> <span class="operator">=</span> intSummaryStatistics.getSum(); <span class="comment">//求和</span></span><br><span class="line"><span class="type">double</span> <span class="variable">average</span> <span class="operator">=</span> intSummaryStatistics.getAverage();  <span class="comment">//求平均</span></span><br></pre></td></tr></table></figure>
+
+<p>8、joining元素拼接</p>
+<p>joining的参数为元素分界符</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> menu.stream().map(Dish::getName).collect(Collectors.joining(<span class="string">&quot;, &quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>9、groupingBy分组</p>
+<p>groupingBy的参数为分类函数</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Map&lt;Type, List&lt;Dish&gt;&gt; result = dishList.stream().collect(groupingBy(Dish::getType));</span><br></pre></td></tr></table></figure>
+
+<p>可以通过嵌套，使用groupingBy进行多级分类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Map&lt;Dish.Type, Map&lt;CaloricLevel, List&lt;Dish&gt;&gt;&gt; result = menu.stream().collect(groupingBy(Dish::getType,groupingBy(dish -&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (dish.getCalories() &lt;= <span class="number">400</span>) <span class="keyword">return</span> CaloricLevel.DIET;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (dish.getCalories() &lt;= <span class="number">700</span>) <span class="keyword">return</span> CaloricLevel.NORMAL;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">return</span> CaloricLevel.FAT;</span><br><span class="line">        &#125;)</span><br><span class="line">    ));</span><br></pre></td></tr></table></figure>
+
+<p>10、partitioningBy分区</p>
+<p>分区是特殊的分组，它分类依据是true和false，所以最多可以分为两组</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Map&lt;Boolean, List&lt;Dish&gt;&gt; result = menu.stream().collect(partitioningBy(Dish :: isVegetarian))</span><br></pre></td></tr></table></figure>
+
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2022/02/22/20220222/">
+		    Linux 常用Shell脚本
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2021/08/26/20210826/">
+		    Netty NioEventLoop
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/后端基础/">后端基础</a>
+  </div>
+
+
+        
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-text">Lambda表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function%E6%8E%A5%E5%8F%A3"><span class="toc-text">Function接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Stream%E6%B5%81"><span class="toc-text">Stream流</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
