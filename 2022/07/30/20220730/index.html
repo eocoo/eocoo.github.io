@@ -50,7 +50,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  143 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  144 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -181,6 +181,7 @@
 </ul>
 <p>普通哈希取模<code>hash(key) % N</code>的问题是，当N发生变化时，所有的计算结果都会被影响。如果基于这个办法进行分片，那么当节点发生增减时，就需要对所有的数据进行重新分片了。为了降低对N变化的敏感性，减轻节点变动时的数据迁移工作量，可以通过对哈希环卡点来代替取余操作。</p>
 <p>具体思路是将整个哈希取值空间(0 ~ 2^32-1)想象成一个环，并将每个Redis节点也放到环上（对节点地址计算hash），然后<font color="red">针对每个key的哈希值，在环上顺时针找到最近的Redis节点</font>，就是它所属的节点，这样当插入或删除节点时，就只有这个节点附近的key才需要迁移。</p>
+<p><img src="/img/20220730/20220730.9.jpg"> </p>
 <p>但是hash结果不一定能保证均匀性，为了避免数据倾斜严重，可以进一步使用虚拟节点来将哈希环分的更细一点。比如有ABC三个节点，给每个节点创建虚拟节点，分别是A0 ~ A4，B0 ~ B4，C0 ~ C2，根据它们的hash结果分布到环上，这样尽量让每个节点负责的数据量相差不至于不大。</p>
 <p><img src="/img/20220730/20220730.3.png"> </p>
 <h4 id="代理分片"><a href="#代理分片" class="headerlink" title="代理分片"></a>代理分片</h4><p>如果能把客户端分片模块单独拎出来，形成一个单独的中间件，就可以解决每个客户端各自处理分片的问题了。</p>

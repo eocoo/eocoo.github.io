@@ -1,0 +1,491 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Mybatis主要原理 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="Mybatis是一个半自动的ORM框架，初衷是为了简化关于JDBC的开发工作，也就是对JDBC的Api做了一层封装，所以它的核心流程与JDBC的操作步骤基本一脉相承。比如它的核心对象SqlSession和Executor就对应了JDBC中的Connection和Statement。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Mybatis主要原理"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  144 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20200917" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2020-09-16T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2020/09/17/20200917/" style="color: #736f6f;">2020-09-17</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Mybatis主要原理
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 2k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 9min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/后端基础/">后端基础</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/mybatis/">mybatis</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Mybatis是一个半自动的ORM框架，初衷是为了简化关于JDBC的开发工作，也就是对JDBC的Api做了一层封装，所以它的核心流程与JDBC的操作步骤基本一脉相承。比如它的核心对象SqlSession和Executor就对应了JDBC中的Connection和Statement。</p>
+<span id="more"></span>
+
+<ul>
+<li>JDBC四个核心对象：</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">DriverManager              注册数据库连接</span><br><span class="line">Connection                 数据库连接对象</span><br><span class="line">Statement/PrepareStatement 操作数据库SQL语句的对象</span><br><span class="line">ResultSet                  结果集或一张虚拟表</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>MyBatis四个核心对象：</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">SqlSession对象      包含执行SQL语句的所有方法</span><br><span class="line">Executor接口        根据SqlSession传递的参数动态生成需要执行的SQL语句，同时负责查询缓存的维护</span><br><span class="line">MappedStatement对象 用于存储要映射的SQL语句的id、参数等信息</span><br><span class="line">ResultHandler对象   用于对返回的结果进行处理，最终得到自己想要的数据格式或类型</span><br></pre></td></tr></table></figure>
+
+<h3 id="执行流程"><a href="#执行流程" class="headerlink" title="执行流程"></a>执行流程</h3><p><img src="/img/20200917/20200917.1.png"></p>
+<ol>
+<li>读取MyBatis的配置，mybatis-config.xml中配置数据库连接信息</li>
+<li>加载映射文件，即SQL映射文件，文件中配置了操作数据库的SQL语句</li>
+<li>构造会话工厂，通过MyBatis的环境配置，构建会话工厂SqlSessionFactory</li>
+<li>创建会话对象，由会话工厂创建SqlSession对象，该对象中包含了执行SQL语句的方法</li>
+<li>Executor执行，底层定义了一个Executor接口来操作数据库，它将根据SqlSession传递的参数动态地生成需要执行的SQL语句</li>
+<li>MappedStatement对象，执行方法中有一个MappedStatement类型的参数，是对映射信息的封装，包括要映射的SQL语句的id、参数等信息</li>
+<li>输入参数映射，映射过程类似于JDBC对preparedStatement对象设置参数的过程</li>
+<li>输出结果映射，映射过程类似于JDBC对结果集的解析过程</li>
+</ol>
+<ul>
+<li>使用示例</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 加载配置文件 并构建SqlSessionFactory对象</span></span><br><span class="line"><span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> Resources.getResourceAsStream(<span class="string">&quot;mybatis-config.xml&quot;</span>);</span><br><span class="line"><span class="type">SqlSessionFactory</span> <span class="variable">factory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SqlSessionFactoryBuilder</span>().build(inputStream);</span><br><span class="line"><span class="comment">// 从SqlSessionFactory对象中获取SqlSession对象</span></span><br><span class="line"><span class="type">SqlSession</span> <span class="variable">sqlSession</span> <span class="operator">=</span> factory.openSession();</span><br><span class="line"><span class="comment">// 执行操作，具体sql在xml中定义</span></span><br><span class="line">sqlSession.insert(<span class="string">&quot;insert&quot;</span>, book);</span><br><span class="line"><span class="comment">// 提交操作</span></span><br><span class="line">sqlSession.commit();</span><br><span class="line"><span class="comment">// 关闭SqlSession</span></span><br><span class="line">sqlSession.close();</span><br></pre></td></tr></table></figure>
+
+<h3 id="事务管理"><a href="#事务管理" class="headerlink" title="事务管理"></a>事务管理</h3><p>在SqlSession真正执行时，是由Executor负责组织，包括：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">1. 从MappedStatement获取SQL信息</span><br><span class="line">2. 交给ParameterHandler拼装参数</span><br><span class="line">3. 交给StatementHandler执行语句</span><br><span class="line">4. 交给ResultSetHandler封装结果</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，SqlSession在初始化时会创建一个持有Transaction的Executor，Executor在执行SQL时通过这个Transaction来获取数据库连接</p>
+<figure class="highlight java"><figcaption><span>org.apache.ibatis.session.defaults.DefaultSqlSessionFactory</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> SqlSession <span class="title function_">openSessionFromDataSource</span><span class="params">(ExecutorType execType, TransactionIsolationLevel level, <span class="type">boolean</span> autoCommit)</span> &#123;</span><br><span class="line">  <span class="type">Transaction</span> <span class="variable">tx</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">Environment</span> <span class="variable">environment</span> <span class="operator">=</span> configuration.getEnvironment();</span><br><span class="line">    <span class="keyword">final</span> <span class="type">TransactionFactory</span> <span class="variable">transactionFactory</span> <span class="operator">=</span> getTransactionFactoryFromEnvironment(environment);</span><br><span class="line">    tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);</span><br><span class="line">    <span class="keyword">final</span> <span class="type">Executor</span> <span class="variable">executor</span> <span class="operator">=</span> configuration.newExecutor(tx, execType);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">DefaultSqlSession</span>(configuration, executor, autoCommit);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    closeTransaction(tx); <span class="comment">// may have fetched a connection so lets call close()</span></span><br><span class="line">    <span class="keyword">throw</span> ExceptionFactory.wrapException(<span class="string">&quot;Error opening session.  Cause: &quot;</span> + e, e);</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    ErrorContext.instance().reset();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Mybatis并没有自己实现事务，它只是对JDBC事务API做了一层简单代理，并封装成Transaction。如果使用JdbcTransaction，就是直接调用JDBC的commit()、rollback()；如果使用ManagedTransaction，则完全交给外部容器，比如Spring。</p>
+<figure class="highlight java"><figcaption><span>org.apache.ibatis.transaction.jdbc.JdbcTransaction</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Connection <span class="title function_">getConnection</span><span class="params">()</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">  <span class="keyword">if</span> (connection == <span class="literal">null</span>) &#123;</span><br><span class="line">    openConnection();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> connection;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">commit</span><span class="params">()</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">  <span class="keyword">if</span> (connection != <span class="literal">null</span> &amp;&amp; !connection.getAutoCommit()) &#123;</span><br><span class="line">    <span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span><br><span class="line">      log.debug(<span class="string">&quot;Committing JDBC Connection [&quot;</span> + connection + <span class="string">&quot;]&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    connection.commit();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">rollback</span><span class="params">()</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">  <span class="keyword">if</span> (connection != <span class="literal">null</span> &amp;&amp; !connection.getAutoCommit()) &#123;</span><br><span class="line">    <span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span><br><span class="line">      log.debug(<span class="string">&quot;Rolling back JDBC Connection [&quot;</span> + connection + <span class="string">&quot;]&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    connection.rollback();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>spring管理</li>
+</ul>
+<p>通过<strong>SqlSessionTemplate</strong>对SqlSessionFactory进行封装，并创建SqlSession的代理，真正SqlSession的创建与销毁，回滚与提交等操作都在代理中实现</p>
+<figure class="highlight java"><figcaption><span>org.mybatis.spring.SqlSessionTemplate</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">SqlSessionTemplate</span><span class="params">(SqlSessionFactory sqlSessionFactory, ExecutorType executorType,</span></span><br><span class="line"><span class="params">    PersistenceExceptionTranslator exceptionTranslator)</span> &#123;</span><br><span class="line">  notNull(sqlSessionFactory, <span class="string">&quot;Property &#x27;sqlSessionFactory&#x27; is required&quot;</span>);</span><br><span class="line">  notNull(executorType, <span class="string">&quot;Property &#x27;executorType&#x27; is required&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">this</span>.sqlSessionFactory = sqlSessionFactory;</span><br><span class="line">  <span class="built_in">this</span>.executorType = executorType;</span><br><span class="line">  <span class="built_in">this</span>.exceptionTranslator = exceptionTranslator;</span><br><span class="line">  <span class="built_in">this</span>.sqlSessionProxy = (SqlSession) newProxyInstance(</span><br><span class="line">      SqlSessionFactory.class.getClassLoader(),</span><br><span class="line">      <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123; SqlSession.class &#125;,</span><br><span class="line">      <span class="keyword">new</span> <span class="title class_">SqlSessionInterceptor</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后在真正创建SqlSession时，会借助<strong>TransactionSynchronizationManager</strong>来实现事务支持（将SqlSession绑定到线程）。其实思路很简单，SqlSession可以简单看成连接Connection，在创建sqlSession之前先看是否已经存在，如果存在则直接复用，从而让多个Mapper操作共享同一个连接，形成事务。</p>
+<figure class="highlight java"><figcaption><span>org.mybatis.spring.SqlSessionUtils</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> SqlSession <span class="title function_">getSqlSession</span><span class="params">(SqlSessionFactory sessionFactory, ExecutorType executorType, PersistenceExceptionTranslator exceptionTranslator)</span> &#123;</span><br><span class="line marked">  <span class="type">SqlSessionHolder</span> <span class="variable">holder</span> <span class="operator">=</span> (SqlSessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);</span><br><span class="line">  <span class="type">SqlSession</span> <span class="variable">session</span> <span class="operator">=</span> sessionHolder(executorType, holder);</span><br><span class="line">     <span class="keyword">if</span> (session != <span class="literal">null</span>) &#123;</span><br><span class="line">     <span class="keyword">return</span> session;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  LOGGER.debug(() -&gt; <span class="string">&quot;Creating a new SqlSession&quot;</span>);</span><br><span class="line">  session = sessionFactory.openSession(executorType);</span><br><span class="line">  registerSessionHolder(sessionFactory, executorType, exceptionTranslator, session);</span><br><span class="line">  <span class="keyword">return</span> session;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Mybatis插件"><a href="#Mybatis插件" class="headerlink" title="Mybatis插件"></a>Mybatis插件</h3><p>Mybatis可以针对ParameterHandler、ResultSetHandler、StatementHandler、Executor4种接口编写插件
+    <table width=100%>
+        <tr style="border-bottom:0.01rem solid grey;">
+            <th width=30%>拦截对象</th>
+            <th width=30%>拦截方法</th>
+            <th width=40%>方法描述</th>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td rowspan="8">Executor</td>
+            <td>update</td>
+            <td>对应insert、update、delete语句</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>query</td>
+            <td>对应select语句</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>flushStatements</td>
+            <td>刷新Statement</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>commit</td>
+            <td>提交事务</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>rollback</td>
+            <td>回滚事务</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>getTransaction</td>
+            <td>获取事务</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>close</td>
+            <td>关闭事务</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>isClosed</td>
+            <td>判断事务是否关闭</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td rowspan="5">StatementHandler</td>
+            <td>prepare</td>
+            <td>预编译SQL</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>parameterize</td>
+            <td>设置参数</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>batch</td>
+            <td>批处理</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>update</td>
+            <td>对应insert、update、delete语句</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>query</td>
+            <td>对应select语句</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td rowspan="2">ParameterHandler</td>
+            <td>getParameterObject</td>
+            <td>获取参数</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>setParameters</td>
+            <td>设置参数</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td rowspan="2">ResultSetHandler</td>
+            <td>handleResultSets</td>
+            <td>处理结果集</td>
+        </tr>
+        <tr style="border-bottom:0.01rem solid #e6e0e0;">
+            <td>handleOutputParameters</td>
+            <td>处理存储过程出参</td>
+        </tr>
+    </table></p>
+<p>思路也是通过JDK动态代理，为需要拦截的接口生成代理对象以实现拦截功能，然后在Plugin.invoke()执行时根据方法签名判断是否拦截。具体要实现Interceptor接口的intercept()方法，然后通过@Signature来描述要拦截的方法签名。</p>
+<ul>
+<li>示例</li>
+</ul>
+<p>比如实现一个数据加解密插件，那么可以从ParameterHandler和ResultSetHandler切入，首先通过注解来定义需要加解密的字段</p>
+<p>1.1 定义SensitiveData注解，识别含有加解密字段的类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Target(&#123;ElementType.TYPE&#125;)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> SensitiveData &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>1.2 定义EncryptTransaction注解，识别类中的字段，或Mapper的方法参数</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Target(&#123;ElementType.FIELD, ElementType.PARAMETER&#125;)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EncryptTransaction &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2.1 定义加密插件</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Intercepts(&#123;</span></span><br><span class="line"><span class="meta">        @Signature(type = ParameterHandler.class, method = &quot;setParameters&quot;, args = PreparedStatement.class),</span></span><br><span class="line"><span class="meta">&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ParameterInterceptor</span> <span class="keyword">implements</span> <span class="title class_">Interceptor</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">intercept</span><span class="params">(Invocation invocation)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">MybatisParameterHandler</span> <span class="variable">parameterHandler</span> <span class="operator">=</span> (MybatisParameterHandler) invocation.getTarget();</span><br><span class="line">        <span class="type">Field</span> <span class="variable">parameterField</span> <span class="operator">=</span> parameterHandler.getClass().getDeclaredField(<span class="string">&quot;parameterObject&quot;</span>);</span><br><span class="line">        parameterField.setAccessible(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">Object</span> <span class="variable">parameterObject</span> <span class="operator">=</span> parameterField.get(parameterHandler); <span class="comment">// 获取Mapper方法中的原始参数对象</span></span><br><span class="line">        List&lt;String&gt; paramNames = searchParamAnnotation(parameterHandler); <span class="comment">// 获取Mapper方法中带@Param注解的参数</span></span><br><span class="line">        <span class="keyword">if</span> (parameterObject != <span class="literal">null</span>) &#123;</span><br><span class="line">            Class&lt;?&gt; parameterObjectClass = parameterObject.getClass();</span><br><span class="line">            <span class="type">SensitiveData</span> <span class="variable">sensitiveData</span> <span class="operator">=</span> AnnotationUtils.findAnnotation(parameterObjectClass, SensitiveData.class);</span><br><span class="line">            <span class="keyword">if</span> (Objects.nonNull(sensitiveData)) &#123; <span class="comment">// 加密对象中的字段</span></span><br><span class="line">                Field[] declaredFields = parameterObjectClass.getDeclaredFields();</span><br><span class="line">                IEncryptUtil.encrypt(declaredFields, parameterObject);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!CollectionUtils.isEmpty(paramNames)) &#123; <span class="comment">// 加密Mapper方法参数</span></span><br><span class="line">                <span class="type">Field</span> <span class="variable">boundSqlField</span> <span class="operator">=</span> parameterHandler.getClass().getDeclaredField(<span class="string">&quot;boundSql&quot;</span>);</span><br><span class="line">                boundSqlField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">                <span class="type">BoundSql</span> <span class="variable">boundSql</span> <span class="operator">=</span> (BoundSql) boundSqlField.get(parameterHandler);</span><br><span class="line">                <span class="type">PreparedStatement</span> <span class="variable">ps</span> <span class="operator">=</span> (PreparedStatement) invocation.getArgs()[<span class="number">0</span>];</span><br><span class="line">                processParam(parameterObject, paramNames);</span><br><span class="line">                parameterField.set(parameterHandler, parameterObject);</span><br><span class="line">                parameterHandler.setParameters(ps);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> invocation.proceed();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">processParam</span><span class="params">(Object parameterObject, List&lt;String&gt; params)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">if</span> (parameterObject <span class="keyword">instanceof</span> Map) &#123;</span><br><span class="line">            <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">            Map&lt;String, String&gt; map = ((Map&lt;String, String&gt;) parameterObject);</span><br><span class="line">            <span class="keyword">for</span> (String param : params) &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">value</span> <span class="operator">=</span> map.get(param);</span><br><span class="line">                map.put(param, value==<span class="literal">null</span> ? <span class="literal">null</span> : DBAESUtil.encrypt(value));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> List&lt;String&gt; <span class="title function_">searchParamAnnotation</span><span class="params">(ParameterHandler parameterHandler)</span> <span class="keyword">throws</span> NoSuchFieldException, ClassNotFoundException, IllegalAccessException &#123;</span><br><span class="line">        Class&lt;MybatisParameterHandler&gt; handlerClass = MybatisParameterHandler.class;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">mappedStatementFiled</span> <span class="operator">=</span> handlerClass.getDeclaredField(<span class="string">&quot;mappedStatement&quot;</span>);</span><br><span class="line">        mappedStatementFiled.setAccessible(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">MappedStatement</span> <span class="variable">mappedStatement</span> <span class="operator">=</span> (MappedStatement) mappedStatementFiled.get(parameterHandler);</span><br><span class="line">        <span class="type">String</span> <span class="variable">methodName</span> <span class="operator">=</span> mappedStatement.getId();</span><br><span class="line">        Class&lt;?&gt; mapperClass = Class.forName(methodName.substring(<span class="number">0</span>, methodName.lastIndexOf(<span class="string">&#x27;.&#x27;</span>)));</span><br><span class="line">        methodName = methodName.substring(methodName.lastIndexOf(<span class="string">&#x27;.&#x27;</span>) + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        Method[] methods = mapperClass.getDeclaredMethods();</span><br><span class="line">        <span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">for</span> (Method m : methods) &#123;</span><br><span class="line">            <span class="keyword">if</span> (m.getName().equals(methodName)) &#123;</span><br><span class="line">                method = m;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;String&gt; paramNames = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (method != <span class="literal">null</span>) &#123;</span><br><span class="line">            Annotation[][] pa = method.getParameterAnnotations();</span><br><span class="line">            Parameter[] parameters = method.getParameters();</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; pa.length; i++) &#123;</span><br><span class="line">                <span class="keyword">for</span> (Annotation annotation : pa[i]) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (annotation <span class="keyword">instanceof</span> EncryptTransaction) &#123;</span><br><span class="line">                        <span class="keyword">if</span> (paramNames == <span class="literal">null</span>) &#123;</span><br><span class="line">                            paramNames = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">                        &#125;</span><br><span class="line">                        paramNames.add(parameters[i].getName());</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> paramNames;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">plugin</span><span class="params">(Object target)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Plugin.wrap(target, <span class="built_in">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setProperties</span><span class="params">(Properties properties)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2.2 定义解密插件</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Intercepts(&#123;</span></span><br><span class="line"><span class="meta">        @Signature(type = ResultSetHandler.class, method = &quot;handleResultSets&quot;, args = &#123;Statement.class&#125;)</span></span><br><span class="line"><span class="meta">&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ResultSetInterceptor</span> <span class="keyword">implements</span> <span class="title class_">Interceptor</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">intercept</span><span class="params">(Invocation invocation)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">resultObject</span> <span class="operator">=</span> invocation.proceed();</span><br><span class="line">        <span class="keyword">if</span> (Objects.isNull(resultObject)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (resultObject <span class="keyword">instanceof</span> ArrayList) &#123;</span><br><span class="line">            ArrayList&lt;Objects&gt; resultList = (ArrayList&lt;Objects&gt;) resultObject;</span><br><span class="line">            <span class="keyword">if</span> (!CollectionUtils.isEmpty(resultList) &amp;&amp; needToDecrypt(resultList.get(<span class="number">0</span>))) &#123;</span><br><span class="line">                <span class="keyword">for</span> (Object result : resultList) &#123;</span><br><span class="line">                    IDecryptUtil.decrypt(result);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (needToDecrypt(resultObject)) &#123;</span><br><span class="line">                IDecryptUtil.decrypt(resultObject);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> resultObject;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">needToDecrypt</span><span class="params">(Object object)</span> &#123;</span><br><span class="line">        Class&lt;?&gt; objectClass = object.getClass();</span><br><span class="line">        <span class="type">SensitiveData</span> <span class="variable">sensitiveData</span> <span class="operator">=</span> AnnotationUtils.findAnnotation(objectClass, SensitiveData.class);</span><br><span class="line">        <span class="keyword">return</span> Objects.nonNull(sensitiveData);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">plugin</span><span class="params">(Object target)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Plugin.wrap(target, <span class="built_in">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setProperties</span><span class="params">(Properties properties)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><br><strong>参考：</strong></p>
+<ol>
+<li><a target="_blank" rel="noopener" href="http://www.mybatis.cn/archives/706.html">http://www.mybatis.cn/archives/706.html</a></li>
+</ol>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2020/10/15/20201015/">
+		    vim 日常操作
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2020/06/01/20200601/">
+		    关于文件
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/后端基础/">后端基础</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/mybatis/">mybatis</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-text">执行流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="toc-text">事务管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mybatis%E6%8F%92%E4%BB%B6"><span class="toc-text">Mybatis插件</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
