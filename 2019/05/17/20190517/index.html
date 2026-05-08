@@ -13,17 +13,17 @@
 
 一致性：事务的执行不能破坏数据的完整性和一致性，即事务的执行没有中间状态，数据只有事务执行前的状态或执行后的状态；
 
-隔离性：在并发场景下，事务之间应该是相互隔离的，如果不同的事务同时访问相同的数据，则每个事务应该有各自完整的数据空间，即一个事务内部的操作及使用的数据对于其它事务是隔离的。在标准SQL规范中，定义了4种事务隔离级别，spring分别提供了对应的设置：
+隔离性：在并发场景下，事务之间应该是相互隔离的，如果不同的事务同时访问相同的数据，则每个事务应该有各自完整的数据空间，即一个事务内部的操作及使用的数据对于其它事务是隔离的。
+
+持久性：事务一旦提交，其对数据的状态变更将是永久性的；
 
 
+关于隔离性，在标准SQL规范中，定义了4种事务隔离级别，spring分别提供了对应的设置：
 
 未授权读(READ_UNCOMMITTED)：最低隔离级别，运行脏读，即一个事务可以读取别的事务还没有提交的数据；
 授权读(READ_COMMITTED)：保证一个事务的修改只有提交后才能被另外一个事务读取；
 可重复读(REPEATABLE_READ)：保证一个事务在处理的过程中，多次读取同一个数据时，其值都是与事务开始时一致的，即便在过程中有其它的事务进行了提交；
-串行化(SERIALIZABLE)：事务被要求顺序执行；
-
-
-持久性：事务一旦提交，其对数据的状态变更将是永久性的；">
+串行化(SERIALIZABLE)：事务被要求顺序执行；">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -67,7 +67,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  144 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  145 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -147,18 +147,18 @@
 </li>
 <li><p>一致性：事务的执行不能破坏数据的完整性和一致性，即事务的执行没有中间状态，数据只有事务执行前的状态或执行后的状态；</p>
 </li>
-<li><p>隔离性：在并发场景下，事务之间应该是相互隔离的，如果不同的事务同时访问相同的数据，则每个事务应该有各自完整的数据空间，即一个事务内部的操作及使用的数据对于其它事务是隔离的。在标准SQL规范中，定义了4种事务隔离级别，spring分别提供了对应的设置：</p>
+<li><p>隔离性：在并发场景下，事务之间应该是相互隔离的，如果不同的事务同时访问相同的数据，则每个事务应该有各自完整的数据空间，即一个事务内部的操作及使用的数据对于其它事务是隔离的。</p>
+</li>
+<li><p>持久性：事务一旦提交，其对数据的状态变更将是永久性的；</p>
 </li>
 </ul>
+<p>关于隔离性，在标准SQL规范中，定义了4种事务隔离级别，spring分别提供了对应的设置：</p>
 <ol>
 <li>未授权读(READ_UNCOMMITTED)：最低隔离级别，运行脏读，即一个事务可以读取别的事务还没有提交的数据；</li>
 <li>授权读(READ_COMMITTED)：保证一个事务的修改只有提交后才能被另外一个事务读取；</li>
 <li>可重复读(REPEATABLE_READ)：保证一个事务在处理的过程中，多次读取同一个数据时，其值都是与事务开始时一致的，即便在过程中有其它的事务进行了提交；</li>
 <li>串行化(SERIALIZABLE)：事务被要求顺序执行；</li>
 </ol>
-<ul>
-<li>持久性：事务一旦提交，其对数据的状态变更将是永久性的；</li>
-</ul>
 <span id="more"></span>
 
 <h3 id="示例-Transactional"><a href="#示例-Transactional" class="headerlink" title="示例 @Transactional"></a>示例 @Transactional</h3><p>这里看一个简单的示例，对于单个Jdbc数据源，使用spring中常见的声明式事务<code>@Transactional</code></p>
