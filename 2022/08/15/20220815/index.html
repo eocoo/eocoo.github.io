@@ -1,0 +1,408 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Nginx使用总结 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="Nginx是一款免费开源的高性能HTTP服务器及反向代理服务器产品，经常用在前后端分离项目中。从使用层面主要是关注其配置文件，遵循”声明式、层级化”的设计原则，具体结构可以描述如下：">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Nginx使用总结"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  146 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20220815" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2022-08-14T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2022/08/15/20220815/" style="color: #736f6f;">2022-08-15</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Nginx使用总结
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 1.8k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 8min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/nginx/">nginx</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Nginx是一款免费开源的高性能HTTP服务器及反向代理服务器产品，经常用在前后端分离项目中。从使用层面主要是关注其配置文件，遵循”声明式、层级化”的设计原则，具体结构可以描述如下：</p>
+<span id="more"></span>
+
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">main (全局块)                                               </span><br><span class="line">├── worker_processes 4;          # 全局指令                 </span><br><span class="line">├── user nginx;                                            </span><br><span class="line">└── ...                                                    </span><br><span class="line">                                                             </span><br><span class="line">events &#123;                         # events 块               </span><br><span class="line">    worker_connections 1024;                              </span><br><span class="line">  &#125;                                                         </span><br><span class="line">                                                            </span><br><span class="line">http &#123;                           # http 块（核心）          </span><br><span class="line">    ├── upstream backend &#123; ... &#125; # upstream 定义   </span><br><span class="line">    │        </span><br><span class="line">    ├── server &#123;                 # server 块（虚拟主机）     </span><br><span class="line">    │   ├── listen 80;                                     </span><br><span class="line">    │   ├── server_name example.com;                       </span><br><span class="line">    │   ├── location / &#123;         # location 块（路由）      </span><br><span class="line">    │   │       root /var/www;                            </span><br><span class="line">    │   │       index index.html;                         </span><br><span class="line">    │   └── &#125;  </span><br><span class="line">    │   │                                     </span><br><span class="line">    │   ├── location /api/ &#123; ... &#125;                        </span><br><span class="line">    │   └── ...                                            </span><br><span class="line">    └── &#125;    </span><br><span class="line">    │                                              </span><br><span class="line">    ├── server &#123; ... &#125;            # 多个虚拟主机            </span><br><span class="line">    └── ...                                                </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><ul>
+<li>Http服务器</li>
+</ul>
+<p>Nginx本身就是一个静态资源服务，可以提供Http服务，相比Apache Http服务具有很多非常优越的特性，比如占有内存少，并发能力强；同时Nginx也能反向代理服务，提供动态内容，实现动静分离；</p>
+<ul>
+<li>虚拟主机</li>
+</ul>
+<p>可以在一台服务器上虚拟出多个网站，一般基于域名server_name，或者listen端口区分；</p>
+<ul>
+<li>流量网关</li>
+</ul>
+<p>Nginx可以作为反向代理，并进行负载均衡。当请求流量用单台服务器处理不了时，可以用多台服务器进行水平扩展，然后使用nginx做代理并均衡流量；</p>
+<p>针对网关，一般可以分为三层：</p>
+<ol>
+<li><p>最底层使用LVS进行内核级转发，仅在协议处理栈中查看数据包的IP和端口，便进行转发，没有CPU消耗，一台物理机能扛住百万级QPS；所以性能不存在压力，只需考虑下高可用问题，通常会选用高稳定高性能的物理机，并通过keepalived实现主备；</p>
+</li>
+<li><p>Nginx网关属于应用协议层，需要解析HTTP协议、处理静态文件、SSL加解密等，并且存在正则匹配、压缩等消耗CPU的计算，官方QPS能达到5w；一般选用普通服务器即可，然后注重下带宽和CPU。</p>
+</li>
+<li><p>Api网关在Nginx后面一层，主要包括鉴权、限流、路由分发等操作，单台QPS可能只有几k；一般与业务服务一样，通过虚拟机或容器部署，方便进行弹性伸缩；</p>
+</li>
+</ol>
+<h3 id="常用配置"><a href="#常用配置" class="headerlink" title="常用配置"></a>常用配置</h3><h4 id="Https服务"><a href="#Https服务" class="headerlink" title="Https服务"></a>Https服务</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       443 ssl;   ## 监听443端口，启用SSL/TLS加密</span><br><span class="line">        server_name  hub.com;   ## server域名</span><br><span class="line">        </span><br><span class="line">        ssl_certificate /home/hub/hub.com.pem;      ## SSL公钥文件路径（证书）</span><br><span class="line">        ssl_certificate_key /home/hub/hub.com.key;  ## SSL私钥文件路径</span><br><span class="line"></span><br><span class="line">        ssl_session_cache    shared:SSL:1m;  ## SSL共享会话缓存，1MB约存储4000个会话，减少握手开销</span><br><span class="line">        ssl_session_timeout  5m;             ## SSL会话缓存超时时间</span><br><span class="line"></span><br><span class="line">        ssl_protocols TLSv1.2 TLSv1.3;  ## 仅启用TLS 1.2和1.3</span><br><span class="line">        ssl_ciphers  HIGH:!aNULL:!MD5;  ## 允许高强度的加密算法，禁用空加密和MD5</span><br><span class="line">        ssl_prefer_server_ciphers  on;  ## 优先使用服务端指定的加密套件顺序</span><br><span class="line"></span><br><span class="line">        ## 浏览器内容加载限制</span><br><span class="line">        add_header Content-Security-Policy &quot;</span><br><span class="line">            default-src &#x27;self&#x27;;</span><br><span class="line">            script-src &#x27;self&#x27; https://trusted-cdn.com; ## 脚本只允许从当前网站或受信任的cdn加载</span><br><span class="line">            style-src &#x27;self&#x27; &#x27;unsafe-inline&#x27;;          ## 样式只允许从当前网站加载或使用内联样式</span><br><span class="line">            frame-ancestors &#x27;self&#x27;;                    ## 页面只能被当前网站通过iframe嵌入</span><br><span class="line">            form-action &#x27;self&#x27;;                        ## 表单提交地址只能是本站</span><br><span class="line">            connect-src &#x27;self&#x27; https://api.com;        ## AJAX请求地址只能是当前网站，或指定域名</span><br><span class="line">        &quot; always;</span><br><span class="line">        add_header X-Content-Type-Options &quot;nosniff&quot; always;  ## 严格按照响应的Content-Type解析，禁止MIME嗅探</span><br><span class="line">        add_header X-Frame-Options &quot;SAMEORIGIN&quot; always;      ## iframe限制，兼容旧浏览器</span><br><span class="line">        add_header X-XSS-Protection &quot;1; mode=block&quot; always;  ## xss攻击，兼容旧浏览器</span><br><span class="line"></span><br><span class="line">        ## 静态资源缓存</span><br><span class="line">        location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ &#123;</span><br><span class="line">            root /home/project/xxx-docs;</span><br><span class="line">            expires 30d;</span><br><span class="line">            add_header Cache-Control &quot;public, immutable&quot;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ## 开启Gzip</span><br><span class="line">        gzip on;</span><br><span class="line">        gzip_min_length 1000;  ## 压缩阈值设1K，如果小与1K可能会越压越大</span><br><span class="line">        gzip_types text/plain text/css application/json application/javascript text/xml;</span><br><span class="line"></span><br><span class="line">        ### 静态资源</span><br><span class="line">        location / &#123;</span><br><span class="line">            root      /opt/hub-ui;</span><br><span class="line">            try_files $uri $uri/ /index.html;  ## 查找顺序：先找文件，再找目录，最后默认index.html</span><br><span class="line">            index  index.html index.htm;       ## 默认首页</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ### Api请求</span><br><span class="line">        location /prod-api/&#123;</span><br><span class="line">            proxy_pass http://hub-gateway:19000/;</span><br><span class="line">            proxy_set_header Host $http_host;                             ## 客户端请求中的原始Host</span><br><span class="line">            proxy_set_header REMOTE-HOST $remote_addr;                    ## 客户端IP</span><br><span class="line">            proxy_set_header X-Real-IP $remote_addr;                      ## 与REMOTE-HOS一样，只是名称不同</span><br><span class="line">            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  ## 请求经过的完整代理链路，从原始客户端IP，到最后代理的IP</span><br><span class="line">            proxy_set_header X-Forwarded-Proto $scheme;                   ## 客户端使用的原始协议</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ### websocket请求</span><br><span class="line">        location /socket.io/ &#123;</span><br><span class="line">            proxy_pass http://hub-admin:19011/socket.io/;</span><br><span class="line">            proxy_read_timeout 3600;</span><br><span class="line">            proxy_cache_bypass $http_upgrade;            ## 绕过缓存，WebSocket连接需要升级协议为WebSocket，缓存是针对http的</span><br><span class="line">            proxy_set_header Connection Upgrade;         ## 告诉后端需要升级协议</span><br><span class="line">            proxy_set_header Upgrade $http_upgrade;      ## 保留客户端的Upgrade头，原样传递给后端</span><br><span class="line">            proxy_set_header Host $http_host;</span><br><span class="line">            proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">            proxy_set_header x-forwarded-for $proxy_add_x_forwarded_for;</span><br><span class="line">            proxy_set_header x-forwarded-Proto $scheme;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">## Http强制跳转HTTPS</span><br><span class="line">server &#123;</span><br><span class="line">    listen 80;</span><br><span class="line">    server_name hub.com;</span><br><span class="line">    return 301 https://$server_name$request_uri;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="请求限制"><a href="#请求限制" class="headerlink" title="请求限制"></a>请求限制</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">  root   /var/www/test;</span><br><span class="line">  index  index.php index.html index.htm;</span><br><span class="line"></span><br><span class="line">  ## 每个IP只能同时发起5个连接</span><br><span class="line">  limit_conn addr 5; </span><br><span class="line"></span><br><span class="line">  ## IP 白名单</span><br><span class="line">  allow 123.45.25.6;</span><br><span class="line">  allow 123.68.52.125;</span><br><span class="line">  allow 123.125.25.106;</span><br><span class="line">  ## 禁止其它ip访问</span><br><span class="line">  deny all;</span><br><span class="line"></span><br><span class="line">  proxy_connect_timeout 3s;  ## 服务连接超时</span><br><span class="line">  proxy_send_timeout 90;     ## 代理发送超时，Nginx向后端发送请求的超时（比如传送大文件，后端接收太慢，Nginx会断开连接）</span><br><span class="line">  proxy_read_timeout 90;     ## 代理接收超时，Nginx等待后端响应数据的超时</span><br><span class="line"></span><br><span class="line">  client_max_body_size 20m; ## 请求最大限制</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h4><p>Nginx负载均衡策略主要有六种，分别是轮询、权重、ip_hash、最少连接、fair、url_hash等</p>
+<ul>
+<li>轮询策略（默认）</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">worker_processes 4;</span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections 1024;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    include            mime.types;</span><br><span class="line">    default_type       application/octet-stream; ## 无法识别的文件类型，识为二进制流</span><br><span class="line"></span><br><span class="line">    sendfile           on;   ## 启用零拷贝</span><br><span class="line">    tcp_nopush         on;   ## 累计数据包再发送，减少网络包数量，大文件优化</span><br><span class="line">    tcp_nodelay        on;   ## 禁用Nagle算法，小数据包立即发送</span><br><span class="line">    keepalive_timeout  65;   ## 空闲连接保持65s</span><br><span class="line">    server_tokens      off;  ## 隐藏Nginx版本信息</span><br><span class="line"></span><br><span class="line">    ## 请求日志&amp;格式</span><br><span class="line">    access_log        /var/log/nginx/access.log;</span><br><span class="line">    log_format  main  &#x27;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#x27;</span><br><span class="line">                      &#x27;$status $body_bytes_sent &quot;$http_referer&quot; &quot;$http_user_agent&quot; &#x27;</span><br><span class="line">                      &#x27;&quot;$http_x_forwarded_for&quot; $request_time $upstream_response_time&#x27;;</span><br><span class="line"></span><br><span class="line">    upstream backup-server &#123;</span><br><span class="line">        server 111.13.103.91;</span><br><span class="line">        server 111.13.179.222;</span><br><span class="line">        server 111.13.179.333 down;    # 当前server不参与负载</span><br><span class="line">        server 111.13.179.444 backup;  # 当所有非backup机器down或者忙的时候，才会被请求</span><br><span class="line">        server 111.13.179.555;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    server &#123;</span><br><span class="line">        listen 8080;</span><br><span class="line">        location / &#123;</span><br><span class="line">            proxy_pass http://backup-server;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>权重策略</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">upstream  backup-server &#123;</span><br><span class="line">   server    192.168.1.101:8080 weigh=5;</span><br><span class="line">   server    192.168.1.102:8080 weigh=6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ip_hash策略</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">upstream  backup-server &#123;</span><br><span class="line">   ip_hash;  ## 按访问ip分配，固定访问一个后端服务器，解决session问题</span><br><span class="line">   server    192.168.1.101:8080 weigh=5;</span><br><span class="line">   server    192.168.1.102:8080 weigh=6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>最少连接策略</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">upstream  backup-server &#123;</span><br><span class="line">   least_conn;</span><br><span class="line">   server    192.168.1.101:8080 weigh=5;</span><br><span class="line">   server    192.168.1.102:8080 weigh=6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>fair策略</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">upstream  backup-server &#123;</span><br><span class="line">   fair;</span><br><span class="line">   server    192.168.1.101:8080 weigh=5;</span><br><span class="line">   server    192.168.1.102:8080 weigh=6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>url_hash策略</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">upstream  backup-server &#123;</span><br><span class="line">   hash $request_uri; </span><br><span class="line">   server    192.168.1.101:8080 weigh=5;</span><br><span class="line">   server    192.168.1.102:8080 weigh=6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h3><p>推荐一个Nginx日志分析工具：<a target="_blank" rel="noopener" href="https://github.com/likaia/nginxpulse">https://github.com/likaia/nginxpulse</a></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">version:</span> <span class="string">&quot;3.8&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line"><span class="attr">nginxpulse:</span></span><br><span class="line">    <span class="string">image:magiccoders/nginxpulse:latest</span></span><br><span class="line">    <span class="string">container_name:nginxpulse</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="string">-&quot;8088:8088&quot;</span></span><br><span class="line">      <span class="string">-&quot;8089:8089&quot;</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="string">WEBSITES:&#x27;[&#123;&quot;name&quot;:&quot;主站&quot;,&quot;logPath&quot;:&quot;/share/log/nginx/access.log&quot;,&quot;domains&quot;:[&quot;example.com&quot;]&#125;]&#x27;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="string">-./nginx_logs/access.log:/share/log/nginx/access.log:ro</span></span><br><span class="line">      <span class="string">-./var/nginxpulse_data:/app/var/nginxpulse_data</span></span><br><span class="line">    <span class="string">restart:unless-stopped</span></span><br></pre></td></tr></table></figure>
+
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2022/09/10/20220910/">
+		    分布式事务｜一致性问题
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2022/07/30/20220730/">
+		    Redis高可用问题
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/nginx/">nginx</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE"><span class="toc-text">常用配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Https%E6%9C%8D%E5%8A%A1"><span class="toc-text">Https服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E9%99%90%E5%88%B6"><span class="toc-text">请求限制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-text">负载均衡</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FAQ"><span class="toc-text">FAQ</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
