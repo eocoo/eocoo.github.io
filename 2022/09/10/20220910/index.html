@@ -53,7 +53,7 @@ CP系统也有很多，一般是基于共识算法（比如Paxos、Raft、ZAB）
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  146 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  147 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -153,7 +153,7 @@ CP系统也有很多，一般是基于共识算法（比如Paxos、Raft、ZAB）
 <li><p>悬挂： Try执行时，Cancel已执行完成。事务分支在执行Try操作前，应该确认Cancel未执行，否则应该直接返回；</p>
 </li>
 </ul>
-<p>思路也是通过幂等进行控制，每个事务参与方执行操作前会insert ignore一条数据，判断依据是事务gid。对于Try操作，如果insert失败，应该直接返回；对于Cancel操作，如果insert成功，则应该直接返回；</p>
+<p>思路也是通过幂等进行控制，每个事务参与方执行操作前会insert ignore一条数据，判断依据是事务gid。对于Try操作，如果insert失败，说明之前已经执行过try，应该直接返回；对于Cancel操作，如果insert成功，则说明还未执行过try操作，应该直接返回；</p>
 <h3 id="最终一致性"><a href="#最终一致性" class="headerlink" title="最终一致性"></a>最终一致性</h3><h4 id="本地消息表"><a href="#本地消息表" class="headerlink" title="本地消息表"></a>本地消息表</h4><p>本地第一阶段，执行业务操作时，将相关消息存储到本地消息表；</p>
 <p>本地第二阶段，定时扫描消息（待投递，投递失败，执行失败的状态），然后投递给下游服务，可以重试直至达到最大重试次数，标记为待人工处理；</p>
 <p>对端第一阶段，将收到的消息存储到自己的消息表中，并给发送方回复ACK；</p>

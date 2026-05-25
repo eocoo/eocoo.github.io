@@ -7,7 +7,7 @@
   <meta name="author" content="shanhm">
   
   <meta name="description" content="锁的本质就是对共享资源的一种并发访问控制，如果是在单个进程中，可以通过对某个内存地址标记来实现。比如Java中的synchronized关键字，其实就是让线程争抢和修改java对象头中的一个锁标志位，只有成功了的那个线程才能进入同步块。在Java sdk中也有通过AQS实现的锁，它使用一个state变量来标识状态，然后通过CAS操作确保同一时刻只有一个线程操作成功，并将操作失败的线程挂起放入一个队列，在此基础上实现了更丰富的锁特性，比如可重试可超时的锁，以及支持条件唤醒。
-在分布式场景中思路也是一样的，区别只是并发的线程来自不同的进程，所以锁的标识需要放在进程之外，常见的方式比如Redis、Etcd、Zk、Db">
+在分布式场景中思路也是一样的，区别只是并发的线程来自不同的进程，所以锁的标识需要通过共享存储放在进程之外，比如Redis、Etcd、Zk、Db">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -51,7 +51,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  146 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  147 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -121,7 +121,7 @@
     <div class="e-content entry" itemprop="articleBody">
       
         <p>锁的本质就是对共享资源的一种并发访问控制，如果是在单个进程中，可以通过对某个内存地址标记来实现。比如Java中的synchronized关键字，其实就是让线程争抢和修改java对象头中的一个锁标志位，只有成功了的那个线程才能进入同步块。在Java sdk中也有通过AQS实现的锁，它使用一个state变量来标识状态，然后通过CAS操作确保同一时刻只有一个线程操作成功，并将操作失败的线程挂起放入一个队列，在此基础上实现了更丰富的锁特性，比如可重试可超时的锁，以及支持条件唤醒。</p>
-<p>在分布式场景中思路也是一样的，区别只是并发的线程来自不同的进程，所以锁的标识需要放在进程之外，常见的方式比如Redis、Etcd、Zk、Db</p>
+<p>在分布式场景中思路也是一样的，区别只是并发的线程来自不同的进程，所以锁的标识需要通过共享存储放在进程之外，比如Redis、Etcd、Zk、Db</p>
 <span id="more"></span>
 
 <h3 id="DB实现"><a href="#DB实现" class="headerlink" title="DB实现"></a>DB实现</h3><ul>
