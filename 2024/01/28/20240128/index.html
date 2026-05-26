@@ -1,0 +1,525 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Docker容器的理解和使用总结 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="整理下容器的理解，以及常见的使用问题">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Docker容器的理解和使用总结"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  148 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20240128" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2024-01-27T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2024/01/28/20240128/" style="color: #736f6f;">2024-01-28</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        Docker容器的理解和使用总结
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 3.9k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 14min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/docker/">docker</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>整理下容器的理解，以及常见的使用问题</p>
+<span id="more"></span>
+
+<h3 id="容器发展历史"><a href="#容器发展历史" class="headerlink" title="容器发展历史"></a>容器发展历史</h3><ul>
+<li>阶段一：隔离文件——chroot命令的诞生</li>
+</ul>
+<p>在1979年，Unix系统引入了一个革命性的命令，它允许系统管理员将进程的根目录锁定在指定的位置，从而有效地限制了该进程访问的文件系统范围。这个命令成为了早期容器技术的基石，因为它实现了基本的文件系统隔离，确保进程不能访问其指定根目录之外的任何文件或目录。</p>
+<p>这种隔离能力对于安全性至关重要，特别是在监控潜在的恶意活动时。通过创建一个隔离的环境，或所谓的“黑盒”，系统管理员能够更安全地运行和监控可疑的代码或程序。</p>
+<p>因此这个以文件形式进行隔离的命令为现代容器技术奠定了一个重要的思想基础：隔离。后续的很多演变也都是基于“隔离”进行变化。</p>
+<ul>
+<li>阶段二：隔离访问——namespace名称空间</li>
+</ul>
+<p>在2002年，Linux社区迎来了一个重要的里程碑：引入了Linux名称空间（namespace）功能。</p>
+<p>名称空间是一种轻量级的虚拟化技术，它允许不同的进程拥有自己的独立视图，包括文件系统、进程PID、用户UID、网络接口等关键系统资源。</p>
+<p>因此每个进程都在一个独立的环境中运行，这意味着在一个名称空间中所做的更改（例如文件系统的修改、网络配置等）不会影响到其他名称空间。</p>
+<p>这种隔离不仅提高了系统的安全性，因为它限制了进程可能造成的潜在影响，也使得多个应用能够在同一个物理服务器上同时运行，而互不干扰。</p>
+<p>在容器化的上下文中，名称空间提供了实现容器隔离的关键技术。因为每个容器实际上就是一组不同的名称空间和一些其他资源（cgroups）的集合。</p>
+<ul>
+<li>阶段三：隔离资源——cgroups控制组特性</li>
+</ul>
+<p>Cgroups（控制组）是Linux内核的一个特性，最初由Google工程师Paul Menage和Rohit Seth在2006年提出。</p>
+<p>通过将进程分组，并对这些分组进行资源控制和隔离，从而允许系统管理员精确地控制和限制进程组使用的资源量，如CPU时间、系统内存、网络带宽或磁盘I&#x2F;O等。通过这种方式，能够有效避免一个进程出现问题把同机器上的其他进程的资源耗尽或占用， 成为了实现资源隔离和保证系统稳定性的强大工具。</p>
+<ul>
+<li>阶段四：封装系统——LXC虚拟化(Linux Containers)</li>
+</ul>
+<p>lxc是linux发布的系统级虚拟化功能，它允许用户在同一宿主机上运行多个隔离的Linux系统实例。每个实例，或称为容器，都拥有自己的文件系统、网络配置和进程空间，但与传统虚拟机相比，LXC容器共享宿主机的内核，使得它们更为轻量级和高效。</p>
+<p>lxc的理念在于封装系统，这意味着每个LXC容器都运行着完整的操作系统，包括其所有的服务和进程。缺点在于每个LXC的体积相当大，当系统内的部件需要修改，必须重写很多配置，导致维护和更新过程相对繁琐和耗时。</p>
+<ul>
+<li>阶段五：封装应用——Docker容器</li>
+</ul>
+<p>基于LXC的缺点进行改进，才有了后面Docker容器的诞生和迅猛发展，docker的容器化能力直接来源自lxc，只是后面docker的开发人员自己又用go语言开发了libcontainer避免了对lxc的强依赖。</p>
+<p>对比于LXC， docker容器的理念在于封装应用。容器通常只包含运行单个应用所必需的最小环境，这使得它们非常轻量级和快速。当应用或其依赖需要更新时，只需修改有关部分并重新构建容器，这通常可以在几秒钟内完成。</p>
+<p>除了轻量化以应用为中心的构建外，docker对比LXC还有以下七点优势：</p>
+<blockquote>
+<p>跨机器的绿色部署：将所有环境依赖打包到一起，避免对机器的依赖；<br>自动构建：无需关注目标机器具体配置，使用任务构建工具在容器中自动构建；<br>多版本支持：支持git一样管理容器版本；<br>组件重用，可以在基础镜像上构建专业化镜像；<br>共享，有公共的镜像仓库；<br>工具生态可以很方便扩展；</p>
+</blockquote>
+<p>Docker也并非没有缺点。由于它主要关注应用层，这就需要开发者和系统管理员对应用的依赖和环境有深入的了解，以确保在不同环境中一致性和安全性的维护。</p>
+<ul>
+<li>阶段六：封装集群——kubernetes</li>
+</ul>
+<p>k8s是容器编排框架，将大型软件系统运行所依赖的集群环境进行了另一种形式的虚拟化，让集群得以实现跨数据中心的绿色部署，实现自动扩缩。它负责管理由容器组成的应用集合，确保它们按预期方式运行，处理部署、替换故障容器、服务发现、负载均衡、扩展和缩减容器数量等任务。</p>
+<ul>
+<li>阶段七：封装容器服务——基于云服务的容器化（CCE）</li>
+</ul>
+<p>对于传统本地搭建K8S集群而言，具有以下劣势：</p>
+<blockquote>
+<p>高成本: 自行搭建和维护Kubernetes集群需要大量的前期投资，包括硬件、网络设施等；<br>复杂性: 搭建和维护一个高效、稳定的k8s环境需要深厚的技术知识和经验；<br>维护负担: 需要持续投入人力去管理和维护硬件、软件、网络等；<br>缩放困难: 根据业务需求快速扩展或缩小资源可能会非常复杂和耗时。在业务初期发展阶段，纯靠经验很难快速覆盖各种缩放场景；</p>
+</blockquote>
+<p>随着云计算的普及和成熟，容器化技术也开始步入云服务时代。这一时期，云服务提供商纷纷推出了各自的容器服务产品，如华为云的CCE（云容器引擎）服务等， 企业和开发者也越来越多地转向云平台来部署和管理容器应用，享受云计算带来的灵活性、可扩展性和成本效益。</p>
+<p>通过使用云服务提供的容器化能力，可以做到：</p>
+<blockquote>
+<p>简化管理: 云服务提供商通常提供易于使用的管理界面和API，简化了集群的搭建、管理和扩展；<br>快速部署: 可以在十几分钟内启动和配置一个完整的k8s环境。例如通过CCE快速入门，可以快速熟悉容器创建的整个过程；<br>自动扩缩容: 云服务通常提供自动扩缩容功能，根据实际负载自动调整资源。比如CCE的弹性伸缩，可以从工作负载和节点两个维度进行伸缩。</p>
+</blockquote>
+<h3 id="容器原理"><a href="#容器原理" class="headerlink" title="容器原理"></a>容器原理</h3><p>容器并不是轻量虚拟机，虚拟机的核心在于（硬件虚拟化 + 独立内核），而容器既不虚拟硬件，也不复制内核。它所做的事情更接近于：在同一个内核之上，构造多个彼此隔离的进程运行环境。</p>
+<p>从内核角度看，系统中并不存在container这一数据结构。所有容器最终都会落到task_struct上，即普通进程。容器不过是在创建进程时，附加了一组额外的约束与重映射信息，这些信息决定了进程“能看到什么”和“能使用多少资源”，也就是说，容器并不是一种新资源，而是对已有资源的一种重新组织方式。</p>
+<p>因此可以将容器概括成如下描述：</p>
+<blockquote>
+<p>container &#x3D; process + namespace + cgroup + rootfs</p>
+</blockquote>
+<p>其中process是执行载体，Namespace负责视图隔离，Cgroup负责资源限制，rootfs决定文件系统呈现。理解了这一点，很多现象就能够得到解释。比如为什么容器启动极快？因为它并没有启动一个系统，而是只启动了一个进程；为什么容器安全性有限？因为所有容器共享同一个内核，一旦内核被突破，所有隔离都将失效。</p>
+<p>容器是对进程运行上下文的系统性约束与重命名，而容器的启动，本质上就是一次特殊的进程创建过程。运行时调用clone()创建子进程，并在这个过程中指定 Namespace标志，随后将进程加入对应的Cgroup，再切换rootfs，最后执行目标程序。</p>
+<p><img src="/img/20240128/20240128.1.png"> </p>
+<h3 id="FAQ常见问题"><a href="#FAQ常见问题" class="headerlink" title="FAQ常见问题"></a>FAQ常见问题</h3><h4 id="存储空间耗尽"><a href="#存储空间耗尽" class="headerlink" title="存储空间耗尽"></a>存储空间耗尽</h4><ul>
+<li>现象</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">容器无法启动，日志报错：no space left on device</span><br><span class="line">写入文件时报错：no space left on device</span><br><span class="line">docker ps报错：Cannot connect to the Docker daemon</span><br><span class="line">df -h 显示 /var/lib/docker 所在磁盘使用率100%</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>预防措施</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">把 /var/lib/docker 放在独立分区或LVM逻辑卷</span><br><span class="line">配置容器日志轮转（max-size + max-file）</span><br><span class="line">定期清理镜像和构建缓存</span><br><span class="line">监控磁盘使用率，超过80%告警</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>原因</li>
+</ul>
+<p>Docker的存储驱动（overlay2、devicemapper、btrfs、zfs）默认把镜像层、容器层、日志、构建缓存都放在&#x2F;var&#x2F;lib&#x2F;docker下面。如果这个分区没有独立mount，或者根分区空间有限，那么容器日志、镜像、build缓存很容易把它撑满。</p>
+<ul>
+<li>排查命令</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看 Docker 数据目录所在磁盘的使用情况</span></span></span><br><span class="line">df -h /var/lib/docker</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看 Docker 占用的磁盘空间分布</span></span></span><br><span class="line">docker system df</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 详细看各部分占用</span></span></span><br><span class="line">docker system df -v</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看容器日志大小</span></span></span><br><span class="line">ls -lh /var/lib/docker/containers/*/*-json.log</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看overlay2层的实际占用</span></span></span><br><span class="line">du -sh /var/lib/docker/overlay2/*</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>解决办法</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 清理没有tag的镜像</span></span></span><br><span class="line">docker image prune</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 清理所有没有使用的镜像</span></span></span><br><span class="line">docker image prune -a</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 删除所有未被容器使用的volumes</span></span></span><br><span class="line">docker volume prune</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 清理所有未使用的资源（镜像、容器、网络、构建缓存）</span></span></span><br><span class="line">docker system prune -a --volumes</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 限制容器日志大小（修改/etc/docker/daemon.json）</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&#123;</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">  <span class="string">&quot;log-driver&quot;</span>: <span class="string">&quot;json-file&quot;</span>,</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">  <span class="string">&quot;log-opts&quot;</span>: &#123;</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">    <span class="string">&quot;max-size&quot;</span>: <span class="string">&quot;100m&quot;</span>,</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">    <span class="string">&quot;max-file&quot;</span>: <span class="string">&quot;3&quot;</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">  &#125;</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="容器与宿主机时间不一致"><a href="#容器与宿主机时间不一致" class="headerlink" title="容器与宿主机时间不一致"></a>容器与宿主机时间不一致</h4><ul>
+<li>现象</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">容器内date命令输出，与宿主机差8小时</span><br><span class="line">程序日志时间戳和实际时间不符</span><br><span class="line">数据库写入的时间差了8小时</span><br><span class="line">证书有效期计算错误</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>原因</li>
+</ul>
+<p>容器默认使用宿主机的kernel，没有自己的时区设置。如果宿主机是CST（UTC+8），但容器没有正确挂载时区文件，就会使用UTC时间。</p>
+<ul>
+<li>解决办法</li>
+</ul>
+<p>启动容器时挂载时区文件，并指定时区</p>
+<figure class="highlight yaml"><figcaption><span>docker-compose.yaml</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">app:</span></span><br><span class="line">    <span class="string">image:</span> <span class="string">my-app:latest</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="string">TZ:</span> <span class="string">&quot;Asia/Shanghai&quot;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="string">-</span> <span class="string">/etc/localtime:/etc/localtime:ro</span></span><br></pre></td></tr></table></figure>
+
+<p>或者在构建镜像时直接写入时区</p>
+<figure class="highlight txt"><figcaption><span>Dockerfile</span></figcaption><table><tr><td class="code"><pre><span class="line">FROM ubuntu:20.04</span><br><span class="line">RUN apt-get update &amp;&amp; apt-get install -y tzdata &amp;&amp; \</span><br><span class="line">    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; \</span><br><span class="line">    echo &quot;Asia/Shanghai&quot; &gt; /etc/timezone</span><br></pre></td></tr></table></figure>
+
+<h4 id="容器内无法解析DNS"><a href="#容器内无法解析DNS" class="headerlink" title="容器内无法解析DNS"></a>容器内无法解析DNS</h4><ul>
+<li>现象</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">宿主机能ping通redis-master，容器内ping不通</span><br><span class="line">curl http://nginx在宿主机正常，容器内失败</span><br><span class="line">容器能解析公网DNS（curl baidu.com 正常），但无法解析内网域名</span><br><span class="line">跨容器通信时报错：could not resolve host</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>原因</li>
+</ul>
+<p>Docker默认使用内置的DNS服务（地址127.0.0.11），这个DNS服务知道容器通过–link或docker network建立的内部域名，但不知道宿主机网络中自定义的DNS记录（如公司内网DNS服务器上的redis-master.internal）</p>
+<ul>
+<li>排查命令</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看容器DNS配置</span></span></span><br><span class="line">docker exec &lt;container-id&gt; cat /etc/resolv.conf</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 从容器内测试DNS</span></span></span><br><span class="line">docker exec &lt;container-id&gt; nslookup nginx</span><br><span class="line">docker exec &lt;container-id&gt; dig nginx</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>解决办法</li>
+</ul>
+<p>可以使用 –dns 指定DNS服务器</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker run --dns 192.168.1.53 nginx</span><br></pre></td></tr></table></figure>
+
+<p>或者在 docker-compose 中配置DNS</p>
+<figure class="highlight yaml"><figcaption><span>docker-compose.yaml</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">app:</span></span><br><span class="line">    <span class="string">image:my-app:latest</span></span><br><span class="line">    <span class="attr">dns:</span></span><br><span class="line">      <span class="number">-192.168</span><span class="number">.1</span><span class="number">.53</span></span><br><span class="line">      <span class="number">-8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="string">-my-net</span></span><br><span class="line"></span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line"><span class="attr">my-net:</span></span><br><span class="line">    <span class="string">driver:bridge</span></span><br><span class="line">    <span class="attr">ipam:</span></span><br><span class="line">      <span class="attr">config:</span></span><br><span class="line">        <span class="string">-subnet:172.20.0.0/16</span></span><br></pre></td></tr></table></figure>
+
+<p>或者在daemon.json中配置全局DNS，但需要systemctl restart docker才能生效</p>
+<figure class="highlight json"><figcaption><span>/etc/docker/daemon.json</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;dns&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;192.168.1.53&quot;</span><span class="punctuation">,</span> <span class="string">&quot;8.8.8.8&quot;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="容器进程被OOMKilled"><a href="#容器进程被OOMKilled" class="headerlink" title="容器进程被OOMKilled"></a>容器进程被OOMKilled</h4><ul>
+<li>现象</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">docker ps 显示容器退出了</span><br><span class="line">docker logs &lt;container-id&gt; 最后一条日志正常，没有错误信息</span><br><span class="line">docker inspect &lt;container-id&gt; 显示 OOMKilled: true</span><br><span class="line">宿主机 dmesg | grep -i oom 或 journalctl | grep -i oom 有记录</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>预防措施</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">设置合理的内存 limit，不要设置得过高或过低</span><br><span class="line">Java/Node.js 等有自己内存管理的应用，要明确设置堆内存</span><br><span class="line">配置监控告警：内存使用率超过80% limit时告警</span><br><span class="line">在宿主机部署 OOM 告警脚本</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>原因</li>
+</ul>
+<p>容器的内存限制由Linux cgroup控制。当容器内的进程试图申请超过limit的内存时，Linux会触发OOM Killer选择容器内的一个进程杀掉。如果进程没有处理 SIGKILL信号，容器会直接退出。</p>
+<ul>
+<li>排查命令</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 检查容器退出状态</span></span></span><br><span class="line">docker inspect &lt;container-id&gt; | grep -E &quot;OOMKilled|ExitCode|State&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看容器内存使用峰值</span></span></span><br><span class="line">docker stats &lt;container-id&gt; --no-stream</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看容器内存限制</span></span></span><br><span class="line">docker inspect &lt;container-id&gt; | grep -A 5 &quot;Memory&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 在宿主机上查看 cgroup 内存统计</span></span></span><br><span class="line">cat /sys/fs/cgroup/memory/docker/&lt;container-id&gt;/memory.usage_in_bytes</span><br><span class="line">cat /sys/fs/cgroup/memory/docker/&lt;container-id&gt;/memory.limit_in_bytes</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 查看宿主机 OOM 日志</span></span></span><br><span class="line">dmesg | grep -i &quot;out of memory&quot;</span><br><span class="line">dmesg | grep -i &quot;killed process&quot;</span><br><span class="line">journalctl | grep -i oom | tail -20</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>解决办法</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 提高内存限制重新启动容器</span></span></span><br><span class="line">docker run --memory=1g my-app:latest</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># docker-compose方式</span></span></span><br><span class="line">services:</span><br><span class="line">  app:</span><br><span class="line">    image: my-app:latest</span><br><span class="line">    mem_limit: 1g</span><br><span class="line">    mem_reservation: 512m</span><br></pre></td></tr></table></figure>
+
+<h4 id="容器无法访问外网，但宿主机正常"><a href="#容器无法访问外网，但宿主机正常" class="headerlink" title="容器无法访问外网，但宿主机正常"></a>容器无法访问外网，但宿主机正常</h4><ul>
+<li>现象</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">ping baidu.com在宿主机正常，但在容器内不通</span><br><span class="line">curl https://google.com 在宿主机正常，容器内超时</span><br><span class="line">容器间通信正常（同一个 bridge 网络内）</span><br><span class="line">从容器内访问宿主机 IP 正常，但访问其他IP不通</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可能原因</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">1. MTU不匹配，容器使用docker0网桥的MTU默认1500，宿主机网卡的MTU可能9000（数据中心巨型帧），那么路径MTU发现可能失败</span><br><span class="line">2. iptables规则被改，Docker会自动添加iptables NAT规则，如果被清理，容器无法通过NAT访问外网</span><br><span class="line">3. 宿主机开启了数据包转发但 Docker 没正确配置</span><br><span class="line">4. 代理设置：宿主机走了代理但容器没有</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>排查命令</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 检查容器网络连通性（按顺序测试）</span></span></span><br><span class="line">docker exec &lt;container-id&gt; ping 8.8.8.8                # 测试 IP 层连通性</span><br><span class="line">docker exec &lt;container-id&gt; ping baidu.com              # 测试 DNS 解析</span><br><span class="line">docker exec &lt;container-id&gt; curl -v https://google.com  # 测试应用层</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 检查宿主机iptables NAT规则</span></span></span><br><span class="line">iptables -t nat -L -n | grep DOCKER</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 检查Docker网桥配置</span></span></span><br><span class="line">ip addr show docker0</span><br><span class="line">ip route show</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 检查MTU</span></span></span><br><span class="line">ip link show eth0</span><br><span class="line">docker network inspect bridge | grep -i mtu</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 抓包分析</span></span></span><br><span class="line">tcpdump -i docker0 -n host 8.8.8.8</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>解决办法</li>
+</ul>
+<p>MTU问题</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 启动容器时指定MTU</span></span></span><br><span class="line">docker run --network=host --mtu=9000 my-app</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 或者修改/etc/docker/daemon.json全局配置</span></span></span><br><span class="line">&#123;</span><br><span class="line">  &quot;mtu&quot;: 9000</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>iptables规则被改问题，可以重置</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># docker重启后会自动添加正确的iptables规则</span></span></span><br><span class="line">iptables -t nat -F</span><br><span class="line">iptables -t filter -F</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<p><br><strong>参考：</strong></p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/huaweiyun/p/17925782.html">https://www.cnblogs.com/huaweiyun/p/17925782.html</a></li>
+</ol>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2024/03/14/20240314/">
+		    软件架构设计原则 Srinath
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2023/12/27/20231227/">
+		    Icmp协议
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/Devops/">Devops</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/docker/">docker</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E5%8F%91%E5%B1%95%E5%8E%86%E5%8F%B2"><span class="toc-text">容器发展历史</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E5%8E%9F%E7%90%86"><span class="toc-text">容器原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FAQ%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="toc-text">FAQ常见问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4%E8%80%97%E5%B0%BD"><span class="toc-text">存储空间耗尽</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E6%97%B6%E9%97%B4%E4%B8%8D%E4%B8%80%E8%87%B4"><span class="toc-text">容器与宿主机时间不一致</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E5%86%85%E6%97%A0%E6%B3%95%E8%A7%A3%E6%9E%90DNS"><span class="toc-text">容器内无法解析DNS</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E8%BF%9B%E7%A8%8B%E8%A2%ABOOMKilled"><span class="toc-text">容器进程被OOMKilled</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%8C%E4%BD%86%E5%AE%BF%E4%B8%BB%E6%9C%BA%E6%AD%A3%E5%B8%B8"><span class="toc-text">容器无法访问外网，但宿主机正常</span></a></li></ol></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
