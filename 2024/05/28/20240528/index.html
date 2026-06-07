@@ -1,0 +1,491 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>系统权限设计问题 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="在数字化转型深入背景下，权限管理已从辅助功能升级为企业核心基础设施。传统模式因颗粒度粗、权限滥用、生命周期失控及系统割裂等问题，难以满足规模化与精细化管控需求，易引发安全与合规风险。
+按照层级顺序一般可以将权限问题分为登录权限、功能权限、数据权限。首先登录权限决定用户是否能够访问系统，能够访问之后再由操作权限决定用户能够做哪些操作，最后再具体针对某个用户或者用户的操作确定他能够操作的数据范围。在权限的定义都描述清楚之后，接着要考虑的问题是如何将权限与用户关联，以及如何让权限生效，这里面会涉及到很多实施层面的细节问题。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="系统权限设计问题"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  149 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20240528" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2024-05-27T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2024/05/28/20240528/" style="color: #736f6f;">2024-05-28</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        系统权限设计问题
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 7.1k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 26min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/系统设计/">系统设计</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/token/">token</a>   <a href="/tags/oauth2/">oauth2</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>在数字化转型深入背景下，权限管理已从辅助功能升级为企业核心基础设施。传统模式因颗粒度粗、权限滥用、生命周期失控及系统割裂等问题，难以满足规模化与精细化管控需求，易引发安全与合规风险。</p>
+<p>按照层级顺序一般可以将权限问题分为登录权限、功能权限、数据权限。首先登录权限决定用户是否能够访问系统，能够访问之后再由操作权限决定用户能够做哪些操作，最后再具体针对某个用户或者用户的操作确定他能够操作的数据范围。在权限的定义都描述清楚之后，接着要考虑的问题是如何将权限与用户关联，以及如何让权限生效，这里面会涉及到很多实施层面的细节问题。</p>
+<span id="more"></span>
+
+<h3 id="登录权限"><a href="#登录权限" class="headerlink" title="登录权限"></a>登录权限</h3><h4 id="Basic-Authentication"><a href="#Basic-Authentication" class="headerlink" title="Basic Authentication"></a>Basic Authentication</h4><p>Basic授权是浏览器遵守http协议实现的基本方式，它定义了HTTP服务器对客户端进行用户身份验证的方法。但这种方式只是对用户名密码做了下简单的BASE64编码，需要配合Https才能保证安全，而且它没有退出机制，所以一般很少使用，只会用在内部安全性要求不高的系统上。</p>
+<p>交互过程：</p>
+<p>1.客户端向服务器请求数据</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">Get /index.html HTTP/1.0</span><br><span class="line">Host:www.google.com</span><br></pre></td></tr></table></figure>
+
+<p>2.服务器向客户端发送验证请求代码401，但关键是Header中的WWW-Authenticate，浏览器看到这个会弹出用户名和密码对话框</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">HTTP/1.0 401 Unauthorised</span><br><span class="line">Server: SokEvo/1.0</span><br><span class="line">WWW-Authenticate: Basic realm=”google.com”</span><br><span class="line">Content-Type: text/html</span><br><span class="line">Content-Length: xxx</span><br></pre></td></tr></table></figure>
+
+<p>3.符合http1.0或1.1规范的客户端将会自动弹出一个登录窗口，要求输入用户名和密码，然后以BASE64编码后放入Header，重新请求服务</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">Get /index.html HTTP/1.0</span><br><span class="line">Host:www.google.com</span><br><span class="line">Authorization: Basic d2FuZzp3YW5n</span><br></pre></td></tr></table></figure>
+
+<p>4.服务收到请求后，将Authorization字段取出解码出（用户名:密码）并验证，然后将请求资源响应给客户端</p>
+<h4 id="Session-Cookie"><a href="#Session-Cookie" class="headerlink" title="Session-Cookie"></a>Session-Cookie</h4><p>认证成功后，服务端会创建和保存一个会话session，并生成一个JSESSIONID让浏览器保存到cookie中，后续浏览器每次请求时自动带上这个JSESSIONID表明自己身份。这样做的<font color="red">原因主要还是因为HTTP是无状态的短连接请求</font>，在数据库或Redis这种长连接应用中，客户端一旦认证成功，之后的请求就不用再带上认证信息了。</p>
+<p>相比简单的Basic认证，Session机制可以处理退出问题，只要服务端将对话Session移除，客户端携带的标识就失效了。但是，保存Session对于服务来说也是一种额外负担，比如分布式或需要负载均衡的服务中，需要使用共享存储，比如数据库或Redis。而且，Session会话的存活续期也是一个问题，简单的办法是每次请求都重新刷一遍会话的有效期，但这种方式比较低效并且会给服务造成负担。</p>
+<p>交互过程：</p>
+<p>1.服务在首次收到客户端访问时，会创建seesion并保存，然后给这个session生成一个唯一的JSESSIONID，并写入响应头Set-Cookie中返回；</p>
+<p>2.浏览器收到响应后会解析，然后将JSESSIONID保存在本地cookie中，在之后的http请求中会自动带上该域名下的cookie信息；</p>
+<p>3.服务后续收到请求时会解析请求头cookie中的JSESSIONID，然后根据这个sid去找保存的session，并判断请求是否合法；</p>
+<h5 id="CAS统一授权"><a href="#CAS统一授权" class="headerlink" title="CAS统一授权"></a>CAS统一授权</h5><p>很多时候，我们可能还希望已经在网站A登录的用户能自动完成网站B的登录，也就是SSO单点登录（Single Sign-On），而这需要在不同域之间共享会话信息。但由于安全原因，浏览器会强制执行同源策略（Same Origin Policy），也就是Cookies只能由其创建者访问。</p>
+<p>CAS就是建立在Session-Cookie基础之上的一种SSO实现，其核心包含三个组件：</p>
+<ul>
+<li>CAS Server</li>
+</ul>
+<p>作为集中式认证中心，负责验证用户身份并颁发可被信任的令牌或票据（Ticket）。当用户首次访问受保护资源且未经过身份验证时，CAS Server 要求用户提供凭证（比如用户名与密码）。完成认证后生成一次性或短期有效的认证票据，同时在服务端建立该用户的单点登录会话。</p>
+<ul>
+<li>CAS Client</li>
+</ul>
+<p>作为受保护的应用，其主要负责检测用户的访问是否具备登录态，如果没有登录就将用户重定向至CAS Server进行认证。另外，接收CAS Server返回的票据，并用票据向CAS Server申请用户身份，申请后可以在本地建立会话或映射用户信息。</p>
+<ul>
+<li>浏览器</li>
+</ul>
+<p>作为用户端的代理，承担重定向和票据传递的角色。当用户在浏览器中访问CAS Client时，如果没有登录，CAS Client将浏览器重定向到CAS Server的认证页面。用户在浏览器上完成认证后，CAS Server再通过浏览器将认证票据回传给CAS Client（一般通过URL参数或Cookie）</p>
+<p><img src="/img/20240528/20240528.6.jpg"> </p>
+<p>这样如果访问应用A完成了登录，那么在CAS Server就产生了对应的会话信息，并在浏览器保存了CAS Server的Cookies。如果再访问应用B，被重定向到CAS Server时，就能通过Cookies信息直接拿到票据，最后再重定向到应用B，应用B凭借票据兑换用户信息，创建自己的Cookies。</p>
+<p>这里考虑一下如何应对票据被人劫持的问题，因为票据需要通过浏览器传给应用。首先可以限制票据的有效期，并且限制只能使用一次，然后在服务端验证票据时可以要求提供应用的一些信息。</p>
+<p>实现了<strong>单点登录</strong>，对应的就要考虑<strong>单点退出</strong>问题，比如退出应用A，那么在应用B也要退出。这个就需要统一认证服务维护各个应用的退出地址，以及它们的状态，当用户在某个受保护应用上退出时就重定向到认证服务，由认证服务通知所有应用进行退出，注销用户的会话信息。只是考虑到网络不可靠因素，并不能完全保证所有应用都退出，不过在认证服务那边可以通过告警或审计等办法来尝试处理。</p>
+<h4 id="Token令牌"><a href="#Token令牌" class="headerlink" title="Token令牌"></a>Token令牌</h4><p>相比Session需要在服务端进行保存，Token可以将身份信息直接写在令牌中，然后交给客户端保存，比如浏览器的LocalStore，认证成功后每次带上就绪。这样服务端就可以实现无状态化，如果有多个服务的话，也不用seesion那样考虑共享存储了。</p>
+<p>常见Token的实现是使用JWT，它的将Token字符串分为三部分headers.claims.signature，在headers中存放一些基本信息比如签发和到期时间，claims载荷部分使用一个Map的数据结构存在用户认证信息，最后signature签名部分很重要，它是需要服务端密钥的。因为前面两部分都是Base64编码的，相当于明文信息了，但是加上最后一段签名就能实现防篡改，除非密钥被泄漏了。这就相当于一封可读信件，任何人都可以看，但是如果想修改的话就需要重新盖章，但是他没有印章。</p>
+<ul>
+<li>刷新问题</li>
+</ul>
+<p>比较简单的办法是由<strong>客户端自己主动刷新</strong>，就是在Token超时之前，调用鉴权服务的Token刷新接口获取一个新的令牌。但是这种方式不太安全，只要Token被人截取，那么它就可以持续刷新，让Token永远不过期，而服务端无法识别。</p>
+<p><img src="/img/20240528/20240528.1.jpg"> </p>
+<p>改进办法是让<strong>服务端主导刷新</strong>，用户认证成功后，服务会给客户端返回两个令牌AccessToken和RefreshToken，正常请求资源时只携带AccessToken，如果服务端检测到AccessToken已经超时，那么会给前端返回一个错误码要求刷新令牌，前端收到后先将接下来的请求操作放入一个临时缓存队列，然后前端使用RefreshToken去找鉴权服务，再重新获取一对AccessToken和RefreshToken，最后把队列中的请求拿出来重放下再继续后面的操作。</p>
+<p>这种方式一般会在服务端留存一份RefreshToken，其有效期相比AccessToken会更长一些，为了防止Token被人劫持利用。我们可以在AccessToken中添加客户端标识信息，并RefreshToken中写入一个随机ID，每次刷新令牌时重置。一般资源请求时，服务如果发现客户端与AccessToken中信息不一致就要求重新刷新令牌，然后在刷新令牌时，服务再校验RefreshToken中的ID，如果ID不一致就要求重新登录。这样如果AccessToken被人劫持了，他想获取资源，还需要额外伪造一下客户端的标识信息，成本相对更高一点。即使RefreshToken也被别人劫持了，我们也能在下次刷新令牌时知道，然后重新登录，让对方的令牌失效。</p>
+<p><img src="/img/20240528/20240528.2.jpg"> </p>
+<ul>
+<li>密码泄漏问题</li>
+</ul>
+<p>使用MFA二次认证可以防止认证信息泄漏问题，比如用户名密码。所谓设备绑定就是在客户设备上记下一个密钥信息（服务端也会保存到用户信息中），算法是公开的，其思路是根据当前时间计算一个结果，这个结果一般只能维持30秒有效。这样当用户名密码认证通过后，服务还会要求验证MFA验证码，而只有知道密钥才能得到正确的验证码。由于算法与时间强相关，而且密钥保密，所以就算密码泄漏了，别人也没法直接登录。</p>
+<ul>
+<li>爬虫问题</li>
+</ul>
+<p>应对爬虫问题，我们可以要求请求携带签名信息。可以在认证阶段让服务给客户端分配一个密钥，然后让客户端每次请求时必须对请求内容进行签名，这样就算别人截取到了Token信息，他没有签名的密钥也没有办法制造合法的签名信息，请求会被服务端拒绝，除非他能攻破认证阶段，并拿到签名密钥。</p>
+<ul>
+<li>中间人问题</li>
+</ul>
+<p>以上所有手段都无法应对中间人攻击问题，它在客户端和服务端中间，可以拿到所有的通话内容，不论是发给服务端的用户名密码以及MFA认证码，还是返回给客户端的Token和签名密钥。最后办法还是需要Https，它的机制是在传输层连接握手阶段让服务端与客户端交换一个加密密钥，但是设计很巧妙，真正的密钥没有直接在网络上交换，而是利用非对称加密算法的特性只交换公钥就能让双方计算得到一致的加密密钥，这样中间人根本拿不到想要的信息。而且对于服务端的公钥要求有第三方权威机构认证，这样中间人也没法冒充。</p>
+<p>HTTPS保护的是客户端的服务器之间的底层通信不被窃听篡改，也就是通信内容在网络上是安全的。但是别人同样有可能在客户端的缓存中获取到Token信息，他同样可以在自己的客户端中与服务建立新的Https连接，使用Token伪造请求，所以上述手段仍然是必要的。</p>
+<h5 id="微服务集群"><a href="#微服务集群" class="headerlink" title="微服务集群"></a>微服务集群</h5><p>在微服务集群中，如果要求每个服务的接口访问都校验令牌，比较直接的办法就是各个服务自行校验AccessToken，只有刷新时才让用户去找鉴权服务，但这样就需要在每个服务中都配置Token密钥。</p>
+<p>或者直接在网关中进行统一鉴权，但是这样需要考虑网关如何将请求鉴权中的用户和权限信息传给后面的服务，办法无非两条路，一是继续在请求头中透传给下游服务，然后服务只截取载荷部分，不去验证JWT签名；或者将解析好的信息写到集群的共享存储中比如Redis，并创建一个会话id写在请求头中，然后下游服务需要的话通过会话id从存储中去获取，但是这样又将集群中心化了，并不如方式一。</p>
+<p>另外还需要考虑集群间的服务如何相互访问，如果是访问是由外部用户发起，那么直接透传请求头可以解决问题。而如果是集群内部的服务发起，比如后台定时任务，或者MQ消息触发，那么可以先用服务身份向鉴权服务申请一个令牌（令牌类型标记为服务，与用户令牌区分，不推荐服务维护密钥自己创建，否则这样又回到了一开始各自鉴权的问题），然后再访问。实际上对于内部服务间的调用，不一定非要选择HTTP + JWT，可以采用GRPC协议，并且通过证书实现互相信任。</p>
+<h5 id="PAT令牌（Personal-Access-Token）"><a href="#PAT令牌（Personal-Access-Token）" class="headerlink" title="PAT令牌（Personal Access Token）"></a>PAT令牌（Personal Access Token）</h5><p>利用Jwt的特点，我们可以创建一个令牌，让某个第三方应用以用户的身份来访问资源服务中的数据。这种方式很常见，比如在gitlab上创建一个令牌给sonar来访问，或者在sonar上创建一个令牌给jenkins来访问。</p>
+<p>相比用户登录时的Jwt令牌由系统自动创建并刷新，这种令牌可以由用户手动设置有效期，以及相关的权限信息（一般用户权限的子集）。</p>
+<p><img src="/img/20240528/20240528.11.png"> </p>
+<p>这种方式实现起来非常简单，就是根据用户信息手段创建一个JWT令牌，并设置有效期等一些信息。但是不够安全，因为这个令牌谁拿到都可以访问用户的资源，解决思路是想办法让用户只给应用一个临时凭证，而不用直接给一个长期有效的访问令牌，比如OAuth2中的授权码。</p>
+<h4 id="OAuth2"><a href="#OAuth2" class="headerlink" title="OAuth2"></a>OAuth2</h4><p>OAuth（Open Authorization）是一个关于授权的开放网络标准，允许用户授权第三方应用访问他们存储在另外的服务提供者上的信息，并限制访问的内容，而不需要将用户名和密码提供给第三方应用。</p>
+<p>理解OAuth2之前需要先梳理几个概念：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">User Agent：用户代理，一般就是指浏览器；</span><br><span class="line">Resource owner（资源拥有者）： 拥有资源的最终用户，他有访问资源的账号密码；</span><br><span class="line">Resource server（资源服务）：受保护资源所在服务，如果请求包含正确的访问令牌，就可以访问受保护的资源；</span><br><span class="line">Authorization server（认证服务）：负责认证客户端身份的服务，如果客户端认证通过，会给客户端发放访问资源服务的令牌；</span><br><span class="line">Client（客户端）：请求访问资源的第三方应用，可以是浏览器、移动设备或者服务，客户端会携带访问令牌访问资源服务中的资源；</span><br></pre></td></tr></table></figure>
+
+<p>目标还是希望能安全地让客户端访问资源服务中的数据，如果概括一下其流程可以主要分为三个步骤，如下图所示：</p>
+<p><img src="/img/20240528/20240528.3.png"> </p>
+<p>客户端首先向资源拥有者申请授权，获取到一个临时的授权码，然后客户端拿着这个授权码再去找认证服务兑换令牌，最后带着令牌去访问资源服务获取数据。以上都是逻辑上的角色划分，具体实施时，有可能资源服务与认证服务合并，资源拥有者的授权操作一般也放在认证服务中，这样授权之前可以要求用户先进行下身份验证，也就是登录。另外，在开始流程之前，客户端需要首先在认证服务中进行备案，一般备案信息包括客户端标识和密钥，以及授权范围等，这些信息在客户端申请授权码和令牌时需要带上（看具体实现），也就是说在授权之前客户端得首先证明自己是一个合法的客户端。</p>
+<br>
+
+<ul>
+<li>OAuth2的四种授权模式：</li>
+</ul>
+<h5 id="授权码模式（authorization-code）"><a href="#授权码模式（authorization-code）" class="headerlink" title="授权码模式（authorization code）"></a>授权码模式（authorization code）</h5><p>默认的标准流程，是流程最严密、安全性最高的授权模式。它的特点就是通过客户端的后台服务器，与”服务提供商”的认证服务器进行互动</p>
+<p><img src="/img/20240528/20240528.4.png"> </p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">（A）用户访问客户端，后者将用户导向认证服务，发起授权申请，并携带参数client_id、redirect_uri、scope、response_type=code、state</span><br><span class="line"></span><br><span class="line">（B）用户确认是否同意给客户端授权（比如web端点击界面链接、移动端扫二维码、或者手机短信验证），在此之前认证服务会要求对用户先进行身份验证，也就是登录</span><br><span class="line"></span><br><span class="line">（C）用户同意授权后，认证服务将请求重定向到客户端给的redirect_uri，并携带一个随机授权码code</span><br><span class="line"></span><br><span class="line">（D）客户端携带授权码code向认证服务兑换令牌，并携带参数client_id、client_secret、redirect_uri、grant_type、scope</span><br><span class="line">    这一步是在客户端的后台服务中完成，对用户不可见</span><br><span class="line"></span><br><span class="line">（E）认证服务器核对了授权码等信息，确认无误后，向客户端发送访问令牌（access token）和更新令牌（refresh token）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>state参数</li>
+</ul>
+<p>state是站在客户端的角度，它让客户端能够相信授权码的回调一定是自己发起的。客户端每次申请授权码（步骤A）可以携带一个state随机字符串，然后认证服务在回调（步骤C）客户端的redirect_uri时会原封不动带上，客户端会验证这个state是否一致，必须要一致才会去兑换Token，否则拒绝。</p>
+<ul>
+<li>PKCE校验</li>
+</ul>
+<p>PKCE是从授权服务的角度，它让服务相信申请授权码与兑换令牌是来自同一个客户端。客户端每次申请授权码（步骤A）时携带一个code_challenge和code_challenge_method，服务收到后（步骤C）将计算结果code_verifier保存，等到客户端来兑换令牌（步骤D）时进行验证。</p>
+<br>
+
+<h5 id="简化模式（implicit）"><a href="#简化模式（implicit）" class="headerlink" title="简化模式（implicit）"></a>简化模式（implicit）</h5><p>简化模式不用通过第三方应用的服务器，直接在浏览器中向认证服务器申请令牌，跳过了”授权码”这个步骤，所有步骤在浏览器中完成，令牌对访问者是可见的，且客户端不需要认证</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">1. 用户访问客户端，后者将用户导向认证服务，发起授权申请，并携带参数client_id、redirect_uri、scope、response_type=code、state</span><br><span class="line"></span><br><span class="line">2. 用户确认是否同意给客户端授权，在此之前认证服务会要求对用户先进行身份验证，也就是登录</span><br><span class="line"></span><br><span class="line">3. 用户同意授权后，授权服务会将请求重定向给第三方应用，并携带access_token、token_type 和 expires_in 等信息</span><br><span class="line"></span><br><span class="line">4. 最终客户端使用access_token访问资源</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h5 id="密码模式（password-credentials）"><a href="#密码模式（password-credentials）" class="headerlink" title="密码模式（password credentials）"></a>密码模式（password credentials）</h5><p>用户需要向客户端提供自己的用户名和密码，但是客户端不得储存密码。然后客户端使用这些信息向”服务提供商”索要授权，这种方式通常用在用户对客户端高度信任的情况下，比如客户端是操作系统的一部分，比如常见的前后端分离项目。</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">1. 客户端要求用户提供用户名和密码</span><br><span class="line"></span><br><span class="line">2. 客户端向授权服务请求令牌，并携带参数client_id、client_secret、username、password、scope、grant_type=password</span><br><span class="line"></span><br><span class="line">3. 授权服务验证客户端凭证，以及用户身份信息，通过则颁发令牌信息</span><br><span class="line"></span><br><span class="line">4. 客户端使用访问令牌访问资源</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h5 id="客户端模式（client-credentials）"><a href="#客户端模式（client-credentials）" class="headerlink" title="客户端模式（client credentials）"></a>客户端模式（client credentials）</h5><p>就是客户端以自己的名义，向”服务提供商”进行认证。在这种模式中，用户直接向客户端注册，客户端以自己的名义要求”服务提供商”提供服务，其实不存在授权问题。</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">1. 客户端向授权服务请求令牌，并携带参数client_id、client_secret、scope、grant_type=client_credentials</span><br><span class="line"></span><br><span class="line">2. 授权服务验证客户端凭证，返回令牌</span><br><span class="line"></span><br><span class="line">3. 客户端携带令牌访问资源</span><br></pre></td></tr></table></figure>
+
+<h3 id="功能权限"><a href="#功能权限" class="headerlink" title="功能权限"></a>功能权限</h3><p>一般按照操作粒度从粗到细可以将功能权限分为三个层级：目录、页面、按钮&#x2F;api</p>
+<p><img src="/img/20240528/20240528.7.png"> </p>
+<p>目录权限一般对应系统的某个业务功能模块</p>
+<p><img src="/img/20240528/20240528.8.png"> </p>
+<p>页面权限决定目录下的某个页面是否加载</p>
+<p><img src="/img/20240528/20240528.9.png"> </p>
+<p>按钮权限针对页面上的某个按钮用户是否能够操作，一般对应服务某个具体Api接口</p>
+<p><img src="/img/20240528/20240528.10.png"> </p>
+<ul>
+<li>实现</li>
+</ul>
+<p>对于目录和菜单权限，一般在登录认证之后通过独立的接口获取，前端拿到后直接进行渲染就行。但是按钮权限涉及到具体接口Api访问限制，每次请求时都需要检查，所以需要写到AccessToken中，服务解析令牌后将权限信息放到请求上下文中，然后根据接口Api上标记的权限标识（比如SpringSecurity提供的@PreAuthorize注解）来判定是否运行访问。</p>
+<p>但是如果用户的权限发生变更，那么只有当用户重新登录才能生效。如果要求请求都重新加载一遍最新的权限显然不是好办法，解决思路是可以记录一个临时灰名单，就是权限变更影响到的用户。如果验证请求时检测到名单命中，那么要求重新登录。然后登录之后再检查从名单中剔除，至于导致用户下线的体验问题，可以给个友好的权限变更提示。</p>
+<p>由于目录、菜单、按钮之间存在层级关系，可以用一张Tree表来描述就行。对应上面的权限截图，可供参考如下：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> hub_menu (</span><br><span class="line">    menu_id          <span class="type">INT</span> <span class="keyword">PRIMARY KEY</span> AUTO_INCREMENT COMMENT <span class="string">&#x27;菜单id&#x27;</span>,</span><br><span class="line">    parent_id        <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;父菜单id&#x27;</span>,</span><br><span class="line">    tenant_id        <span class="type">VARCHAR</span>(<span class="number">64</span>) COMMENT <span class="string">&#x27;租户id&#x27;</span>,</span><br><span class="line">    menu_module      <span class="type">VARCHAR</span>(<span class="number">64</span>) COMMENT <span class="string">&#x27;菜单模块&#x27;</span>,</span><br><span class="line">    menu_name        <span class="type">VARCHAR</span>(<span class="number">64</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;菜单名称&#x27;</span>,</span><br><span class="line">    menu_order       <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;菜单顺序&#x27;</span>,</span><br><span class="line">    menu_permit      <span class="type">VARCHAR</span>(<span class="number">255</span>) COMMENT <span class="string">&#x27;权限标识&#x27;</span>,</span><br><span class="line">    menu_path        <span class="type">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="string">&#x27;#&#x27;</span> COMMENT <span class="string">&#x27;菜单路径&#x27;</span>,</span><br><span class="line">    menu_param       <span class="type">VARCHAR</span>(<span class="number">255</span>) COMMENT <span class="string">&#x27;路径参数&#x27;</span>,</span><br><span class="line">    menu_type        <span class="type">CHAR</span>(<span class="number">1</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;菜单类型：M:目录 C:菜单 B:按钮&#x27;</span>,</span><br><span class="line">    menu_icon        <span class="type">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">DEFAULT</span> <span class="string">&#x27;#&#x27;</span> COMMENT <span class="string">&#x27;菜单图标&#x27;</span>,</span><br><span class="line">    `component`      <span class="type">VARCHAR</span>(<span class="number">255</span>) COMMENT <span class="string">&#x27;组件路径&#x27;</span>,</span><br><span class="line">    menu_status      <span class="type">SMALLINT</span> <span class="keyword">DEFAULT</span> <span class="number">1</span> COMMENT <span class="string">&#x27;菜单状态 1启用 2停用&#x27;</span>,</span><br><span class="line">    is_frame         <span class="type">SMALLINT</span> <span class="keyword">DEFAULT</span> <span class="number">1</span> COMMENT <span class="string">&#x27;是否内部链接 1是 0否&#x27;</span>,</span><br><span class="line">    is_cache         <span class="type">SMALLINT</span> <span class="keyword">DEFAULT</span> <span class="number">1</span> COMMENT <span class="string">&#x27;是否缓存 1是 0否&#x27;</span>,</span><br><span class="line">    is_visible       <span class="type">SMALLINT</span> <span class="keyword">DEFAULT</span> <span class="number">1</span> COMMENT <span class="string">&#x27;是否显示 1是 0否&#x27;</span>,</span><br><span class="line">    is_protected     <span class="type">SMALLINT</span> <span class="keyword">DEFAULT</span> <span class="number">1</span> COMMENT <span class="string">&#x27;是否受保护的菜单 1是 0否&#x27;</span></span><br><span class="line">) COMMENT<span class="operator">=</span><span class="string">&#x27;菜单信息&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在Api接口上标记的@PreAuthorize其实就引用了一个Spring Bean的判定方法，比如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component(&quot;permits&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Permission</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">PERMIT_ADMIN</span> <span class="operator">=</span> <span class="string">&quot;*&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">hasPermit</span><span class="params">(String permission)</span> &#123;</span><br><span class="line">        <span class="type">Access</span> <span class="variable">access</span> <span class="operator">=</span> Access.get();</span><br><span class="line">        <span class="keyword">if</span> (access != <span class="literal">null</span>) &#123;</span><br><span class="line">            access.setPermit(permission);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(isIgnore() || StringUtils.isBlank(permission) || isAdmin()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;String&gt; <span class="keyword">permits</span> = Access.userPermissions();</span><br><span class="line">        <span class="keyword">if</span>(CollectionUtils.isEmpty(<span class="keyword">permits</span>)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(String permit : <span class="keyword">permits</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(StringUtils.isNotBlank(permit) &amp;&amp; matchPermit(permit, permission))&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">matchPermit</span><span class="params">(String srcPermit, String destPermit)</span> &#123;</span><br><span class="line">        String[] src = srcPermit.split(<span class="string">&quot;:&quot;</span>);</span><br><span class="line">        String[] dest = destPermit.split(<span class="string">&quot;:&quot;</span>);</span><br><span class="line">        <span class="comment">// *:*:* 左匹配</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> <span class="number">0</span>; index &lt; src.length; index++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (PERMIT_ADMIN.equals(src[index])) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (index &gt;= dest.length) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!src[index].equals(dest[index])) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用示例</span></span><br><span class="line"><span class="meta">@PreAuthorize(&quot;@permits.hasPermit(&#x27;hub:user:query&#x27;)&quot;)</span></span><br><span class="line"><span class="meta">@GetMapping(&quot;/&#123;userId&#125;&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Response&lt;UserInfoDto&gt; <span class="title function_">info</span><span class="params">(<span class="meta">@PathVariable</span> Integer userId)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Response.success(hubUserService.info(Access.tenantId(), userId));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在前端可以使用同样的办法给按钮绑定权限符，来决定按钮的隐藏或置灰效果</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="title function_">inserted</span>(<span class="params">el, binding, vnode</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; value &#125; = binding</span><br><span class="line">    <span class="keyword">const</span> permissions = store.<span class="property">getters</span> &amp;&amp; store.<span class="property">getters</span>.<span class="property">permissions</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (value &amp;&amp; value <span class="keyword">instanceof</span> <span class="title class_">Array</span> &amp;&amp; value.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> permissionFlag = value</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> hasPermissions = permissions.<span class="title function_">some</span>(<span class="function"><span class="params">permission</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!permission) &#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> permissionFlag.<span class="title function_">some</span>(<span class="function"><span class="params">flag</span> =&gt;</span> <span class="title function_">matchPermit</span>(permission, flag));</span><br><span class="line">      &#125;)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!hasPermissions) &#123;</span><br><span class="line">        el.<span class="property">parentNode</span> &amp;&amp; el.<span class="property">parentNode</span>.<span class="title function_">removeChild</span>(el)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">matchPermit</span>(<span class="params">srcPermit, destPermit</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> src = srcPermit.<span class="title function_">split</span>(<span class="string">&quot;:&quot;</span>);</span><br><span class="line">  <span class="keyword">const</span> dest = destPermit.<span class="title function_">split</span>(<span class="string">&quot;:&quot;</span>);</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; src.<span class="property">length</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (src[i] === <span class="string">&quot;*&quot;</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= dest.<span class="property">length</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (src[i] !== dest[i]) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用示例</span></span><br><span class="line">&lt;el-button type=<span class="string">&quot;primary&quot;</span> plain icon=<span class="string">&quot;el-icon-plus&quot;</span> size=<span class="string">&quot;mini&quot;</span></span><br><span class="line">                @click=<span class="string">&quot;handleAdd&quot;</span> v-hasPermi=<span class="string">&quot;[&#x27;sys:user:new&#x27;]&quot;</span>&gt;&#123;&#123;$t(<span class="string">&#x27;route.system.user.new&#x27;</span>)&#125;&#125;&lt;/el-button&gt;</span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">el-button</span> <span class="attr">type</span>=<span class="string">&quot;success&quot;</span> <span class="attr">plain</span> <span class="attr">icon</span>=<span class="string">&quot;el-icon-edit&quot;</span> <span class="attr">size</span>=<span class="string">&quot;mini&quot;</span> <span class="attr">:disabled</span>=<span class="string">&quot;single&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                @<span class="attr">click</span>=<span class="string">&quot;handleUpdate&quot;</span> <span class="attr">v-hasPermi</span>=<span class="string">&quot;[&#x27;sys:user:edit&#x27;]&quot;</span>&gt;</span>&#123;&#123;$t(&#x27;route.system.user.edit&#x27;)&#125;&#125;<span class="tag">&lt;/<span class="name">el-button</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">el-button</span> <span class="attr">type</span>=<span class="string">&quot;danger&quot;</span> <span class="attr">plain</span> <span class="attr">icon</span>=<span class="string">&quot;el-icon-delete&quot;</span> <span class="attr">size</span>=<span class="string">&quot;mini&quot;</span> <span class="attr">:disabled</span>=<span class="string">&quot;multiple&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                @<span class="attr">click</span>=<span class="string">&quot;handleDelete&quot;</span> <span class="attr">v-hasPermi</span>=<span class="string">&quot;[&#x27;sys:user:delete&#x27;]&quot;</span>&gt;</span>&#123;&#123;$t(&#x27;route.system.user.delete&#x27;)&#125;&#125;<span class="tag">&lt;/<span class="name">el-button</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="数据权限"><a href="#数据权限" class="headerlink" title="数据权限"></a>数据权限</h3><p>数据权限最难的是很难像前面两种权限问题进行标准化统一，因为各种业务数据的类型千差万别，存储引擎也并非只有关系型数据库，可以是Redis缓存，或者ES全文这种。所以需要取舍，思路是先将数据权限问题拆分成<strong>如何定义</strong>，<strong>如何引用</strong>、以及<strong>如何执行</strong>三个子问题，然后只标准能够标准化的部分，比如前两个问题，至于执行就交给具体业务了，这样由业务自己实现会比较灵活也更容易控制。</p>
+<p>对于数据权限的定义，我们可以先将数据按模块分类，然后根据不同模块的数据设置不同的表单来定义权限</p>
+<p><img src="/img/20240528/20240528.12.png"> </p>
+<p>对于引用问题，主要取决于如何关联，可以考虑将数据权限关联到角色上，但如果想控制的粒度更细，可以关联到具体的操作上</p>
+<p><img src="/img/20240528/20240528.13.png"> </p>
+<p>以上思路主要是从访问者的视角进行设计的，还有一种思路是从数据的角度来设计，比如gitlab上的项目权限，授权操作一般都是在项目中添加某个用户，在很多资源管理类项目中，比如文档协作、网盘等，这种设计很常见。</p>
+<h3 id="RBAC权限模型"><a href="#RBAC权限模型" class="headerlink" title="RBAC权限模型"></a>RBAC权限模型</h3><p>RBAC（Role-Based Access Control）很好理解，就是在用户和权限之间加了一层角色概念，也就是基于角色的访问控制。</p>
+<p><img src="/img/20240528/20240528.14.png"> </p>
+<p>但是角色是一个抽象的逻辑概念，不好与现实中的实体对应。而且当系统用户量大了之后，以用户为单位来分配角色权限也会显得过于麻烦，所以我们可以对用户进行分组，比如部门、岗位等现实中的概念，然后对用户组分配角色。这样在系统中当用户被分配某个岗位，或者加入某个部门后就直接被赋予了对应的权限，而不用再去关心系统中定义的抽象概念，更符合现实中业务人员的使用直觉。</p>
+<p><img src="/img/20240528/20240528.15.png"> </p>
+<p>如下数据模型可供参考：</p>
+<p><img src="/img/20240528/20240528.16.png"> </p>
+<p><br><strong>参考：</strong></p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html">https://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html</a></li>
+</ol>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2024/06/21/20240621/">
+		    理解Consensus算法 Raft
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2024/05/17/20240517/">
+		    Kafka 3.0.0部署 (Zookeeper管理)
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/系统设计/">系统设计</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/token/">token</a>   <a href="/tags/oauth2/">oauth2</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%99%BB%E5%BD%95%E6%9D%83%E9%99%90"><span class="toc-text">登录权限</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Basic-Authentication"><span class="toc-text">Basic Authentication</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Session-Cookie"><span class="toc-text">Session-Cookie</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#CAS%E7%BB%9F%E4%B8%80%E6%8E%88%E6%9D%83"><span class="toc-text">CAS统一授权</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Token%E4%BB%A4%E7%89%8C"><span class="toc-text">Token令牌</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%9B%86%E7%BE%A4"><span class="toc-text">微服务集群</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#PAT%E4%BB%A4%E7%89%8C%EF%BC%88Personal-Access-Token%EF%BC%89"><span class="toc-text">PAT令牌（Personal Access Token）</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OAuth2"><span class="toc-text">OAuth2</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%EF%BC%88authorization-code%EF%BC%89"><span class="toc-text">授权码模式（authorization code）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%AE%80%E5%8C%96%E6%A8%A1%E5%BC%8F%EF%BC%88implicit%EF%BC%89"><span class="toc-text">简化模式（implicit）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AF%86%E7%A0%81%E6%A8%A1%E5%BC%8F%EF%BC%88password-credentials%EF%BC%89"><span class="toc-text">密码模式（password credentials）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A8%A1%E5%BC%8F%EF%BC%88client-credentials%EF%BC%89"><span class="toc-text">客户端模式（client credentials）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E6%9D%83%E9%99%90"><span class="toc-text">功能权限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%9D%83%E9%99%90"><span class="toc-text">数据权限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RBAC%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B"><span class="toc-text">RBAC权限模型</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

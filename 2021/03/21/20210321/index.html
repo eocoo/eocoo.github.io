@@ -50,7 +50,7 @@
 <div class="alignleft">
   <h1><a href="/">Echo</a></h1>
   <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
-  <h2><font style="color: #736f6f;">articles:  148 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+  <h2><font style="color: #736f6f;">articles:  149 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -93,7 +93,7 @@
 
    <span style="line-height:35px; height:35px; ">  </span>
 
-   <font style="color: #999;"> words: 3.7k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 13min</font>
+   <font style="color: #999;"> words: 5k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 17min</font>
    
    
   
@@ -204,6 +204,19 @@ completion  of  a  read(2) or write(2), data is guaranteed to have been trans
 </li>
 </ol>
 <p>内核在 2.4 之后，文件描述符结构被改变，引入了 gather机制， sendfile 实现了更简单的方式，当文件数据被拷贝到内核缓冲区时，不再将数据 copy 到 socket 缓冲区，而是只将记录数据位置和长度相关的数据保存到 socket 缓存，而实际的数据则由 DMA 模块直接发送到协议引擎，再次省去了一次 copy 操作。</p>
+<h3 id="FAQ网络收包模式"><a href="#FAQ网络收包模式" class="headerlink" title="FAQ网络收包模式"></a>FAQ网络收包模式</h3><ul>
+<li>中断驱动</li>
+</ul>
+<p>当网卡接收到网络数据包时，硬件层面会立即触发一个中断请求信号。这个信号就像是一个紧急通知，会被迅速传递给CPU。例如，在常见的PC架构中，网卡通过中断请求线（IRQ）与中断控制器相连，当中断信号产生后，中断控制器会将其进一步传达给CPU。</p>
+<p>一旦CPU接收到中断请求，它会立即暂停当前正在执行的任务，转而处理这个中断。这就好比一个人正在专注做一件事情，突然接到一个紧急电话，不得不停下手中的事情去接听电话。CPU会将当前任务的执行状态，包括程序计数器、通用寄存器等关键信息保存起来，这些信息记录了任务执行到的位置和一些临时数据，以便后续能够恢复任务的执行。</p>
+<p>接下来，CPU会根据中断向量表，找到与该中断对应的中断服务程序（ISR）的入口地址，并跳转到该地址开始执行中断服务程序。中断服务程序是一段专门用于处理特定中断事件的代码，在网络收包的场景下，它的主要职责是从网卡的接收缓冲区中读取接收到的数据包，将其存储到内核的内存空间中，然后对数据包进行初步的处理，比如检查数据包的完整性、解析数据包的头部信息等。处理完成后，中断服务程序会清除中断标志，通知硬件中断已经处理完毕，然后恢复之前保存的任务执行状态，让CPU继续执行被中断的任务。</p>
+<ul>
+<li>NAPI模式</li>
+</ul>
+<p>但是在高并发的网络通信场景中，中断驱动模式会暴露出严重的性能瓶颈。比如在某些极端的高并发场景下，CPU可能会将80%以上的时间都耗费在中断处理上。频繁的中断处理会导致CPU资源的严重浪费，因为每次处理中断时，CPU都需要保存和恢复任务的上下文，这个过程涉及到大量的内存读写操作，会消耗不少的CPU时间。而且频繁的上下文切换会使CPU的缓存命中率降低，因为缓存中原本存储的是被中断任务的数据和指令，而切换后需要加载新的任务数据和指令，这就导致了缓存失效，CPU需要从内存中重新读取数据。另外，上下文切换还需要操作系统进行一系列的管理操作，比如更新任务的状态信息、调整调度队列等，这些操作都会占用一定的系统资源，影响系统的整体性能。</p>
+<p>为了应对这一挑战，NAPI机制应运而生。它创新性地采用了“中断 + 轮询”的混合模式，将中断驱动和轮询驱动的优点有机结合起来。在网络流量较低时，NAPI机制以中断驱动为主，确保系统能够及时响应数据包的到来；当网络流量增大，达到一定阈值时，NAPI机制自动切换到轮询模式，批量处理数据包，避免了频繁中断对CPU资源的过度消耗。</p>
+<p>这种模式巧妙地平衡了中断处理和轮询处理的优势，极大地提升了网络数据的处理效率。当网卡接收到数据包时，首先会触发硬中断。在传统的中断驱动模式下，CPU会立即响应硬中断，进行数据包的处理。然而，NAPI 机制有所不同，在硬中断处理中，它并不会立即处理大量数据包，而是执行一些紧急的、必要的任务，例如标记数据包的到来、记录相关状态等。然后，CPU触发软中断响应，此时会暂时关闭网卡的硬中断。这一步非常关键，关闭硬中断可以避免在后续批量处理数据包时，被新的硬中断频繁打断，从而提高处理效率。</p>
+<p>软中断处理函数会调用网卡驱动的轮询函数进行收包操作。在轮询过程中，网卡驱动会从接收队列中批量获取数据包，并进行处理。通过一次性处理多个数据包，减少了中断次数和上下文切换开销，大大提高了 CPU的利用率。轮询函数会持续处理数据包，直到满足一定的条件，例如达到预设的数据包处理数量上限，或者接收队列为空。当满足这些条件时，说明当前批次的数据包已经处理完毕，此时会重新开启硬中断，等待下一批数据包的到来。</p>
 <p><br><strong>参考：</strong></p>
 <ol>
 <li>《深入理解计算机系统》</li>
@@ -298,7 +311,7 @@ $(document).ready(function(){
 <div class="widget catlog">
 <h3 class="title">Catlog</h3>
 <ul class="entry_catlog">
-<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%A3%81%E7%9B%98IO"><span class="toc-text">1. 磁盘IO</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1-%E7%BC%93%E5%AD%98IO"><span class="toc-text">1.1. 缓存IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-%E9%A1%B5%E7%BC%93%E5%AD%98-PageCache"><span class="toc-text">1.2. 页缓存 PageCache</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-%E7%9B%B4%E6%8E%A5IO"><span class="toc-text">1.3. 直接IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84IO"><span class="toc-text">1.4. 内存映射IO</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%BD%91%E7%BB%9CI-O"><span class="toc-text">2. 网络I&#x2F;O</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-%E9%98%BB%E5%A1%9EIO"><span class="toc-text">2.1. 阻塞IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-%E9%9D%9E%E9%98%BB%E5%A1%9EIO"><span class="toc-text">2.2. 非阻塞IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8IO"><span class="toc-text">2.3. 多路复用IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-%E4%BF%A1%E5%8F%B7%E9%A9%B1%E5%8A%A8%E5%BC%8FIO"><span class="toc-text">2.4. 信号驱动式IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-5-%E5%BC%82%E6%AD%A5IO"><span class="toc-text">2.5. 异步IO</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Linux%E9%9B%B6%E6%8B%B7%E8%B4%9D-sendfile"><span class="toc-text">3. Linux零拷贝 sendfile</span></a></li></ol>
+<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%A3%81%E7%9B%98IO"><span class="toc-text">1. 磁盘IO</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1-%E7%BC%93%E5%AD%98IO"><span class="toc-text">1.1. 缓存IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-%E9%A1%B5%E7%BC%93%E5%AD%98-PageCache"><span class="toc-text">1.2. 页缓存 PageCache</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-%E7%9B%B4%E6%8E%A5IO"><span class="toc-text">1.3. 直接IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84IO"><span class="toc-text">1.4. 内存映射IO</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%BD%91%E7%BB%9CI-O"><span class="toc-text">2. 网络I&#x2F;O</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-%E9%98%BB%E5%A1%9EIO"><span class="toc-text">2.1. 阻塞IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-%E9%9D%9E%E9%98%BB%E5%A1%9EIO"><span class="toc-text">2.2. 非阻塞IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8IO"><span class="toc-text">2.3. 多路复用IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-%E4%BF%A1%E5%8F%B7%E9%A9%B1%E5%8A%A8%E5%BC%8FIO"><span class="toc-text">2.4. 信号驱动式IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-5-%E5%BC%82%E6%AD%A5IO"><span class="toc-text">2.5. 异步IO</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Linux%E9%9B%B6%E6%8B%B7%E8%B4%9D-sendfile"><span class="toc-text">3. Linux零拷贝 sendfile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FAQ%E7%BD%91%E7%BB%9C%E6%94%B6%E5%8C%85%E6%A8%A1%E5%BC%8F"><span class="toc-text">FAQ网络收包模式</span></a></li></ol>
 </div>
 
 
