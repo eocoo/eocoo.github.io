@@ -1,0 +1,407 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  <title>DDD领域驱动设计 | Echo</title>
+  <meta name="author" content="shanhm">
+  
+  <meta name="description" content="Eric Evans在2004年发表了一部名为《Domain Driven Design》的著作，其中提及了一套从系统分析到软件设计的方法论——领域驱动设计，简称DDD。
+其设计目标是实现软件系统与业务需求的高度契合，提高开发效率和质量，同时也能更好地应对复杂性和变化性。它强调以业务为中心，通过深入领域知识和建立有效的领域模型，来驱动软件设计和开发的整个过程。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="DDD领域驱动设计"/>
+  <meta property="og:site_name" content="Echo"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Echo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-147251181-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+  <header id="header" class="inner"><script async src="/js/busuanzi.js"></script>
+<div class="alignleft">
+  <h1><a href="/">Echo</a></h1>
+  <span style="color:#736f6f; height:20px;line-height:30px;">https://github.com/eocoo</span>
+  <h2><font style="color: #736f6f;">articles:  150 &nbsp;&nbsp;&nbsp; views: <span id="busuanzi_value_site_pv"></span></font></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/about">Abount</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article id="post-20240726" class="h-entry post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time class="dt-published" datetime="2024-07-25T16:00:00.000Z" style="margin-bottom: 10px;"><a href="/2024/07/26/20240726/" style="color: #736f6f;">2024-07-26</a></time>
+      
+      
+
+  
+  
+    <h1 class="p-name title" itemprop="headline name">
+        DDD领域驱动设计
+    </h1>
+    
+    
+  
+  
+  
+
+
+<script async src="/js/busuanzi.js"></script>
+
+
+   <span style="line-height:35px; height:35px; ">  </span>
+
+   <font style="color: #999;"> words: 3.2k  &nbsp;&nbsp; views: <span id="busuanzi_value_page_pv"></span> &nbsp;&nbsp; time: 10min</font>
+   
+   
+  
+  <div class="categories">
+    <a href="/categories/系统设计/">系统设计</a>
+  </div>
+
+
+   
+   
+  
+  <div class="tags">
+    <a href="/tags/ddd/">ddd</a>
+  </div>
+
+
+   
+   <hr style="background-color: #ddd; height:1px; border:none;" /><br>
+   
+
+
+    </header>
+      
+    <div class="e-content entry" itemprop="articleBody">
+      
+        <p>Eric Evans在2004年发表了一部名为《Domain Driven Design》的著作，其中提及了一套从系统分析到软件设计的方法论——领域驱动设计，简称DDD。</p>
+<p>其设计目标是实现软件系统与业务需求的高度契合，提高开发效率和质量，同时也能更好地应对复杂性和变化性。它强调以业务为中心，通过深入领域知识和建立有效的领域模型，来驱动软件设计和开发的整个过程。</p>
+<span id="more"></span>
+
+<h4 id="DDD设计目标"><a href="#DDD设计目标" class="headerlink" title="DDD设计目标"></a>DDD设计目标</h4><p>对于一个架构师来说，在软件开发中如何降低系统复杂度是一个永恒的挑战，经常需要面临如下问题：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">系统设计复杂：系统众多、业务逻辑复杂，概念不清晰，边界模糊；</span><br><span class="line"></span><br><span class="line">团队协同困难：业务、产品、设计、研发之间缺乏统一语言，沟通成本高，理解容易产生偏差；</span><br><span class="line"></span><br><span class="line">设计与实现脱节：设计文档与代码实现逐渐偏离，系统演进后难以维护；</span><br><span class="line"></span><br><span class="line">架构一致性不足：不同开发人员对业务模型的理解和抽象方式存在差异，导致相同问题出现多种实现方式，难以形成可复用的设计资产；</span><br></pre></td></tr></table></figure>
+
+<p>对应上面问题，可以概括下DDD的主要设计目标：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">统一语言：让团队(业务、产品、设计、技术等)在一个限定的上下文中对事物有统一的描述，形成统一的概念模型，这些概念会用于各种文档、代码以及日常沟通中；</span><br><span class="line"></span><br><span class="line">边界清晰：通过战略设计中的子域划分和限界上下文，明确系统职责边界，降低系统间耦合；</span><br><span class="line"></span><br><span class="line">业务驱动：以领域模型为核心组织代码结构，实现业务复杂度和技术复杂度分离，将业务规则显性化，将技术细节隔离在领域之外，使设计模型与实现模型保持一致；</span><br><span class="line"></span><br><span class="line">资产沉淀：将业务知识沉淀到领域模型中，使系统能力能够持续积累和演进，而不是依赖于个体经验；</span><br></pre></td></tr></table></figure>
+
+<p>DDD的价值在于它提供了<strong>一套从实际业务出发进行分析的软件设计方法论，而不单单只是指导技术人员如何进行代码开发和拆分的技术框架，这个设计过程中涉及的参与方包括业务方、产品、设计、技术等，过程涵盖了软件从零到一的完整周期</strong>。</p>
+<h4 id="DDD设计思路"><a href="#DDD设计思路" class="headerlink" title="DDD设计思路"></a>DDD设计思路</h4><p>相关概念参考：<a target="_blank" rel="noopener" href="https://domain-driven-design.org/zh/ddd-concept-reference.html">https://domain-driven-design.org/zh/ddd-concept-reference.html</a> ，下面总结下主要理解：</p>
+<h5 id="战略设计-战术设计"><a href="#战略设计-战术设计" class="headerlink" title="战略设计&#x2F;战术设计"></a>战略设计&#x2F;战术设计</h5><p>有点类似概要设计和详细设计，DDD中将设计过程也分为战略设计和战术设计：</p>
+<p><img src="/img/20240726/20240726.1.png"> </p>
+<p>战略设计关注的是业务视角下的系统划分，主要解决 “系统应该如何拆分” 和 “业务边界在哪里” 的问题。在战略设计阶段，需要与业务专家共同分析业务流程、业务规则以及核心概念，通过统一语言建立一致认知，并识别领域、子域以及限界上下文等关键边界，从而确定系统整体架构和职责划分。</p>
+<p>战术设计关注的是领域中的具体情境和场景，主要关心 “领域模型如何实现” 与 “业务规则如何表达”。通过各种设计模式表达业务规则和领域行为，根据战略设计确定的业务边界，围绕具体限界上下文建立领域模型，包括实体、值对象、聚合、工厂、资源库、领域服务和领域事件等。</p>
+<ul>
+<li>实体、值对象、聚合、聚合根</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">实体（Entity）是在相同限界上下文中具有唯一标识的领域模型，可变，通过标识判断同一性；</span><br><span class="line">值对象（Value Ojbect）是一种特殊的领域模型，不可变，通过值判断同一性；</span><br><span class="line">聚合（Aggregate）是一组生命周期强一致，修改规则强关联的实体和值对象的集合，表达统一的业务意义；</span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/20240726/20240726.4.png"> </p>
+<p>聚合根（ Aggregate Root）是聚合中最核心的实体，要管理聚合必须使用一个聚合根，然后使用聚合根来实现发现、持久化聚合的作用，完成统一的业务意义。聚合根是外部访问聚合内部实体的唯一入口，它负责校验进入聚合的所有业务规则，确保状态变更始终符合业务约束，以及维护事务一致性。在代码中聚合根体现为一个带唯一标识的实体类，它对外暴露业务方法、封装内部细节、并通过资源库完成整体持久化。</p>
+<h5 id="领域建模"><a href="#领域建模" class="headerlink" title="领域建模"></a>领域建模</h5><p>领域模型是对特定业务领域中核心规则、策略与流程的高度抽象与封装。建模就是提炼业务知识，形成统一语言，沉淀模型的一个过程，其产出物包括：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">领域模型：包含领域对象、属性、关系、行为、边界范围等各个方面，用于描述业务的本质；</span><br><span class="line"></span><br><span class="line">用例图：用于明确系统的功能；</span><br><span class="line"></span><br><span class="line">数据模型：描述系统的数据结构和关系，包括实体关系模型、关系数据库模型等；</span><br><span class="line"></span><br><span class="line">状态图：用于描述系统各个状态及其转移条件；</span><br><span class="line"></span><br><span class="line">活动图：用于描述系统流程中的各个活动及其关系；</span><br><span class="line"></span><br><span class="line">序列图：描述系统中各个对象之间的交互过程和消息传递序列；</span><br><span class="line"></span><br><span class="line">架构模型：包含系统的物理和逻辑结构，包括组件、模块、接口等；</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>事件风暴建模</li>
+</ul>
+<p>通过寻找事件，以及事件背后的领域概念，就能完成对领域概念的挖掘和建模，这就是事件建模的底层逻辑。事件风暴并非一种正式的建模方法，而是一种协作工作坊技术，没有严格规定的语法或格式。通过将不同背景的项目参与方汇聚一堂，通过头脑风暴来集思广益，识别和探索业务领域的关键事件，然后围绕关键领域事件串联整个业务场景的生命周期，通过发散进行收集，通过收敛进行提炼。</p>
+<p>具体可以通过事件、命令与策略之间的响应关系来组织逻辑。它定义了一套彩色贴纸的方式，不同颜色的贴纸对应不同定义：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">浅黄色：行动者（Actor） 系统使用者，可能是现实中的人也可能是别的系统；</span><br><span class="line">蓝色：命令（Command）  由行动者发起的操作请求，通常是事件的起因，也称为行动者触发命令（AIC，Actor Initiated Command）；</span><br><span class="line">橙色：事件（Event）    业务中已经发生的事实；</span><br><span class="line">紫色：系统（System）   第三方系统或子系统边界，不需要了解细节，可以将它们看作一个整体；</span><br><span class="line">绿色：读取模型（Read Model） 用于支撑决策的数据视图</span><br><span class="line">粉色：策略（Policy）        对事件的响应规则，可触发新的命令，由策略触发的命令，被称作系统触发命令（SIC，System Initiated Command）；</span><br><span class="line">红色：热点问题（HotSpot）    业务中的争议点、风险点或未决问题；</span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/20240726/20240726.3.png"> </p>
+<p>事件风暴这种方式对主持人有比较高的要求，他需要承担几个重要职责，包括：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">1.引导参与者围绕业务事件展开讨论；</span><br><span class="line">2.通过持续提问推动业务边界收敛；</span><br><span class="line">3.保持讨论聚焦在领域行为与规则，而非技术实现；</span><br><span class="line">4.及时识别冲突点并转化为热点问题（HotSpot）进行记录；</span><br><span class="line">5.对建模结果进行阶段性总结与结构化提炼；</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>四色建模</li>
+</ul>
+<p>四色建模的思想是通过使用不同的颜色来标识不同的概念和角色，以增加模型的可读性和可理解性。可以用一句话来概括：<strong>一个什么样的人或物以某种角色在某个时刻或某段时间内参与某个活动</strong>。</p>
+<p><img src="/img/20240726/20240726.2.png"> </p>
+<h4 id="DDD工程落地"><a href="#DDD工程落地" class="headerlink" title="DDD工程落地"></a>DDD工程落地</h4><p>在讨论DDD工程之前先看一下传统MVC工程的问题，也就是View&#x2F;Controller&#x2F;Model(Service&#x2F;Dao)的结构，但是随着业务和技术发展，接入层已经不只有Http接口，存储层也不只是单一的关系型数据库，还有各种MQ队列、缓存的处理，这些不好分类的代码可能最后都放到了Service或各种Utils中，造成代码混乱。</p>
+<p>为了减轻Service层的处理，可以对这个结构做一些扩展。比如将DAO层扩展成基础设施层infra，其中包括所有数据库、缓存、以及MQ队列的操作，并将Controller扩展成应用入口层app，包括Http以及各种形式的外包访问。如果参考DDD的概念，可以初步将工程分成以下五个模块：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">domain    ## 领域模型，定义服务的各种模型属性和基本行为；</span><br><span class="line">infra     ## 基础设施，对基础组件调用的封装，比如数据库、缓存、消息中间件等处理；</span><br><span class="line">service   ## 业务处理，定义具体业务的实现逻辑；</span><br><span class="line">client    ## 远程调用，提供给外部调用的客户端SDK，比如Rpc调用；</span><br><span class="line">app       ## 服务入口，定义启动类、controller接口、定时任务触发等；</span><br></pre></td></tr></table></figure>
+
+<p>按照DDD的思路，<strong>domain领域层作为一切的核心</strong>，所有核心业务模型以及相关领域抽象接口都在这一层定义，也就是对于系统业务的主要描述都应该在domain层完成，一般可以分为以下几个主要部分：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">XX.domain</span><br><span class="line">├── entity       ## 领域模型（实体、值对象、聚合根）</span><br><span class="line">├── manager      ## 业务规则，核心的业务操作都应该保持在domain层实现和沉淀（package命名可以具体细化，只要是与外部service区分）； </span><br><span class="line">├── repository   ## 仓储接口，用于访问当前领域的数据资源，由infra层实现；</span><br><span class="line">└── gateway      ## 领域出口，用于访问当前领域之外的能力或资源（如RPC服务或MQ消息等），具体也由infra层提供，一般以xxAdapter形式实现；；</span><br></pre></td></tr></table></figure>
+
+<p>然后service层和infra层分别从两个方向依赖domain，service层负责业务编排和领域能力调用（领域之间不应该相互依赖，由上层service统一编排），infra层负责领域抽象接口的具体技术实现，它们包围在domain的外层，相互之间不应该存在依赖关系，而是通过domain定义的接口来实现解耦。这样做有很多好处，比如替换infra中的组件不会对service产生任何影响，也方便实现业务单元测试，最后基于service层和infra层构建上层应用app并对外提供服务。</p>
+<p>至于client模块，主要定义供外部系统使用的SDK，比如RPC接口以及DTO等契约内容。从调用关系上看，client消费的是app对外暴露的服务能力，理论上可以完全独立存在。如果希望减少DTO转换成本，也可以让client直接依赖domain中已定义的实体模型，不过这样会增加外部系统与领域模型之间的耦合度，具体根据实际情况进行权衡。</p>
+<p>最后各个模块的依赖关系可以示意如下：</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">     app</span><br><span class="line">    ↙   ↘</span><br><span class="line">service  infra</span><br><span class="line">    ↘   ↙</span><br><span class="line">    domain  ← client</span><br></pre></td></tr></table></figure>
+
+<p>但一般在Java的Spring项目中，DDD很难完整落地，原因很简单，就是业务复杂度没有高到值得这样去做，如果硬套DDD反而增加了大量样板代码。比如在很多SpringBoot + MyBatis-Plus的项目中，大多数的Repository接口根本不需要再自己手动定义，它直接在infra层就提供了，我不至于为了符合DDD的结构，让service层不直接依赖infra，而在domain层定义一遍。我可以调整一下依赖关系，让service层依赖infra就可以了，比如下面这样。</p>
+<figure class="highlight txt"><table><tr><td class="code"><pre><span class="line">app</span><br><span class="line"> ↓</span><br><span class="line">service</span><br><span class="line"> ↓</span><br><span class="line">infra</span><br><span class="line"> ↓</span><br><span class="line">domain  ← client</span><br></pre></td></tr></table></figure>
+
+<p>真正适合纯DDD的场景，是那种领域规则远大于CRUD，也就是业务规则远大于数据库操作的项目。领域驱动设计也不是银弹，在软件开发过程中没有必要完全一把梭，它更多是一种软件工程的思想，而不是一套标准模板。</p>
+<p><br><strong>参考：</strong></p>
+
+      
+    </div>
+	
+    <footer>
+      
+	  
+	    
+	<nav id="pagination">
+	  
+		  <a class="alignleft prev" href="/2025/03/21/20250321/">
+		    Kafka 4.1.0部署 (KRaft模式)
+		  </a>
+	  
+	  
+	  
+		  <a class="alignright next" href="/2024/06/21/20240621/">
+		    理解Consensus算法 Raft
+		  </a>
+	  
+	  <div class="clearfix"></div>
+	</nav>
+	
+	    
+        
+  
+  <div class="categories">
+    <a href="/categories/系统设计/">系统设计</a>
+  </div>
+
+
+        
+  
+  <div class="tags">
+    <a href="/tags/ddd/">ddd</a>
+  </div>
+
+
+         		        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<div id="gitalk-container"></div>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'd7beb7890a79c73a3e3d',
+        clientSecret: '80ea1fc195ae4b80cbd65ec9f1ce68d59595af4b',
+        id: md5(window.location.pathname),
+        repo: 'eocoo.github.io',
+        owner: 'eocoo',
+        admin: 'eocoo'
+    })
+    gitalk.render('gitalk-container')
+</script>                              
+
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+
+
+  
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#os_ul").click(function(){ $("#os_li").toggle(); });
+    $("#xx_ul").click(function(){ $("#xx_li").toggle(); });
+});
+</script>
+
+
+  
+
+  
+<div class="widget catlog">
+<h3 class="title">Catlog</h3>
+<ul class="entry_catlog">
+<ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#DDD%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87"><span class="toc-text">DDD设计目标</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DDD%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF"><span class="toc-text">DDD设计思路</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%88%98%E7%95%A5%E8%AE%BE%E8%AE%A1-%E6%88%98%E6%9C%AF%E8%AE%BE%E8%AE%A1"><span class="toc-text">战略设计&#x2F;战术设计</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%A2%86%E5%9F%9F%E5%BB%BA%E6%A8%A1"><span class="toc-text">领域建模</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DDD%E5%B7%A5%E7%A8%8B%E8%90%BD%E5%9C%B0"><span class="toc-text">DDD工程落地</span></a></li></ol>
+</div>
+
+
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+
+  
+  
+      &copy; 2017-2026 &nbsp;&nbsp; shanhm &nbsp;&nbsp; version@1.0.0 
+  
+  
+  
+  <font style="float: right">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('figure.highlight').forEach(function(figure) {
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-btn';
+    copyButton.textContent = 'copy';
+    figure.style.position = 'relative';
+    figure.appendChild(copyButton);
+    
+    copyButton.addEventListener('click', function() {
+      const codeContent = getExactCodeContent(figure);
+      copyToClipboard(codeContent, copyButton);
+    });
+  });
+  
+  function getExactCodeContent(figure) {
+    const codeLines = [];
+    
+    // 遍历所有行
+    const rows = figure.querySelectorAll('tr');
+    rows.forEach(row => {
+      const codeTd = row.querySelector('td.code');
+      if (codeTd) {
+        const lineContent = getTextFromElement(codeTd);
+        codeLines.push(lineContent);
+      }
+    });
+    
+    return codeLines.join('\n');
+  }
+  
+  function getTextFromElement(element) {
+    // 创建临时div来获取纯文本但保持换行
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // 处理br标签为换行
+    const breaks = tempDiv.getElementsByTagName('br');
+    for (let i = breaks.length - 1; i >= 0; i--) {
+      const br = breaks[i];
+      br.parentNode.replaceChild(document.createTextNode('\n'), br);
+    }
+    
+    // 获取文本内容
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // 清理但保持缩进
+    text = text.replace(/\u00A0/g, ' ') // 替换&nbsp;为普通空格
+               .replace(/[ \t]+\n/g, '\n') // 清理行尾空格
+               .replace(/^\s+|\s+$/g, ''); // 清理行首行尾空格
+    
+    return text;
+  }
+  
+  function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(button);
+    }).catch(function(err) {
+      console.error('copy failed: ', err);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopySuccess(button);
+    });
+  }
+  
+  function showCopySuccess(button) {
+    button.textContent = 'copied!';
+    button.classList.add('copied');
+    setTimeout(function() {
+      button.textContent = 'copy';
+      button.classList.remove('copied');
+    }, 2000);
+  }
+});
+</script>
+</div>
+<div class="clearfix"></div>
+</footer>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
